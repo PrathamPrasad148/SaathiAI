@@ -157,11 +157,14 @@ class Saathi:
         self.last_opened_site: str | None = None
         self.files_root = Path.home()
         self.tray_icon = None
+        self.dock_log = None
+        self.dock_expanded = True
         self.always_on_top_var = tk.BooleanVar(value=False)
         self.workspace = APP_DIR / "Projects"
         self.workspace.mkdir(exist_ok=True)
         self.configure_theme()
         self.build_ui()
+        self.build_docked_widget()
         self.root.after(200, self.process_queues)
         self.animate_orb()
         self.write("Saathi", "Namaste! Main Saathi hoon. Hinglish mein baat karo — text ya voice se.")
@@ -346,6 +349,11 @@ class Saathi:
         self.chat.insert(tk.END, f"{speaker}: {text}\n\n")
         self.chat.configure(state="disabled")
         self.chat.see(tk.END)
+        if getattr(self, "dock_log", None) is not None:
+            self.dock_log.configure(state="normal")
+            self.dock_log.insert(tk.END, f"{speaker}: {text}\n\n")
+            self.dock_log.configure(state="disabled")
+            self.dock_log.see(tk.END)
 
     def action_write(self, text: str) -> None:
         self.action_output.configure(state="normal")
@@ -458,6 +466,16 @@ class Saathi:
         if not text:
             return
         self.message_input.delete(0, tk.END)
+        self.process_user_text(text)
+
+    def send_from_dock(self) -> None:
+        text = self.dock_input.get().strip()
+        if not text:
+            return
+        self.dock_input.delete(0, tk.END)
+        self.process_user_text(text)
+
+    def process_user_text(self, text: str) -> None:
         self.write("You", text)
         if self.try_handle_open_command(text):
             self.history.append({"role": "user", "content": text})
@@ -670,6 +688,63 @@ class Saathi:
 
     def toggle_always_on_top(self) -> None:
         self.root.attributes("-topmost", self.always_on_top_var.get())
+
+    # ---------------------------------------------------------------- Docked mini chat
+    DOCK_EXPANDED_WIDTH = 300
+    DOCK_COLLAPSED_WIDTH = 30
+    DOCK_HEIGHT = 460
+
+    def build_docked_widget(self) -> None:
+        """A slim panel pinned to the right edge of the screen — always there, independent
+        of whether the main Saathi window is open, minimized, or in the tray."""
+        self.dock = tk.Toplevel(self.root)
+        self.dock.overrideredirect(True)
+        self.dock.attributes("-topmost", True)
+        self.dock.configure(bg="#050914")
+        screen_w = self.dock.winfo_screenwidth()
+        screen_h = self.dock.winfo_screenheight()
+        y = max(40, (screen_h - self.DOCK_HEIGHT) // 2)
+        x = screen_w - self.DOCK_EXPANDED_WIDTH
+        self.dock.geometry(f"{self.DOCK_EXPANDED_WIDTH}x{self.DOCK_HEIGHT}+{x}+{y}")
+        self._dock_x, self._dock_y, self._dock_screen_w = x, y, screen_w
+
+        self.dock_panel = tk.Frame(self.dock, bg="#0a1830")
+        self.dock_panel.pack(fill=tk.BOTH, expand=True)
+
+        header = tk.Frame(self.dock_panel, bg="#0a1830")
+        header.pack(fill=tk.X, padx=6, pady=(6, 2))
+        tk.Label(header, text="Saathi", bg="#0a1830", fg="#71edff", font=("Segoe UI", 10, "bold")).pack(side=tk.LEFT)
+        tk.Button(header, text="Full app", command=self.show_window, bg="#0a1830", fg="#9fd3ff", relief=tk.FLAT, font=("Segoe UI", 8)).pack(side=tk.RIGHT)
+        tk.Button(header, text="⟩⟩", command=self.collapse_dock, bg="#0a1830", fg="#9fd3ff", relief=tk.FLAT, font=("Segoe UI", 9)).pack(side=tk.RIGHT, padx=4)
+
+        self.dock_log = scrolledtext.ScrolledText(self.dock_panel, state="disabled", wrap=tk.WORD, bg="#08101e", fg="#d6efff", relief=tk.FLAT, font=("Segoe UI", 9), padx=6, pady=6)
+        self.dock_log.pack(fill=tk.BOTH, expand=True, padx=6, pady=4)
+
+        entry_row = tk.Frame(self.dock_panel, bg="#0a1830")
+        entry_row.pack(fill=tk.X, padx=6, pady=(0, 6))
+        self.dock_input = tk.Entry(entry_row, bg="#08101e", fg="#eaf6ff", insertbackground="#eaf6ff", relief=tk.FLAT, font=("Segoe UI", 9))
+        self.dock_input.pack(side=tk.LEFT, fill=tk.X, expand=True, ipady=4, padx=(0, 4))
+        self.dock_input.bind("<Return>", lambda event: self.send_from_dock())
+        tk.Button(entry_row, text="Send", command=self.send_from_dock, bg="#1470c4", fg="white", relief=tk.FLAT, font=("Segoe UI", 8, "bold")).pack(side=tk.LEFT)
+
+        # A slim collapsed tab, hidden until you collapse the panel.
+        self.dock_tab = tk.Frame(self.dock, bg="#1470c4", cursor="hand2")
+        tk.Label(self.dock_tab, text="S\na\na\nt\nh\ni", bg="#1470c4", fg="white", font=("Segoe UI", 9, "bold")).pack(expand=True)
+        self.dock_tab.bind("<Button-1>", lambda event: self.expand_dock())
+        for child in self.dock_tab.winfo_children():
+            child.bind("<Button-1>", lambda event: self.expand_dock())
+
+    def collapse_dock(self) -> None:
+        self.dock_expanded = False
+        self.dock_panel.pack_forget()
+        self.dock_tab.pack(fill=tk.BOTH, expand=True)
+        self.dock.geometry(f"{self.DOCK_COLLAPSED_WIDTH}x{self.DOCK_HEIGHT}+{self._dock_screen_w - self.DOCK_COLLAPSED_WIDTH}+{self._dock_y}")
+
+    def expand_dock(self) -> None:
+        self.dock_expanded = True
+        self.dock_tab.pack_forget()
+        self.dock_panel.pack(fill=tk.BOTH, expand=True)
+        self.dock.geometry(f"{self.DOCK_EXPANDED_WIDTH}x{self.DOCK_HEIGHT}+{self._dock_x}+{self._dock_y}")
 
     def toggle_routine_permissions(self) -> None:
         if self.routine_permissions:

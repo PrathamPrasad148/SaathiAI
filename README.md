@@ -1,48 +1,56 @@
 # Saathi
 
-Saathi is a Windows-first, local Hinglish desktop assistant. It uses Ollama, so ordinary chat and coding help do not need a paid API key.
+Saathi is a personal desktop helper for Windows that you talk to in Hinglish — a natural mix of Hindi and English, the way people actually speak. Think of it as a friendly assistant that lives on your laptop: you can chat with it, ask it to open things, have it manage files for you, or just ask it questions, and it answers back in text or a spoken voice.
 
-## Safety model
+Everything runs on your own laptop. There's no monthly subscription and no company reading your conversations on a server somewhere — the "brain" behind the chat (called Ollama) runs locally, so your chats stay on your machine.
 
-Saathi has **one permission toggle** that covers opening/launching anything, listing/reading/creating files and folders, and fetching live data — websites, apps, YouTube, Spotify, whatever you name. Grant it once per session and Saathi stops asking for every routine action.
+## What it can do today
 
-**Always asks separately, no matter what:** deleting a file/folder, moving/renaming, and running any terminal command. Each shows the exact path or command in a confirmation dialog before it runs. A small hard-coded blocklist (`format`, `diskpart`, recursive root deletes, fork bombs) is refused outright — no dialog can override it — and writes/deletes are refused inside Windows/Program Files/ProgramData regardless of permission, so a bad guess can't take down the OS. USB/Android device control is intentionally still out of scope.
+**Talk with you naturally.** Type or speak, and Saathi replies in casual Hinglish, like a friend would. It automatically switches between a quick-response mode for everyday chat and a slower, more careful mode when you ask for something complicated like writing code.
 
-## What is ready now
+**Open things for you.** Say "open YouTube," "play some Brazilian funk on Spotify," or "launch Notepad," and it happens immediately — no digging through menus.
 
-- Hinglish text chat with automatic model routing: fast `qwen3:4b` for everyday talk and `qwen3:14b` for coding or complex tasks (both model names are editable in the Chat tab)
-- Startup check that tells you immediately if Ollama isn't running or a model isn't pulled
-- **Open or launch anything with one permission**: "open youtube", "play spotify", "launch notepad", "play Brazilian funk on Spotify" (opens a real search for it), "play it on this website" (remembers the last site opened) — all handled instantly without routing through the LLM
-- **Files, folders & commands, straight from chat**: "list files in Downloads", "read file notes.txt", "create file report.txt with content: ...", "create folder Projects2", "delete old.pdf" (asks first, goes to Recycle Bin), "move a.txt to b.txt", "run: dir" — same controls are also in the Safe Actions tab
-- **Live data from free APIs**, not the model's memory: "weather in Kolkata", "100 USD to INR", "define serendipity", "who is Alan Turing" (Wikipedia), "tell me a joke", "trivia", "quote", "info about country Japan" — easy to extend by adding an entry to `API_ENDPOINTS` and a pattern to `DATA_COMMAND_PATTERNS` in `main.py`
-- **Always available**: closing the window minimizes to a system tray icon instead of quitting (needs `pystray`/`pillow`; falls back to a normal close if not installed) — "Show Saathi" from the tray any time. "Always on top" checkbox for quick access while working.
-- Optional local microphone transcription (recording length + model size adjustable) and speech output, tuned to a calmer, natural speaking pace
-- Copy last reply to clipboard, or regenerate it with one click
-- Persistent local chat history
+**Handle your files.** Ask it to list what's in a folder, read a text file, create a new file or folder, move something, or delete something — all through plain typed instructions instead of digging through File Explorer.
 
-## Run it
+**Run computer commands.** For anyone comfortable with basic technical tasks, you can ask Saathi to run a command on your behalf, and it will show you exactly what it's about to do before running it.
 
-From this folder in PowerShell:
+**Look things up for you, for real.** Ask about today's weather somewhere, convert currency, look up a word's meaning, get a quick Wikipedia summary, or hear a joke — Saathi fetches this from live, free sources on the internet instead of just guessing from memory.
 
-```powershell
+**Stay within reach.** A small chat panel sits pinned to the right edge of your screen at all times, so you don't need to reopen the whole program every time you want to ask something quick. There's also a system tray icon so closing the main window doesn't shut Saathi down — it just steps out of the way.
+
+**Listen and speak.** Saathi can listen through your microphone and reply out loud in a natural-sounding Indian-English voice.
+
+## Keeping you in control
+
+Saathi asks before doing anything that could go wrong. There's one simple switch to let it open apps, websites, and read/create files without asking every single time — handy once you trust it. But a few things always ask you first, no exceptions: deleting or moving a file, and running any command on your computer. You'll always see exactly what it's about to do before it does it. A short list of especially risky actions (like wiping a hard drive) is blocked outright and can't be approved even by accident.
+
+## Where this project is headed
+
+This is very much a living project, and the plan is to keep growing it in stages:
+
+1. **Right now — the foundation.** Chat, voice, memory of past conversations, safe file and app control, and live information lookups. This part is done and working.
+
+2. **Next — a true daily companion.** Teaching Saathi to recognize your voice specifically (a "wake word," so you can just say its name to get its attention instead of clicking a button), and giving it a simple dashboard showing your day at a glance — weather, reminders, and quick shortcuts, all in one glance without needing to ask.
+
+3. **After that — actually getting things done for you.** Letting Saathi handle small recurring chores on its own once you approve them — for example, automatically organizing downloaded files into folders, or reminding you about things at set times, the way a very organized assistant would.
+
+4. **Longer term — reaching your phone too.** Extending Saathi so it can talk to an Android phone connected by cable, letting you, for example, transfer files or trigger simple actions between your phone and laptop without needing a separate app. This will be rolled out carefully, one approved action at a time, rather than opening full access all at once.
+
+5. **Eventually — real personalization.** Saathi remembering more about your habits and preferences over time (with your control over what it keeps), understanding more languages and accents, and connecting to more of the free online tools and information sources out there so it becomes genuinely useful for a wider range of everyday questions, not just the ones it's specifically been taught to answer.
+
+6. **The guiding idea throughout.** Saathi should feel less like software you have to operate, and more like someone helpful you can just talk to — while always being upfront and honest about what it actually did, and never doing anything permanent or risky without your say-so first.
+
+## Getting it running
+
+From the project folder, open Command Prompt and run:
+
+```
 py -3.12 -m pip install -r requirements.txt
 ollama pull qwen3:14b
 ollama pull qwen3:4b-instruct
 py -3.12 main.py
 ```
 
-The first microphone use downloads the free `small` multilingual speech-recognition model for better Hinglish accuracy. No Hugging Face token is required.
+Or just double-click `Start-Saathi.bat` once everything above is installed.
 
-Voice recognition runs locally on the CPU, so it does not need NVIDIA CUDA. Spoken replies use Microsoft's `en-IN-NeerjaNeural` Indian English neural voice; this part needs an internet connection but does not need an API key.
-
-## Project phases
-
-1. **Core assistant:** chat, voice, history, safety approvals — complete.
-2. **Laptop assistance:** trusted apps, file search, browser search — complete starter.
-3. **Coding workspace:** project generator, coding prompts, test/run approval workflow — starter ready.
-4. **Android/USB:** install Android Platform Tools, validate the connected device, then add only approved ADB/serial commands.
-5. **Personalization:** wake word, long-term memory, dashboard, scheduled automations.
-
-## Android/USB phase (do this later)
-
-Install Android Platform Tools from the official Android developer site, enable USB debugging, connect a data cable, and approve the RSA prompt on the phone. We will then add a device-status screen before enabling any command.
+The first time you use the microphone, Saathi downloads a small free speech-recognition model automatically — no extra sign-up or account needed. Voice recognition works fine on any laptop's regular processor; you don't need a fancy graphics card. Spoken replies do need an internet connection (to generate the voice), but nothing else about the assistant does.

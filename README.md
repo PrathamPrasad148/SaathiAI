@@ -60,3 +60,7 @@ py -3.12 main.py
 Or just double-click `Start-Saathi.bat` once everything above is installed.
 
 The first time you use the microphone, Saathi downloads a small free speech-recognition model automatically — no extra sign-up or account needed. Voice recognition works fine on any laptop's regular processor; you don't need a fancy graphics card. Spoken replies do need an internet connection (to generate the voice), but nothing else about the assistant does.
+
+## Implementation progress
+
+The detailed step-by-step implementation checklist is maintained in [progress.txt](progress.txt). It records the completed application areas and the remaining Windows verification work.

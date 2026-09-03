@@ -96,6 +96,11 @@ You have full agentic capabilities to interact with the user's computer via your
 
 CRITICAL INSTRUCTIONS FOR CODING & PROJECT CREATION:
 1. When the user asks you to create a website (e.g., Independence Day website, portfolio, landing page, game, tool):
+    - ALWAYS apply both the UI/UX Pro Max and 21st.dev Component Integration skills for every website request, even when the user does not mention either skill by name. Treat these as mandatory internal workflows, not optional suggestions.
+    - Before writing the page, identify the product type, audience, visual direction, and actual stack. For a new page or project, use the UI/UX Pro Max design-system workflow and relevant local searches when available; use the resulting tokens and anti-patterns as the design source of truth.
+    - Use 21st.dev patterns for the page's main interaction or signature component, adapting them into the detected stack. Keep HTML projects as semantic HTML/CSS/vanilla JS and React projects as local, wired React components; never paste JSX into static HTML or leave showcase-only components disconnected.
+    - Build a distinctive, coherent visual system with intentional typography, semantic color tokens, responsive composition, polished entrance/hover/focus/loading states, keyboard accessibility, reduced-motion support, and graceful empty/error states. Do not settle for a generic template or default AI purple gradient.
+    - Before reporting completion, perform the relevant UI/UX Pro Max pre-delivery checks: responsive layout, contrast, focus order, touch targets, text reflow, icon semantics, console/runtime errors, and functional primary interactions.
    - You MUST ALWAYS call `create_file` to write the complete, beautiful, production-ready code directly to `Projects/<ProjectName>/index.html` (e.g. `Projects/IndependenceDay/index.html`).
    - Write modern HTML5, gorgeous CSS3 styling (tricolor gradients, animations, glassmorphism, responsive layout, Ashok Chakra details, interactive cards), and interactive JavaScript!
    - Immediately after creating the file, call `open_target` with the file path (`Projects/<ProjectName>/index.html`) so it opens directly in the user's default browser!
@@ -107,11 +112,25 @@ CRITICAL INSTRUCTIONS FOR CODING & PROJECT CREATION:
    - Explain clearly how it works and how to run it.
 3. Keep your tone energetic, confident, respectful, and helpful. Always summarize what you built or accomplished in friendly Hinglish!"""
 
-UI_UX_SKILL_FILE = APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md"
-TWENTY_FIRST_DEV_SKILL_FILE = APP_DIR / "skills" / "21st-dev" / "SKILL.md"
+def _first_nonempty_skill(*candidates):
+    """Resolve the first usable local skill copy, ignoring empty placeholders."""
+    for candidate in candidates:
+        try:
+            if candidate.is_file() and candidate.stat().st_size > 0:
+                return candidate
+        except OSError:
+            continue
+    return None
 
-if not UI_UX_SKILL_FILE.exists():
-    UI_UX_SKILL_FILE = APP_DIR / "skills" / "ui-ux-pro-max" / "SKILL.md"
+
+UI_UX_SKILL_FILE = _first_nonempty_skill(
+    APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md",
+    APP_DIR / "skills" / "ui-ux-pro-max" / ".claude" / "skills" / "ui-ux-pro-max" / "SKILL.md",
+    APP_DIR / "skills" / "ui-ux-pro-max" / "SKILL.md",
+)
+TWENTY_FIRST_DEV_SKILL_FILE = _first_nonempty_skill(
+    APP_DIR / "skills" / "21st-dev" / "SKILL.md",
+)
 
 for skill_file, skill_name in (
     (UI_UX_SKILL_FILE, "UI/UX PRO MAX"),
@@ -622,14 +641,6 @@ class Saathi:
 
         # Fast direct shortcuts for simple explicit queries
         lowered = text.lower().strip()
-        if "independence day" in lowered and any(k in lowered for k in ("website", "page", "site", "web")):
-            self._create_independence_day_website()
-            reply = "Bhai, Independence Day website successfully generate karke aapke default browser mein open kar di hai! 🇮🇳\n\nFile saved at: Projects/IndependenceDay/index.html\nHappy Independence Day! 🎉"
-            self.messages.append(("assistant", reply))
-            self.append_chat("assistant", reply)
-            self.save_history()
-            threading.Thread(target=self.speak, args=(reply,), daemon=True).start()
-            return
         if lowered in ("open projects", "open projects folder", "projects"):
             self.open_projects_folder()
             return

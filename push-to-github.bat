@@ -1,87 +1,105 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
 title Push SaathiAI to GitHub
 
 set "REMOTE=https://github.com/PrathamPrasad148/SaathiAI.git"
 set "COMMIT_MESSAGE=%~1"
-if "%COMMIT_MESSAGE%"=="" set "COMMIT_MESSAGE=Update SaathiAI"
+if "%COMMIT_MESSAGE%"=="" set "COMMIT_MESSAGE=Update SaathiAI (%DATE% %TIME%)"
 
 echo.
-echo SaathiAI GitHub publisher
-echo ========================
+echo ========================================================
+echo               Saathi AI - GitHub Publisher
+echo ========================================================
+echo Remote: %REMOTE%
+echo.
 
+:: 1. Check Git availability
 git --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Git is not installed or is not available on PATH.
+    echo [ERROR] Git is not installed or not in system PATH.
     goto FAILED
 )
 
+:: 2. Initialize repo if needed
 if not exist ".git" (
-    echo [INFO] Initializing the local Git repository...
+    echo [INFO] Initializing Git repository...
     git init
     if errorlevel 1 goto FAILED
 )
 
+:: 3. Ensure Git identity is set
+git config user.name >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Configuring default Git username...
+    git config user.name "PrathamPrasad148"
+)
+git config user.email >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Configuring default Git email...
+    git config user.email "prathamprasad148@users.noreply.github.com"
+)
+
+:: 4. Ensure main branch
 git branch -M main
 if errorlevel 1 goto FAILED
 
+:: 5. Setup remote origin
 git remote get-url origin >nul 2>&1
 if errorlevel 1 (
-    echo [INFO] Adding GitHub remote...
+    echo [INFO] Setting remote origin...
     git remote add origin "%REMOTE%"
 ) else (
-    echo [INFO] Updating GitHub remote...
     git remote set-url origin "%REMOTE%"
 )
 if errorlevel 1 goto FAILED
 
-echo [INFO] Staging project files...
+:: 6. Stage ALL files (code, skills, data, projects, configs)
+echo [INFO] Staging all files across the repository...
 git add -A
 if errorlevel 1 goto FAILED
 
+:: 7. Commit changes if any exist
 git diff --cached --quiet
 if errorlevel 1 (
     echo [INFO] Creating commit: %COMMIT_MESSAGE%
     git commit -m "%COMMIT_MESSAGE%"
     if errorlevel 1 goto FAILED
 ) else (
-    echo [INFO] No new local changes to commit.
+    echo [INFO] Everything is already up to date locally.
 )
 
-echo [INFO] Fetching the current GitHub main branch...
-git fetch origin main
-if errorlevel 1 goto FAILED
-
-git rev-parse --verify origin/main >nul 2>&1
-if not errorlevel 1 (
-    echo [INFO] Combining existing GitHub history with local history...
-    git merge origin/main --allow-unrelated-histories --no-edit
-    if errorlevel 1 (
-        echo [ERROR] The histories could not be merged automatically.
-        echo Resolve the conflicts, commit the result, and run this file again.
-        goto FAILED
-    )
-)
-
-echo [INFO] Pushing all committed project files to GitHub...
+:: 8. Push to GitHub
+echo [INFO] Pushing everything to GitHub...
 git push -u origin main
 if errorlevel 1 (
-    echo [INFO] Pulling remote updates with rebase...
-    git pull --rebase origin main
+    echo [INFO] Remote branch has new commits. Pulling with auto-sync...
+    git pull origin main --rebase --autostash
+    if errorlevel 1 (
+        echo [WARN] Rebase hit a conflict. Resolving in favor of local changes...
+        git rebase --abort >nul 2>&1
+        git pull origin main --no-rebase -X ours --no-edit
+    )
+    echo [INFO] Retrying push to GitHub...
     git push -u origin main
 )
 if errorlevel 1 goto FAILED
 
 echo.
-echo [SUCCESS] SaathiAI was pushed to:
-echo %REMOTE%
+echo ========================================================
+echo [SUCCESS] Everything has been pushed to GitHub!
+echo URL: %REMOTE%
+echo ========================================================
 goto DONE
 
 :FAILED
 echo.
-echo [FAILED] Nothing was pushed. Review the error above.
+echo ========================================================
+echo [FAILED] Push could not complete. Check your internet
+echo connection and GitHub repository permissions.
+echo ========================================================
 
 :DONE
 pause
 exit /b 0
+

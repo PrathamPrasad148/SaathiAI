@@ -115,6 +115,7 @@ SaathiAI Step-by-Step Progress Tracker
 	- create_project
 	- Main entry point
 
+<<<<<<< HEAD
 [x] Step 11 - Final verification & Agentic Upgrade
 	- Integrated native Ollama tool-calling loop (create_file, read_file,
 	  list_directory, open_target, run_command, get_weather, get_currency,
@@ -126,3 +127,11 @@ SaathiAI Step-by-Step Progress Tracker
 	- Updated saathi.bat launcher to prioritize py -3.12 with all dependencies
 	- Verified live tools (weather, currency, Wikipedia), file tools, reminders,
 	  notes, and end-to-end website generation workflows
+=======
+[ ] Step 11 - Final verification
+	- Test each notebook tab on Windows
+	- Verify Ollama models are installed and reachable
+	- Verify microphone, speech output, tray icon, reminders, notes,
+	  file operations, live data, and screenshot workflows
+	- Record any fixes and update this tracker
+>>>>>>> origin/main

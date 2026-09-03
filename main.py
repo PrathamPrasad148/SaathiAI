@@ -105,6 +105,20 @@ CRITICAL INSTRUCTIONS FOR CODING & PROJECT CREATION:
    - Explain clearly how it works and how to run it.
 3. Keep your tone energetic, confident, respectful, and helpful. Always summarize what you built or accomplished in friendly Hinglish!"""
 
+UI_UX_SKILL_FILE = APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md"
+
+if not UI_UX_SKILL_FILE.exists():
+    UI_UX_SKILL_FILE = APP_DIR / "skills" / "ui-ux-pro-max" / "SKILL.md"
+
+if UI_UX_SKILL_FILE.exists():
+    try:
+        SYSTEM_PROMPT += (
+            "\n\nUI/UX PRO MAX SKILL:\n"
+            + UI_UX_SKILL_FILE.read_text(encoding="utf-8")
+        )
+    except OSError:
+        pass
+
 TOOLS_SCHEMA = [
     {
         "type": "function",

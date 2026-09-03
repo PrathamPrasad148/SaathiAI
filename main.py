@@ -112,6 +112,51 @@ CRITICAL INSTRUCTIONS FOR CODING & PROJECT CREATION:
    - Explain clearly how it works and how to run it.
 3. Keep your tone energetic, confident, respectful, and helpful. Always summarize what you built or accomplished in friendly Hinglish!"""
 
+SYSTEM_PROMPT += """
+
+PREMIUM WEBSITE QUALITY STANDARD — MANDATORY:
+
+Every website must look like a premium award-winning product, never a basic AI template.
+
+Before coding:
+- Decide the audience, product type, mood, layout, typography, and color direction.
+- Create a clear design system using CSS variables.
+- Use 3–5 coordinated colors with accessible contrast.
+- Avoid generic purple gradients unless explicitly requested.
+- Use expressive typography, strong hierarchy, intentional spacing, and visual rhythm.
+
+Visual design requirements:
+- Use layered backgrounds, gradients, glows, textures, borders, depth, and tasteful glass effects.
+- Include a polished hero section with a strong visual focal point.
+- Use responsive grids, cards, sections, badges, navigation, and meaningful content.
+- Add custom decorative elements instead of empty whitespace.
+- Use inline SVG, CSS shapes, or generated visuals instead of broken external images.
+
+Animation requirements:
+- Add animated page-load reveals.
+- Add staggered section and card entrances.
+- Add hover and focus micro-interactions.
+- Add animated buttons, navigation states, gradients, borders, and decorative elements.
+- Add scroll-triggered reveals using IntersectionObserver.
+- Add tasteful floating, parallax, glow, or marquee effects when suitable.
+- Add loading, success, empty, and error states for interactive features.
+- Include prefers-reduced-motion support.
+- Animations must be smooth, performant, and purposeful—not excessive.
+
+Interaction requirements:
+- All buttons and navigation must work.
+- Add mobile navigation where required.
+- Add keyboard focus states and accessible labels.
+- Use touch-friendly controls.
+- Test primary interactions and remove console errors before finishing.
+
+For every website:
+1. Write complete working code using create_file.
+2. Make the design visually rich, animated, responsive, and interactive.
+3. Review the final code for missing animations, weak colors, broken interactions, and responsiveness.
+4. Open the finished HTML automatically in the default browser.
+"""
+
 def _first_nonempty_skill(*candidates):
     """Resolve the first usable local skill copy, ignoring empty placeholders."""
     for candidate in candidates:
@@ -136,7 +181,7 @@ for skill_file, skill_name in (
     (UI_UX_SKILL_FILE, "UI/UX PRO MAX"),
     (TWENTY_FIRST_DEV_SKILL_FILE, "21ST.DEV COMPONENT INTEGRATION"),
 ):
-    if skill_file.exists():
+    if skill_file and skill_file.exists():
         try:
             SYSTEM_PROMPT += (
                 f"\n\n{skill_name} SKILL:\n"
@@ -824,6 +869,13 @@ class Saathi:
         try:
             # Multi-turn tool-calling loop (up to 4 iterations)
             final_reply = ""
+            website_request = any(keyword in text.lower() for keyword in (
+                "website", "web site", "webpage", "web page",
+                "landing page", "portfolio", "frontend",
+                "html", "css", "react"
+            ))
+            created_html_files = []
+
             for loop_idx in range(4):
                 payload = {
                     "model": model,
@@ -865,6 +917,13 @@ class Saathi:
                         if not isinstance(fn_args, dict):
                             fn_args = {}
 
+                        if (
+                            website_request
+                            and fn_name == "create_file"
+                            and str(fn_args.get("path", "")).lower().endswith((".html", ".htm"))
+                        ):
+                            created_html_files.append(str(fn_args["path"]))
+
                         preview = (
                             fn_args.get("path")
                             or fn_args.get("target")
@@ -891,6 +950,14 @@ class Saathi:
                 else:
                     final_reply = content
                     break
+
+            if website_request and created_html_files:
+                finished_website = created_html_files[-1]
+                self.status_queue.put(("status", "Opening finished website..."))
+                self.execute_tool(
+                    "open_target",
+                    {"target": finished_website}
+                )
 
             if not final_reply:
                 final_reply = "Main ready hoon! Kaam ho gaya."

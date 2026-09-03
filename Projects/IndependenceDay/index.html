@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>78th Independence Day 🇮🇳 | Bharat Gaurav</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --saffron: #ff6f00;
+            --saffron-glow: rgba(255, 111, 0, 0.45);
+            --white: #ffffff;
+            --white-glow: rgba(255, 255, 255, 0.4);
+            --green: #00c853;
+            --green-glow: rgba(0, 200, 83, 0.45);
+            --navy: #0033aa;
+            --navy-glow: rgba(0, 51, 170, 0.6);
+            --bg: #04040a;
+            --bg-card: rgba(18, 18, 30, 0.7);
+            --border-card: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-rgb: 255, 111, 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Particle Canvas */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Ambient Glow Blobs */
+        .ambient-glow {
+            position: fixed;
+            width: 550px;
+            height: 550px;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.18;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatGlow 14s ease-in-out infinite alternate;
+        }
+        .glow-saffron { top: -10%; left: -10%; background: var(--saffron); }
+        .glow-green { bottom: -10%; right: -10%; background: var(--green); }
+        .glow-navy { top: 40%; left: 50%; transform: translate(-50%, -50%); background: var(--navy); }
+
+        @keyframes floatGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.2) translate(40px, -30px); }
+        }
+
+        /* Content Container */
+        .page-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Tricolor Top Bar */
+        .tricolor-stripe {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(90deg, #ff6f00 0%, #ff6f00 33.3%, #ffffff 33.3%, #ffffff 66.6%, #00c853 66.6%, #00c853 100%);
+            box-shadow: 0 0 25px rgba(255, 111, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Floating Glass Navbar */
+        .navbar {
+            max-width: 1100px;
+            margin: 20px auto 0;
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(14, 14, 24, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-card);
+            border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: 1.5px;
+            color: #fff;
+        }
+
+        .nav-brand span {
+            background: linear-gradient(135deg, var(--saffron), #fff, var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sound-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1000px;
+            margin: 60px auto 40px;
+            text-align: center;
+            padding: 0 24px;
+        }
+
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 22px;
+            border-radius: 50px;
+            background: rgba(255, 111, 0, 0.08);
+            border: 1px solid rgba(255, 111, 0, 0.35);
+            color: #ff9d42;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            box-shadow: 0 0 20px rgba(255, 111, 0, 0.15);
+            animation: pulseGlow 2.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 111, 0, 0.15); }
+            50% { box-shadow: 0 0 30px rgba(255, 111, 0, 0.4); transform: scale(1.02); }
+        }
+
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.8rem, 7vw, 5.2rem);
+            font-weight: 900;
+            line-height: 1.12;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ff8800 0%, #ffffff 50%, #00d95a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(255, 255, 255, 0.12);
+        }
+
+        .hero p.tagline {
+            font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 40px;
+            line-height: 1.65;
+            font-weight: 400;
+        }
+
+        /* 3D Animated Ashok Chakra */
+        .chakra-stage {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin: 20px auto 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chakra-aura {
+            position: absolute;
+            inset: -15px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 80, 255, 0.35) 0%, transparent 70%);
+            animation: pulseAura 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseAura {
+            0% { transform: scale(0.9); opacity: 0.4; }
+            100% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .ashok-chakra {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 7px solid #1a53ff;
+            background: radial-gradient(circle, #ffffff 30%, #e0e9ff 100%);
+            position: relative;
+            box-shadow: 0 0 45px rgba(26, 83, 255, 0.7), inset 0 0 20px rgba(0, 40, 160, 0.4);
+            animation: spinChakra 20s linear infinite;
+        }
+
+        @keyframes spinChakra {
+            100% { transform: rotate(360deg); }
+        }
+
+        .chakra-hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px;
+            height: 22px;
+            background: #1a53ff;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .spoke {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 2.2px;
+            background: #1a53ff;
+            transform-origin: center;
+        }
+
+        /* Action Controls & Salute Station */
+        .action-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .btn-salute {
+            position: relative;
+            padding: 18px 42px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #ff6f00, #e65100);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 12px 35px rgba(255, 111, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .btn-salute:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 18px 45px rgba(255, 111, 0, 0.6);
+        }
+
+        .btn-salute:active {
+            transform: scale(0.98);
+        }
+
+        .btn-anthem {
+            padding: 18px 36px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-card);
+            border-radius: 100px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-anthem:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .salute-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-card);
+            padding: 8px 18px;
+            border-radius: 50px;
+            margin-top: 10px;
+        }
+
+        .salute-counter strong {
+            color: var(--green);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        /* 21st.dev Bento Grid Section */
+        .section-title {
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 60px 0 15px;
+            color: #fff;
+        }
+        .section-sub {
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            font-size: 1rem;
+        }
+
+        .bento-grid {
+            max-width: 1100px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* 21st.dev Spotlight Card */
+        .bento-card {
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 28px;
+            padding: 34px;
+            overflow: hidden;
+            backdrop-filter: blur(14px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(450px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(var(--accent-rgb), 0.18), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bento-card:hover::before {
+            opacity: 1;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 111, 0, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .col-8 { grid-column: span 8; }
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-12 { grid-column: span 12; }
+
+        @media (max-width: 900px) {
+            .col-8, .col-4, .col-6 { grid-column: span 12; }
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--saffron);
+            margin-bottom: 18px;
+            width: fit-content;
+        }
+
+        .card-tag.green { color: var(--green); border-color: rgba(0, 200, 83, 0.3); }
+        .card-tag.navy { color: #60a5fa; border-color: rgba(96, 165, 250, 0.3); }
+
+        .bento-card h3 {
+            font-size: 1.55rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        .bento-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.98rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-highlight {
+            font-size: 2.6rem;
+            font-weight: 900;
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            margin-top: 24px;
+            position: relative;
+            z-index: 2;
+        }
+        .stat-highlight span {
+            background: linear-gradient(135deg, var(--saffron), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Freedom Quotes Carousel */
+        .quote-box {
+            max-width: 900px;
+            margin: 0 auto 80px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border-card);
+            border-radius: 28px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quote-icon {
+            font-size: 2.8rem;
+            color: var(--saffron);
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .quote-text {
+            font-size: 1.4rem;
+            font-style: italic;
+            font-weight: 500;
+            line-height: 1.6;
+            color: #e2e8f0;
+            margin-bottom: 18px;
+            min-height: 70px;
+        }
+
+        .quote-author {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--saffron);
+            letter-spacing: 1px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-card);
+            padding: 45px 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            background: rgba(4, 4, 10, 0.8);
+        }
+
+        footer strong {
+            color: #fff;
+        }
+
+        .tricolor-text {
+            background: linear-gradient(90deg, #ff6f00, #ffffff, #00c853);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+    <div class="ambient-glow glow-saffron"></div>
+    <div class="ambient-glow glow-green"></div>
+    <div class="ambient-glow glow-navy"></div>
+
+    <div class="tricolor-stripe"></div>
+
+    <div class="page-content">
+        <!-- Floating Navbar -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <span>BHARAT</span> GAURAV 🇮🇳
+            </div>
+            <div class="nav-links">
+                <a href="#achievements" onclick="AudioFX.playClick()">Pillars</a>
+                <a href="#quotes" onclick="AudioFX.playClick()">Freedom Voice</a>
+                <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">
+                    🔊 Sound ON
+                </button>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="pill-badge">
+                ★ AZADI KA AMRIT KAAL ★ 1947–2026
+            </div>
+            <h1>HAPPY 78th INDEPENDENCE DAY</h1>
+            <p class="tagline">
+                Saluting the immortal valor of our freedom heroes, celebrating our vibrant democracy, and marching proudly towards a global superpower future.
+            </p>
+
+            <!-- 3D Ashok Chakra -->
+            <div class="chakra-stage">
+                <div class="chakra-aura"></div>
+                <div class="ashok-chakra" id="chakra">
+                    <div class="chakra-hub"></div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="action-row">
+                <button class="btn-salute" onclick="saluteTiranga()">
+                    <span>🫡 Salute the Tiranga</span>
+                </button>
+                <button class="btn-anthem" onclick="playVandeMataramChimes()">
+                    <span>🎵 Play Victory Fanfare</span>
+                </button>
+            </div>
+
+            <div>
+                <div class="salute-counter">
+                    National Salutes Recorded: <strong id="saluteNum">1,947,078</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- 21st.dev Bento Grid -->
+        <section id="achievements">
+            <h2 class="section-title">PILLARS OF MODERN BHARAT</h2>
+            <p class="section-sub">From our rich heritage to boundless space exploration — India shines on the global stage.</p>
+
+            <div class="bento-grid">
+                <div class="bento-card col-8 spotlight-card">
+                    <div>
+                        <span class="card-tag">Space & Innovation</span>
+                        <h3>Chandrayaan & Beyond</h3>
+                        <p>The first nation to conquer the Moon's South Pole. Pioneering affordable interplanetary exploration with Gaganyaan, Aditya-L1, and the world's most trusted satellite launch systems.</p>
+                    </div>
+                    <div class="stat-highlight">
+                        <span>#1 Lunar South Pole</span>
+                    </div>
+                </div>
+
+                <div class="bento-card col-4 spotlight-card">
+                    <div>
+                        <span class="card-tag green">Fintech Revolution</span>
+                        <h3>Digital Superpower</h3>
+                        <p>UPI processes over 13 Billion instant real-time transactions every month — transforming the everyday life of 1.4 Billion citizens seamlessly.</p>
+                    </div>
+                    <div class="stat-highlight">
+                        <span>100B+ <span style="font-size:1.1rem; color:var(--green)">Annually</span></span>
+                    </div>
+                </div>
+
+                <div class="bento-card col-4 spotlight-card">
+                    <div>
+                        <span class="card-tag navy">Armed Forces</span>
+                        <h3>Indomitable Valor</h3>
+                        <p>Guardians of our skies, seas, and borders. Unwavering dedication protecting 3.28 million square kilometers of sovereign territory with indigenous defence pride.</p>
+                    </div>
+                    <div class="stat-highlight">
+                        <span style="font-size:1.6rem">1.4M+ Bravehearts</span>
+                    </div>
+                </div>
+
+                <div class="bento-card col-8 spotlight-card">
+                    <div>
+                        <span class="card-tag">Culture & Unity</span>
+                        <h3>5,000 Years of Timeless Soul</h3>
+                        <p>The birthplace of Yoga, Ayurveda, Zero, and profound philosophy. A tapestry of 22 official languages, thousands of festivals, and infinite harmony under one tricolor flag.</p>
+                    </div>
+                    <div class="stat-highlight">
+                        <span>Unity in Diversity</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quotes Section -->
+        <section id="quotes" class="hero" style="margin-top:20px;">
+            <div class="quote-box">
+                <div class="quote-icon">❝</div>
+                <div class="quote-text" id="quoteDisplay">
+                    "Swaraj is my birthright, and I shall have it!"
+                </div>
+                <div class="quote-author" id="authorDisplay">— Bal Gangadhar Tilak</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            Crafted with passion by <strong>Saathi AI</strong> • <span class="tricolor-text">VANDE MATARAM • JAI HIND! 🇮🇳</span>
+        </footer>
+    </div>
+
+    <!-- Scripts: 21st.dev Spotlight, Audio Synthesizer, Confetti & Canvas -->
+    <script>
+        // 1. Build Ashok Chakra 24 Spokes
+        const chakra = document.getElementById('chakra');
+        for (let i = 0; i < 12; i++) {
+            const spoke = document.createElement('div');
+            spoke.className = 'spoke';
+            spoke.style.transform = `translate(-50%, -50%) rotate(${i * 15}deg)`;
+            chakra.appendChild(spoke);
+        }
+
+        // 2. Web Audio API Sound Synthesizer (Zero external dependencies)
+        const AudioFX = {
+            ctx: null,
+            enabled: true,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.ctx = new AudioContext();
+                }
+            },
+            playHover() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(480, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(720, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.05);
+            },
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(340, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+            },
+            playFanfare() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+                // C5, E5, G5, C6 triumphant chord
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    const startTime = this.ctx.currentTime + idx * 0.08;
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    gain.gain.setValueAtTime(0.12, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.5);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(startTime); osc.stop(startTime + 0.55);
+                });
+            }
+        };
+
+        function toggleSound() {
+            AudioFX.enabled = !AudioFX.enabled;
+            const btn = document.getElementById('soundBtn');
+            btn.innerHTML = AudioFX.enabled ? "🔊 Sound ON" : "🔇 Sound OFF";
+            if (AudioFX.enabled) AudioFX.playClick();
+        }
+
+        // 3. 21st.dev Spotlight Mouse Tracking Effect
+        document.querySelectorAll('.spotlight-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+            card.addEventListener('mouseenter', () => AudioFX.playHover());
+        });
+
+        // 4. Interactive Salute Counter & Fanfare
+        let count = 1947078;
+        function saluteTiranga() {
+            count++;
+            document.getElementById('saluteNum').innerText = count.toLocaleString('en-IN');
+            AudioFX.playFanfare();
+            launchTricolorConfetti();
+        }
+
+        function playVandeMataramChimes() {
+            AudioFX.playFanfare();
+            launchTricolorConfetti();
+        }
+
+        // 5. Physics Confetti Engine (Saffron, White, Green, Navy)
+        function launchTricolorConfetti() {
+            const colors = ['#ff6f00', '#ffffff', '#00c853', '#1a53ff', '#ffa726'];
+            for (let i = 0; i < 90; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * window.innerWidth + 'px';
+                conf.style.top = '-15px';
+                const size = Math.random() * 9 + 6;
+                conf.style.width = size + 'px';
+                conf.style.height = (size * (Math.random() > 0.5 ? 1 : 1.6)) + 'px';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.borderRadius = Math.random() > 0.4 ? '2px' : '50%';
+                conf.style.zIndex = '9999';
+                conf.style.pointerEvents = 'none';
+                conf.style.boxShadow = '0 0 10px rgba(255,255,255,0.4)';
+                document.body.appendChild(conf);
+
+                const drift = (Math.random() - 0.5) * 160;
+                const duration = Math.random() * 2000 + 1800;
+                const rotate = Math.random() * 720 - 360;
+
+                conf.animate([
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${drift}px, ${window.innerHeight + 30}px) rotate(${rotate}deg)`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => conf.remove();
+            }
+        }
+
+        // 6. Freedom Quotes Rotator
+        const quotes = [
+            { text: '"Swaraj is my birthright, and I shall have it!"', author: '— Bal Gangadhar Tilak' },
+            { text: '"Give me blood, and I shall give you freedom!"', author: '— Netaji Subhash Chandra Bose' },
+            { text: '"Inquilab Zindabad!"', author: '— Bhagat Singh' },
+            { text: '"A nation's culture resides in the hearts and in the soul of its people."', author: '— Mahatma Gandhi' },
+            { text: '"At the stroke of the midnight hour, when the world sleeps, India will awake to life and freedom."', author: '— Jawaharlal Nehru' },
+            { text: '"Dream, dream, dream. Dreams transform into thoughts and thoughts result in action."', author: '— Dr. A.P.J. Abdul Kalam' }
+        ];
+        let qIdx = 0;
+        setInterval(() => {
+            qIdx = (qIdx + 1) % quotes.length;
+            const qEl = document.getElementById('quoteDisplay');
+            const aEl = document.getElementById('authorDisplay');
+            qEl.style.opacity = '0';
+            aEl.style.opacity = '0';
+            setTimeout(() => {
+                qEl.innerText = quotes[qIdx].text;
+                aEl.innerText = quotes[qIdx].author;
+                qEl.style.transition = 'opacity 0.6s';
+                aEl.style.transition = 'opacity 0.6s';
+                qEl.style.opacity = '1';
+                aEl.style.opacity = '1';
+            }, 400);
+        }, 5000);
+
+        // 7. Interactive Starlight Particle Canvas
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        for (let i = 0; i < 65; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                radius: Math.random() * 1.8 + 0.6,
+                color: Math.random() > 0.6 ? '#ff9d42' : (Math.random() > 0.5 ? '#00e676' : '#60a5fa')
+            });
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 110) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * (1 - dist / 110)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+    </script>
+</body>
+</html>

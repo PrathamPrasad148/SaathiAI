@@ -699,7 +699,6 @@ class Saathi:
             return
 
         # God-Level Website Creator Engine (21st.dev & UI/UX Pro Max standards)
-        if "independence day" in lowered and any(k in lowered for k in ("website", "page", "site", "web", "create", "make", "build")):
         has_web_term = any(k in lowered for k in ("website", "web site", "webpage", "web page", "landing page", "portfolio"))
         has_action_term = any(v in lowered for v in ("build", "create", "make", "design", "generate", "code", "want", "need", "give", "banao", "banado", "tayyar", "develop", "show"))
 
@@ -720,14 +719,8 @@ class Saathi:
             threading.Thread(target=self.speak, args=(reply,), daemon=True).start()
             return
 
-        if any(w in lowered for w in (
-            "create website", "make website", "build website", "create a website",
-            "make a website", "build a website", "create landing page", "build landing page",
-            "make landing page", "portfolio website", "animated website", "god level website"
-        )):
         if (has_web_term and has_action_term) or any(p in lowered for p in ("website on ", "website for ", "webpage for ", "site on ", "site for ")):
             topic = re.sub(
-                r'^(create|make|build|generate)\s+(me\s+)?(a\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
                 r'^(can you\s+)?(please\s+)?(create|make|build|generate|design|code|develop)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
                 '', text, flags=re.I
             ).strip()
@@ -1004,7 +997,6 @@ class Saathi:
                     final_reply = content
                     break
 
-            if website_request and created_html_files:
             # 1. Did the model dump HTML code directly into final_reply instead of calling create_file?
             extracted_html = web_engine.extract_html_code_block(final_reply)
             if extracted_html:

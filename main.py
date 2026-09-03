@@ -1274,7 +1274,7 @@ class Saathi:
             self.append_chat("assistant", f"Screenshot saved to: {target}")
             return str(target)
         except Exception as error:
-            return f"Screenshot error: {error}"
+            return f"Screeīnshot error: {error}"
 
     def choose_workspace(self):
         folder = filedialog.askdirectory(parent=self.root, title="Choose Workspace Folder")

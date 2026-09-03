@@ -777,6 +777,9 @@ class Saathi:
             if not target_path.is_absolute():
                 target_path = APP_DIR / target_path
 
+            if target_path.suffix.lower() in (".html", ".htm"):
+                content = web_engine.enrich_html_with_god_level_features(content, target_path.stem.replace('_', ' '))
+
             target_path.parent.mkdir(parents=True, exist_ok=True)
             target_path.write_text(content, encoding="utf-8")
             return f"File '{target_path}' created successfully ({len(content)} characters)."

@@ -901,634 +901,595 @@ def generate_independence_day_html() -> str:
 </html>"""
 
 
+import urllib.request
+import urllib.parse
+import json
+
+
+def fetch_web_knowledge(query: str) -> dict[str, str]:
+    """Fetches verified facts, summaries, and descriptions from the web for the topic."""
+    clean = re.sub(r'[^a-zA-Z0-9\s]', '', query).strip()
+    words = clean.split()
+    candidates = [clean]
+    
+    # Strip common filler/context suffixes (e.g., 'Elden Ring Game' -> 'Elden Ring')
+    if len(words) > 1:
+        if words[-1].lower() in {"game", "website", "site", "app", "store", "product", "system", "company", "project"}:
+            candidates.append(' '.join(words[:-1]))
+        if len(words) >= 2:
+            candidates.append(' '.join(words[:2]))
+        candidates.append(words[0])
+
+    for q in candidates:
+        if not q or len(q) < 3:
+            continue
+        try:
+            url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(q)}"
+            req = urllib.request.Request(url, headers={"User-Agent": "SaathiAI/2.0 (Windows)"})
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                extract = data.get("extract", "")
+                if extract and len(extract) > 40:
+                    return {
+                        "title": data.get("title", clean).strip(),
+                        "desc": data.get("description", "World-Class Excellence & Innovation").strip(),
+                        "extract": extract.strip()
+                    }
+        except Exception:
+            pass
+
+    return {
+        "title": clean.title(),
+        "desc": "Premier Innovation & Bespoke Experience",
+        "extract": f"{clean.title()} stands at the intersection of avant-garde design, uncompromising performance, and transformative modern vision."
+    }
+
+
+def _has_keyword(text: str, keywords: tuple[str, ...]) -> bool:
+    for k in keywords:
+        if " " in k:
+            if k in text:
+                return True
+        else:
+            if re.search(r'\b' + re.escape(k) + r'\b', text):
+                return True
+    return False
+
+
+def detect_archetype(topic: str, knowledge: dict[str, str]) -> str:
+    """Classifies the topic into the ideal UI/UX Pro Max archetype."""
+    combined = (topic + " " + knowledge.get("desc", "") + " " + knowledge.get("extract", "")).lower()
+    
+    # High-specificity checks first
+    if _has_keyword(combined, ("game", "games", "gaming", "esport", "esports", "cyberpunk", "arcade", "rpg", "streamer", "gamer", "playstation", "xbox", "fps", "elden ring", "nintendo", "steam")):
+        return "gaming"
+    if _has_keyword(combined, ("car", "cars", "supercar", "hypercar", "racing", "vehicle", "vehicles", "ferrari", "lamborghini", "porsche", "bmw", "audi", "mercedes", "tesla", "motors", "automotive", "formula 1", "f1")):
+        return "automotive"
+    if _has_keyword(combined, ("fitness", "gym", "workout", "health", "medical", "clinic", "doctor", "yoga", "hospital", "wellness", "dental", "pharma", "fitbit", "meditation", "nutrition")):
+        return "wellness"
+    if _has_keyword(combined, ("coffee", "cafe", "restaurant", "bakery", "food", "dining", "wine", "pizza", "burger", "roastery", "tea", "bistro", "culinary", "cocktail")):
+        return "culinary"
+    if _has_keyword(combined, ("portfolio", "resume", "cv", "developer portfolio", "designer portfolio", "personal site")):
+        return "portfolio"
+    if _has_keyword(combined, ("shoe", "shoes", "sneaker", "sneakers", "clothing", "clothes", "fashion", "watch", "watches", "apparel", "store", "shop", "shopping", "retail", "jewelry", "bag", "handbag", "merchandise")):
+        return "ecommerce"
+    if _has_keyword(combined, ("ai", "artificial intelligence", "software", "cloud", "dev", "code", "bot", "database", "cyber", "api", "crypto", "blockchain", "saas", "tech", "technology", "gpt", "model")):
+        return "tech_saas"
+    return "general_showcase"
+
+
+def _split_sentences(text: str) -> list[str]:
+    """Splits extract into clean sentence bullets."""
+    sentences = [s.strip() for s in re.split(r'\.\s+', text) if len(s.strip()) > 15]
+    return sentences if sentences else [text]
+
+
 def generate_custom_god_level_html(topic: str) -> str:
-    """Generates an award-winning, 21st.dev animated website on any requested topic."""
-    clean_title = html.escape(topic.strip().title())
+    """Fetches live web data, selects the best-suited UI/UX archetype, and generates a bespoke masterpiece."""
+    clean_topic = topic.strip()
+    knowledge = fetch_web_knowledge(clean_topic)
+    archetype = detect_archetype(clean_topic, knowledge)
 
-    # Detect theme mood
-    lowered = topic.lower()
-    if any(k in lowered for k in ("game", "gaming", "cyber", "synth", "esport", "stream")):
-        theme_class = "theme-cyberpunk"
-        badge_text = "CYBERPUNK ULTRA • NEXT GEN"
-        accent_color = "#ff007f"
-        accent_secondary = "#00f0ff"
-        accent_glow = "rgba(255, 0, 127, 0.45)"
-        hero_tag = "IMMERSIVE CYBER REALITY"
-    elif any(k in lowered for k in ("luxury", "gold", "watch", "crypto", "vip", "hotel", "sovereign")):
-        theme_class = "theme-luxury"
-        badge_text = "IMPERIAL EDITION • PRIVÉ"
-        accent_color = "#d4af37"
-        accent_secondary = "#f3e5ab"
-        accent_glow = "rgba(212, 175, 55, 0.45)"
-        hero_tag = "THE EPITOME OF EXCELLENCE"
-    elif any(k in lowered for k in ("health", "nature", "green", "eco", "wellness", "fitness", "bio")):
-        theme_class = "theme-aurora"
-        badge_text = "BIOLUMINESCENT • PURE ENERGY"
-        accent_color = "#00ffaa"
-        accent_secondary = "#00b4d8"
-        accent_glow = "rgba(0, 255, 170, 0.45)"
-        hero_tag = "REDEFINING WELLNESS & HORIZONS"
-    else:
-        theme_class = "theme-nebula"
-        badge_text = "AWARD WINNING • 21ST.DEV CRAFTED"
-        accent_color = "#6366f1"
-        accent_secondary = "#ec4899"
-        accent_glow = "rgba(99, 102, 241, 0.45)"
-        hero_tag = "THE FUTURE OF DIGITAL EXPERIENCES"
+    title = html.escape(knowledge.get("title", clean_topic).title())
+    desc = html.escape(knowledge.get("desc", "Premier Experience"))
+    extract = html.escape(knowledge.get("extract", ""))
+    sentences = _split_sentences(extract)
+    p1 = sentences[0] if len(sentences) > 0 else extract
+    p2 = sentences[1] if len(sentences) > 1 else "Engineered with precision, passion, and uncompromising quality."
+    p3 = sentences[2] if len(sentences) > 2 else "Setting the benchmark for modern digital sophistication."
+    p4 = sentences[3] if len(sentences) > 3 else "Pioneering new standards with global impact and distinction."
 
-    return f"""<!DOCTYPE html>
+    # 1. Automotive
+    if archetype == "automotive":
+        return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{clean_title} | Premium Experience</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | High-Performance Aerodynamics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {{
-            --primary: {accent_color};
-            --secondary: {accent_secondary};
-            --glow: {accent_glow};
-            --bg: #05060f;
-            --card-bg: rgba(16, 18, 32, 0.75);
-            --card-border: rgba(255, 255, 255, 0.09);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-rgb: 99, 102, 241;
-        }}
-
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }}
-
-        body {{
-            background: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }}
-
-        /* Particle Canvas */
-        #particleCanvas {{
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            pointer-events: none;
-        }}
-
-        /* Ambient Gradient Orbs */
-        .ambient-orb {{
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.22;
-            z-index: 0;
-            pointer-events: none;
-            animation: orbFloat 12s ease-in-out infinite alternate;
-        }}
-        .orb-1 {{ top: -15%; left: -10%; background: var(--primary); }}
-        .orb-2 {{ bottom: -15%; right: -10%; background: var(--secondary); }}
-
-        @keyframes orbFloat {{
-            0% {{ transform: translate(0, 0) scale(1); }}
-            100% {{ transform: translate(50px, -40px) scale(1.15); }}
-        }}
-
-        /* Glass Navbar */
-        .navbar {{
-            position: sticky;
-            top: 20px;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 14px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(12, 14, 26, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 100px;
-            z-index: 100;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }}
-
-        .brand {{
-            font-weight: 800;
-            font-size: 1.25rem;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-        .brand-dot {{
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--primary);
-            box-shadow: 0 0 12px var(--primary);
-        }}
-
-        .nav-links {{
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }}
-        .nav-links a {{
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }}
-        .nav-links a:hover {{ color: #fff; }}
-
-        .sound-badge {{
-            padding: 6px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-        }}
-        .sound-badge:hover {{ background: rgba(255, 255, 255, 0.1); color: #fff; }}
-
-        /* Hero */
-        .hero {{
-            position: relative;
-            z-index: 10;
-            max-width: 960px;
-            margin: 80px auto 40px;
-            text-align: center;
-            padding: 0 24px;
-        }}
-
-        .badge-pill {{
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 50px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--primary);
-            margin-bottom: 24px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-        }}
-
-        .hero h1 {{
-            font-size: clamp(2.8rem, 6.5vw, 4.8rem);
-            font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -1px;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #ffffff 30%, var(--primary) 70%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }}
-
-        .hero p.desc {{
-            font-size: clamp(1.1rem, 2.2vw, 1.3rem);
-            color: var(--text-muted);
-            line-height: 1.65;
-            max-width: 720px;
-            margin: 0 auto 40px;
-        }}
-
-        /* Buttons */
-        .cta-row {{
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 40px;
-        }}
-
-        .btn-primary {{
-            padding: 16px 38px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 100px;
-            color: #fff;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 10px 30px var(--glow);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }}
-        .btn-primary:hover {{
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 16px 40px var(--glow);
-        }}
-
-        .btn-secondary {{
-            padding: 16px 34px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 100px;
-            color: #fff;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(12px);
-            transition: all 0.3s;
-        }}
-        .btn-secondary:hover {{
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-2px);
-        }}
-
-        /* 21st.dev Spotlight Bento Grid */
-        .bento-section {{
-            position: relative;
-            z-index: 10;
-            max-width: 1100px;
-            margin: 40px auto 90px;
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 24px;
-        }}
-
-        .spotlight-card {{
-            position: relative;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 36px;
-            overflow: hidden;
-            backdrop-filter: blur(16px);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }}
-
-        .spotlight-card::before {{
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: 1;
-        }}
-
-        .spotlight-card:hover::before {{ opacity: 1; }}
-        .spotlight-card:hover {{
-            transform: translateY(-6px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
-        }}
-
-        .col-8 {{ grid-column: span 8; }}
-        .col-4 {{ grid-column: span 4; }}
-        .col-6 {{ grid-column: span 6; }}
-        .col-12 {{ grid-column: span 12; }}
-
-        @media (max-width: 900px) {{
-            .col-8, .col-4, .col-6 {{ grid-column: span 12; }}
-        }}
-
-        .card-badge {{
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 5px 12px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--card-border);
-            color: var(--primary);
-            margin-bottom: 18px;
-            width: fit-content;
-        }}
-
-        .spotlight-card h3 {{
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            color: #fff;
-            position: relative;
-            z-index: 2;
-        }}
-
-        .spotlight-card p {{
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.6;
-            position: relative;
-            z-index: 2;
-        }}
-
-        .metric {{
-            font-size: 2.5rem;
-            font-weight: 900;
-            margin-top: 24px;
-            background: linear-gradient(135deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            position: relative;
-            z-index: 2;
-        }}
-
-        /* Interactive Counter Section */
-        .counter-pill {{
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 24px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--card-border);
-            border-radius: 50px;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }}
-        .counter-pill strong {{ color: var(--primary); font-size: 1.2rem; }}
-
-        footer {{
-            position: relative;
-            z-index: 10;
-            border-top: 1px solid var(--card-border);
-            padding: 40px 24px;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            background: rgba(4, 5, 12, 0.8);
-        }}
+        :root {{ --primary: #dc2626; --accent: #f59e0b; --bg: #09090b; --card: rgba(24, 24, 27, 0.85); --border: rgba(255,255,255,0.08); --accent-rgb: 220, 38, 38; }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'Outfit',sans-serif; }}
+        body {{ background:var(--bg); color:#fff; overflow-x:hidden; min-height:100vh; position:relative; }}
+        #canvas {{ position:fixed; inset:0; pointer-events:none; z-index:0; }}
+        .nav {{ position:sticky; top:18px; max-width:1100px; margin:0 auto; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; background:rgba(18,18,24,0.7); backdrop-filter:blur(16px); border:1px solid var(--border); border-radius:100px; z-index:100; }}
+        .brand {{ font-family:'Cinzel',serif; font-size:1.35rem; font-weight:900; letter-spacing:1px; color:#fff; display:flex; align-items:center; gap:8px; }}
+        .brand-dot {{ width:10px; height:10px; border-radius:50%; background:var(--primary); box-shadow:0 0 12px var(--primary); }}
+        .hero {{ max-width:1050px; margin:70px auto 40px; text-align:center; padding:0 24px; position:relative; z-index:10; }}
+        .badge {{ display:inline-block; padding:8px 22px; border-radius:50px; background:rgba(220,38,38,0.12); border:1px solid rgba(220,38,38,0.4); color:#f87171; font-size:0.85rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:20px; }}
+        h1 {{ font-family:'Cinzel',serif; font-size:clamp(2.8rem,7vw,5.5rem); font-weight:900; line-height:1.08; background:linear-gradient(135deg, #fff 40%, var(--primary) 80%, var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:22px; }}
+        p.tagline {{ font-size:1.25rem; color:#a1a1aa; max-width:760px; margin:0 auto 35px; line-height:1.6; }}
+        
+        /* Telemetry Dashboard */
+        .telemetry-grid {{ max-width:1100px; margin:30px auto 60px; padding:0 24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; position:relative; z-index:10; }}
+        .telemetry-card {{ background:var(--card); border:1px solid var(--border); border-radius:24px; padding:30px; backdrop-filter:blur(14px); text-align:center; position:relative; overflow:hidden; transition:transform 0.3s; }}
+        .telemetry-card:hover {{ transform:translateY(-5px); border-color:var(--primary); }}
+        .t-num {{ font-size:3rem; font-weight:900; font-family:'Cinzel',serif; color:#fff; margin-bottom:6px; }}
+        .t-num span {{ color:var(--primary); font-size:1.6rem; }}
+        .t-lbl {{ font-size:0.85rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#71717a; }}
+        
+        /* Customizer Swatches */
+        .customizer {{ max-width:700px; margin:0 auto 50px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:30px; padding:25px; text-align:center; position:relative; z-index:10; }}
+        .swatch-row {{ display:flex; justify-content:center; gap:16px; margin:15px 0; }}
+        .swatch {{ width:38px; height:38px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:transform 0.2s; }}
+        .swatch:hover, .swatch.active {{ transform:scale(1.2); border-color:#fff; }}
+        
+        .btn {{ padding:16px 40px; background:linear-gradient(135deg, var(--primary), #991b1b); border:none; border-radius:100px; color:#fff; font-size:1.1rem; font-weight:800; cursor:pointer; box-shadow:0 10px 30px rgba(220,38,38,0.5); transition:all 0.3s; }}
+        .btn:hover {{ transform:scale(1.05); box-shadow:0 15px 40px rgba(220,38,38,0.7); }}
+        
+        /* Bento Information */
+        .bento {{ max-width:1100px; margin:0 auto 80px; padding:0 24px; display:grid; grid-template-columns:repeat(12, 1fr); gap:20px; position:relative; z-index:10; }}
+        .spotlight-card {{ position:relative; background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px; overflow:hidden; backdrop-filter:blur(14px); }}
+        .spotlight-card::before {{ content:''; position:absolute; inset:0; background:radial-gradient(400px circle at var(--mouse-x,50%) var(--mouse-y,50%), rgba(220,38,38,0.2), transparent 70%); opacity:0; transition:opacity 0.3s; pointer-events:none; }}
+        .spotlight-card:hover::before {{ opacity:1; }}
+        .c-8 {{ grid-column:span 8; }} .c-4 {{ grid-column:span 4; }}
+        @media(max-width:850px){{ .c-8, .c-4 {{ grid-column:span 12; }} }}
+        footer {{ text-align:center; padding:40px; border-top:1px solid var(--border); color:#71717a; position:relative; z-index:10; }}
     </style>
 </head>
 <body>
-    <canvas id="particleCanvas"></canvas>
-    <div class="ambient-orb orb-1"></div>
-    <div class="ambient-orb orb-2"></div>
-
-    <!-- Glass Navbar -->
-    <nav class="navbar">
-        <div class="brand">
-            <div class="brand-dot"></div>
-            <span>{clean_title.upper()}</span>
-        </div>
-        <div class="nav-links">
-            <a href="#features" onclick="AudioFX.playClick()">Architecture</a>
-            <a href="#demo" onclick="AudioFX.playClick()">Interactive Demo</a>
-            <button class="sound-badge" id="soundBtn" onclick="toggleSound()">
-                🔊 Sound ON
-            </button>
+    <canvas id="canvas"></canvas>
+    <nav class="nav">
+        <div class="brand"><div class="brand-dot"></div><span>{title.upper()}</span></div>
+        <div style="display:flex;gap:20px;align-items:center;">
+            <button onclick="AudioFX.playFanfare()" style="background:none;border:none;color:#a1a1aa;cursor:pointer;font-weight:600;">Engine Sound</button>
+            <button class="btn" style="padding:10px 24px;font-size:0.95rem;" onclick="celebrate()">Test Drive</button>
         </div>
     </nav>
-
-    <!-- Hero -->
     <section class="hero">
-        <div class="badge-pill">★ {badge_text}</div>
-        <h1>{clean_title}</h1>
-        <p class="desc">
-            Engineered with modern 21st.dev component aesthetics, extreme color theory, dynamic spotlight tracking, and real-time interaction feedback.
-        </p>
-
-        <div class="cta-row">
-            <button class="btn-primary" onclick="triggerCelebration()">
-                🚀 Launch Experience
-            </button>
-            <button class="btn-secondary" onclick="AudioFX.playFanfare()">
-                ⚡ Play Interactive Fanfare
-            </button>
-        </div>
-
-        <div>
-            <div class="counter-pill">
-                Active Global Engagements: <strong id="engCount">42,891</strong>
-            </div>
-        </div>
+        <div class="badge">🏎️ {desc.upper()}</div>
+        <h1>{title}</h1>
+        <p class="tagline">{p1}</p>
+        <button class="btn" onclick="celebrate()">🔥 Unleash Pure Power</button>
     </section>
+    
+    <div class="telemetry-grid">
+        <div class="telemetry-card"><div class="t-num">2.4<span>s</span></div><div class="t-lbl">0–100 km/h Sprint</div></div>
+        <div class="telemetry-card"><div class="t-num">340<span>+</span></div><div class="t-lbl">Top Speed (km/h)</div></div>
+        <div class="telemetry-card"><div class="t-num">850<span>HP</span></div><div class="t-lbl">Twin-Turbo V8 Hybrid</div></div>
+        <div class="telemetry-card"><div class="t-num">9,000<span>RPM</span></div><div class="t-lbl">Redline Symphony</div></div>
+    </div>
 
-    <!-- Bento Grid -->
-    <section id="features" class="bento-section">
-        <div class="spotlight-card col-8">
-            <div>
-                <div class="card-badge">Signature Feature</div>
-                <h3>21st.dev Interactive Spotlight Engine</h3>
-                <p>Features dynamic radial hover shaders that calculate precise pointer coordinates, illuminating glassmorphic surfaces with customized luminosity profiles.</p>
-            </div>
-            <div class="metric">60 FPS Real-time</div>
+    <div class="customizer">
+        <div style="font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Live Livery Customizer</div>
+        <div class="swatch-row">
+            <div class="swatch active" style="background:#dc2626;" onclick="setTheme('#dc2626')"></div>
+            <div class="swatch" style="background:#f59e0b;" onclick="setTheme('#f59e0b')"></div>
+            <div class="swatch" style="background:#06b6d4;" onclick="setTheme('#06b6d4')"></div>
+            <div class="swatch" style="background:#ffffff;" onclick="setTheme('#ffffff')"></div>
+            <div class="swatch" style="background:#18181b;border:1px solid #52525b;" onclick="setTheme('#e11d48')"></div>
         </div>
+        <div id="liveryLbl" style="color:#a1a1aa;font-size:0.9rem;">Current Spec: Rosso Corsa Competition</div>
+    </div>
 
-        <div class="spotlight-card col-4">
-            <div>
-                <div class="card-badge">Extreme Color</div>
-                <h3>Tailored Color Harmony</h3>
-                <p>Engineered using professional design system tokens with WCAG AAA contrast ratios and deep ambient glow shaders.</p>
-            </div>
-            <div class="metric">100% P3 Gamut</div>
+    <div class="bento">
+        <div class="spotlight-card c-8">
+            <h3 style="font-size:1.6rem;margin-bottom:12px;color:#fff;">Aerodynamic Mastery & Racing DNA</h3>
+            <p style="color:#a1a1aa;line-height:1.6;font-size:1.05rem;">{p2}. Derived directly from elite championship engineering with active ground-effect downforce and carbon-ceramic telemetry.</p>
         </div>
-
-        <div class="spotlight-card col-4">
-            <div>
-                <div class="card-badge">Zero Dependencies</div>
-                <h3>Web Audio Synthesizer</h3>
-                <p>Pure browser-native sound generation generating procedural harmonic chimes and tactile click feedback without downloading audio files.</p>
-            </div>
-            <div class="metric">0.1ms Latency</div>
+        <div class="spotlight-card c-4">
+            <h3 style="font-size:1.4rem;margin-bottom:10px;color:#fff;">Carbon Architecture</h3>
+            <p style="color:#a1a1aa;line-height:1.6;">{p3}. Monocoque carbon chassis delivering unmatched torsional rigidity and featherweight precision.</p>
         </div>
+    </div>
+    <footer>Crafted by <strong>Saathi AI</strong> • Live Knowledge Fetched for {title} • 21st.dev Engine</footer>
 
-        <div class="spotlight-card col-8">
-            <div>
-                <div class="card-badge">Living Atmosphere</div>
-                <h3>Starlight Particle Constellation</h3>
-                <p>HTML5 hardware-accelerated particle physics network with proximity-linked constellations and responsive cursor repulsion.</p>
-            </div>
-            <div class="metric">Infinite Dynamic Canvas</div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        Crafted with pride by <strong>Saathi AI</strong> • Inspired by <strong>21st.dev</strong> & <strong>UI/UX Pro Max</strong>
-    </footer>
-
-    <!-- Scripts: 21st.dev Spotlight, Audio Synthesizer, Confetti & Canvas -->
     <script>
-        // 1. Web Audio Synthesizer
         const AudioFX = {{
             ctx: null,
-            enabled: true,
-            init() {{
-                if (!this.ctx) {{
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (AudioContext) this.ctx = new AudioContext();
-                }}
-            }},
-            playHover() {{
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(520, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(780, this.ctx.currentTime + 0.05);
-                gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
-                osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.05);
-            }},
+            init() {{ if(!this.ctx) this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }},
             playClick() {{
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(320, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-                osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+                this.init(); if(!this.ctx) return;
+                const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+                o.type='sawtooth'; o.frequency.setValueAtTime(200, this.ctx.currentTime);
+                o.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime+0.12);
+                g.gain.setValueAtTime(0.15, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+0.12);
+                o.connect(g); g.connect(this.ctx.destination); o.start(); o.stop(this.ctx.currentTime+0.12);
             }},
             playFanfare() {{
-                if (!this.enabled) return;
-                this.init();
-                if (!this.ctx) return;
-                const notes = [440, 554.37, 659.25, 880]; // A4 major
-                notes.forEach((freq, idx) => {{
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    const t = this.ctx.currentTime + idx * 0.08;
-                    osc.frequency.setValueAtTime(freq, t);
-                    gain.gain.setValueAtTime(0.1, t);
-                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
-                    osc.connect(gain); gain.connect(this.ctx.destination);
-                    osc.start(t); osc.stop(t + 0.55);
-                }});
+                this.init(); if(!this.ctx) return;
+                const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+                o.type='sawtooth'; o.frequency.setValueAtTime(120, this.ctx.currentTime);
+                o.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime+0.4);
+                g.gain.setValueAtTime(0.2, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+0.5);
+                o.connect(g); g.connect(this.ctx.destination); o.start(); o.stop(this.ctx.currentTime+0.5);
             }}
         }};
-
-        function toggleSound() {{
-            AudioFX.enabled = !AudioFX.enabled;
-            document.getElementById('soundBtn').innerText = AudioFX.enabled ? "🔊 Sound ON" : "🔇 Sound OFF";
-            if (AudioFX.enabled) AudioFX.playClick();
-        }}
-
-        // 2. 21st.dev Spotlight Mouse Tracking
-        document.querySelectorAll('.spotlight-card').forEach(card => {{
-            card.addEventListener('mousemove', e => {{
-                const rect = card.getBoundingClientRect();
-                card.style.setProperty('--mouse-x', `${{e.clientX - rect.left}}px`);
-                card.style.setProperty('--mouse-y', `${{e.clientY - rect.top}}px`);
+        document.querySelectorAll('.spotlight-card, .telemetry-card').forEach(c=>{{
+            c.addEventListener('mousemove', e=>{{
+                const r=c.getBoundingClientRect();
+                c.style.setProperty('--mouse-x', `${{e.clientX-r.left}}px`);
+                c.style.setProperty('--mouse-y', `${{e.clientY-r.top}}px`);
             }});
-            card.addEventListener('mouseenter', () => AudioFX.playHover());
         }});
-
-        // 3. Counter & Confetti Celebration
-        let count = 42891;
-        function triggerCelebration() {{
-            count += Math.floor(Math.random() * 5) + 1;
-            document.getElementById('engCount').innerText = count.toLocaleString();
+        function setTheme(c) {{
+            document.documentElement.style.setProperty('--primary', c);
+            AudioFX.playClick();
+        }}
+        function celebrate() {{
             AudioFX.playFanfare();
-            launchConfetti();
-        }}
-
-        function launchConfetti() {{
-            const colors = ['{accent_color}', '{accent_secondary}', '#ffffff', '#38bdf8'];
-            for (let i = 0; i < 75; i++) {{
-                const conf = document.createElement('div');
-                conf.style.position = 'fixed';
-                conf.style.left = Math.random() * window.innerWidth + 'px';
-                conf.style.top = '-10px';
-                const s = Math.random() * 8 + 6;
-                conf.style.width = s + 'px';
-                conf.style.height = (s * (Math.random() > 0.5 ? 1 : 1.5)) + 'px';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.borderRadius = Math.random() > 0.4 ? '2px' : '50%';
-                conf.style.zIndex = '9999';
-                conf.style.pointerEvents = 'none';
-                document.body.appendChild(conf);
-
-                const drift = (Math.random() - 0.5) * 180;
-                const dur = Math.random() * 2000 + 1500;
-                conf.animate([
-                    {{ transform: `translate(0, 0) rotate(0deg)`, opacity: 1 }},
-                    {{ transform: `translate(${{drift}}px, ${{window.innerHeight + 30}}px) rotate(${{Math.random() * 720 - 360}}deg)`, opacity: 0 }}
-                ], {{ duration: dur, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}).onfinish = () => conf.remove();
+            for(let i=0;i<70;i++){{
+                const d=document.createElement('div');
+                d.style.position='fixed'; d.style.left=Math.random()*window.innerWidth+'px'; d.style.top='-10px';
+                d.style.width=(Math.random()*10+5)+'px'; d.style.height=(Math.random()*10+5)+'px';
+                d.style.background=['#dc2626','#f59e0b','#fff','#ef4444'][Math.floor(Math.random()*4)];
+                d.style.zIndex='9999'; d.style.pointerEvents='none';
+                document.body.appendChild(d);
+                d.animate([{{transform:'translate(0,0)'}}, {{transform:`translate(${{(Math.random()-0.5)*150}}px, ${{window.innerHeight+20}}px) rotate(${{Math.random()*360}}deg)`}}], {{duration:2000+Math.random()*1000}}).onfinish=()=>d.remove();
             }}
         }}
-
-        // 4. Starlight Particle Canvas
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() {{
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }}
-        window.addEventListener('resize', resize);
-        resize();
-
-        for (let i = 0; i < 60; i++) {{
-            particles.push({{
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: (Math.random() - 0.5) * 0.4,
-                radius: Math.random() * 1.8 + 0.6,
-                color: Math.random() > 0.5 ? '{accent_color}' : '{accent_secondary}'
+        const cv=document.getElementById('canvas'), cx=cv.getContext('2d');
+        let w=cv.width=window.innerWidth, h=cv.height=window.innerHeight;
+        window.onresize=()=>{{ w=cv.width=window.innerWidth; h=cv.height=window.innerHeight; }};
+        const pts=[]; for(let i=0;i<45;i++) pts.push({{x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5}});
+        function loop(){{
+            cx.clearRect(0,0,w,h);
+            pts.forEach(p=>{{
+                p.x+=p.vx; p.y+=p.vy; if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0;
+                cx.beginPath(); cx.arc(p.x,p.y,1.5,0,Math.PI*2); cx.fillStyle='rgba(220,38,38,0.4)'; cx.fill();
             }});
+            requestAnimationFrame(loop);
         }}
+        loop();
+    </script>
+</body>
+</html>"""
 
-        function drawParticles() {{
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) {{
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = width;
-                if (p.x > width) p.x = 0;
-                if (p.y < 0) p.y = height;
-                if (p.y > height) p.y = 0;
+    # 2. Culinary / Food / Coffee / Restaurant
+    if archetype == "culinary":
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | Artisan Taste & Roastery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {{ --primary: #d97706; --caramel: #f59e0b; --bg: #100a06; --card: rgba(28, 18, 12, 0.85); --border: rgba(217, 119, 6, 0.2); --accent-rgb: 217, 119, 6; }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }}
+        body {{ background:var(--bg); color:#fef3c7; overflow-x:hidden; min-height:100vh; position:relative; }}
+        .nav {{ position:sticky; top:18px; max-width:1100px; margin:0 auto; padding:14px 30px; display:flex; justify-content:space-between; align-items:center; background:rgba(20,12,8,0.8); backdrop-filter:blur(16px); border:1px solid var(--border); border-radius:100px; z-index:100; }}
+        .brand {{ font-family:'Cinzel',serif; font-size:1.3rem; font-weight:800; color:#fef3c7; }}
+        .hero {{ max-width:960px; margin:70px auto 40px; text-align:center; padding:0 24px; position:relative; z-index:10; }}
+        .badge {{ display:inline-block; padding:8px 22px; border-radius:50px; background:rgba(217,119,6,0.12); border:1px solid var(--border); color:var(--caramel); font-size:0.85rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:20px; }}
+        h1 {{ font-family:'Cinzel',serif; font-size:clamp(2.8rem,7vw,5.2rem); font-weight:800; color:#fff; margin-bottom:20px; background:linear-gradient(135deg, #fff 30%, var(--caramel) 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }}
+        p.tagline {{ font-size:1.2rem; color:#d5c5b5; max-width:720px; margin:0 auto 35px; line-height:1.65; }}
+        .btn {{ padding:16px 38px; background:linear-gradient(135deg, #d97706, #b45309); border:none; border-radius:100px; color:#fff; font-size:1.05rem; font-weight:700; cursor:pointer; box-shadow:0 10px 30px rgba(217,119,6,0.4); transition:all 0.3s; }}
+        .btn:hover {{ transform:scale(1.05); box-shadow:0 15px 40px rgba(217,119,6,0.6); }}
+        
+        /* Menu Bento Grid */
+        .menu-grid {{ max-width:1100px; margin:40px auto 80px; padding:0 24px; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:24px; position:relative; z-index:10; }}
+        .menu-card {{ background:var(--card); border:1px solid var(--border); border-radius:24px; padding:30px; backdrop-filter:blur(14px); transition:transform 0.3s, border-color 0.3s; position:relative; overflow:hidden; }}
+        .menu-card:hover {{ transform:translateY(-5px); border-color:var(--caramel); }}
+        .price {{ float:right; font-weight:800; color:var(--caramel); font-size:1.2rem; }}
+        .item-title {{ font-size:1.35rem; font-weight:800; margin-bottom:8px; color:#fff; }}
+        .item-desc {{ color:#bfae9e; font-size:0.95rem; line-height:1.5; margin-bottom:18px; }}
+        .tags {{ display:flex; gap:8px; }}
+        .tag {{ font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:50px; background:rgba(217,119,6,0.15); color:var(--caramel); border:1px solid rgba(217,119,6,0.3); }}
+        footer {{ text-align:center; padding:40px; border-top:1px solid var(--border); color:#8d7968; position:relative; z-index:10; }}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="brand">☕ {title.upper()}</div>
+        <button class="btn" style="padding:10px 24px;font-size:0.95rem;" onclick="bookTable()">Reserve Table</button>
+    </nav>
+    <section class="hero">
+        <div class="badge">Artisan Gastronomy • {desc}</div>
+        <h1>{title}</h1>
+        <p class="tagline">{p1}</p>
+        <button class="btn" onclick="bookTable()">✨ Reserve an Experience</button>
+    </section>
+    
+    <div class="menu-grid">
+        <div class="menu-card">
+            <span class="price">$14.50</span>
+            <div class="item-title">Signature Reserve Roast</div>
+            <p class="item-desc">{p2}</p>
+            <div class="tags"><span class="tag">Handcrafted</span><span class="tag">Single-Origin</span></div>
+        </div>
+        <div class="menu-card">
+            <span class="price">$18.00</span>
+            <div class="item-title">Chef's Heritage Tasting</div>
+            <p class="item-desc">{p3}</p>
+            <div class="tags"><span class="tag">Artisan</span><span class="tag">Fresh Daily</span></div>
+        </div>
+        <div class="menu-card">
+            <span class="price">$12.00</span>
+            <div class="item-title">Botanical Velvet Elixir</div>
+            <p class="item-desc">{p4}</p>
+            <div class="tags"><span class="tag">Aromatic</span><span class="tag">Award-Winning</span></div>
+        </div>
+    </div>
+    <footer>Handcrafted with passion by <strong>Saathi AI</strong> • Live Knowledge for {title}</footer>
 
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
-
-                for (let j = i + 1; j < particles.length; j++) {{
-                    const p2 = particles[j];
-                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if (dist < 110) {{
-                        ctx.beginPath();
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${{0.12 * (1 - dist / 110)}})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
-                    }}
-                }}
+    <script>
+        function bookTable() {{
+            alert("Table reserved at {title}! Confirmation sent to your device. ☕✨");
+            celebrate();
+        }}
+        function celebrate() {{
+            for(let i=0;i<60;i++){{
+                const d=document.createElement('div');
+                d.style.position='fixed'; d.style.left=Math.random()*window.innerWidth+'px'; d.style.top='-10px';
+                d.style.width='8px'; d.style.height='8px'; d.style.borderRadius='50%';
+                d.style.background=['#d97706','#f59e0b','#fff','#78350f'][Math.floor(Math.random()*4)];
+                d.style.zIndex='9999'; d.style.pointerEvents='none';
+                document.body.appendChild(d);
+                d.animate([{{transform:'translate(0,0)'}}, {{transform:`translate(${{(Math.random()-0.5)*120}}px, ${{window.innerHeight+20}}px)`}}], {{duration:2000}}).onfinish=()=>d.remove();
             }}
-            requestAnimationFrame(drawParticles);
         }}
-        drawParticles();
+    </script>
+</body>
+</html>"""
+
+    # 3. E-Commerce / Products / Shoes / Fashion
+    if archetype == "ecommerce":
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | Official Premium Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {{ --primary: #2563eb; --accent: #f97316; --bg: #090b14; --card: rgba(18, 22, 38, 0.85); --border: rgba(255,255,255,0.08); }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }}
+        body {{ background:var(--bg); color:#fff; min-height:100vh; overflow-x:hidden; position:relative; }}
+        .nav {{ position:sticky; top:16px; max-width:1100px; margin:0 auto; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; background:rgba(14,18,32,0.8); backdrop-filter:blur(16px); border:1px solid var(--border); border-radius:100px; z-index:100; }}
+        .brand {{ font-size:1.3rem; font-weight:900; letter-spacing:-0.5px; color:#fff; }}
+        .cart-pill {{ background:rgba(255,255,255,0.06); border:1px solid var(--border); padding:8px 18px; border-radius:50px; font-weight:700; font-size:0.9rem; }}
+        .hero {{ max-width:1000px; margin:70px auto 40px; text-align:center; padding:0 24px; position:relative; z-index:10; }}
+        .badge {{ display:inline-block; padding:8px 20px; border-radius:50px; background:rgba(37,99,235,0.12); border:1px solid rgba(37,99,235,0.3); color:#60a5fa; font-size:0.85rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:20px; }}
+        h1 {{ font-size:clamp(2.8rem,7vw,5.2rem); font-weight:900; line-height:1.1; margin-bottom:20px; background:linear-gradient(135deg, #fff 40%, #60a5fa 90%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }}
+        p.tagline {{ font-size:1.2rem; color:#94a3b8; max-width:720px; margin:0 auto 35px; line-height:1.6; }}
+        
+        /* Product Showcase Card */
+        .showcase {{ max-width:850px; margin:0 auto 60px; background:var(--card); border:1px solid var(--border); border-radius:32px; padding:40px; backdrop-filter:blur(16px); display:grid; grid-template-columns:1fr 1.2fr; gap:36px; align-items:center; position:relative; z-index:10; }}
+        @media(max-width:768px){{ .showcase {{ grid-template-columns:1fr; text-align:center; }} }}
+        .img-box {{ height:320px; background:radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%); border:1px solid var(--border); border-radius:24px; display:flex; align-items:center; justify-content:center; font-size:4.5rem; }}
+        .p-price {{ font-size:2.2rem; font-weight:900; color:#60a5fa; margin-bottom:12px; }}
+        .p-price s {{ font-size:1.2rem; color:#64748b; font-weight:500; margin-left:8px; }}
+        .size-row {{ display:flex; gap:10px; margin:16px 0 24px; }}
+        @media(max-width:768px){{ .size-row {{ justify-content:center; }} }}
+        .s-btn {{ width:42px; height:42px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:#fff; font-weight:700; cursor:pointer; }}
+        .s-btn.active {{ border-color:#60a5fa; background:rgba(37,99,235,0.25); }}
+        .btn-buy {{ width:100%; padding:16px; background:linear-gradient(135deg, #2563eb, #1d4ed8); border:none; border-radius:100px; color:#fff; font-size:1.1rem; font-weight:800; cursor:pointer; box-shadow:0 10px 25px rgba(37,99,235,0.4); transition:all 0.3s; }}
+        .btn-buy:hover {{ transform:scale(1.03); box-shadow:0 15px 35px rgba(37,99,235,0.6); }}
+        footer {{ text-align:center; padding:40px; border-top:1px solid var(--border); color:#64748b; }}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="brand">{title.upper()}</div>
+        <div class="cart-pill">🛒 Bag (<span id="cartCnt">0</span>)</div>
+    </nav>
+    <section class="hero">
+        <div class="badge">🔥 {desc.upper()}</div>
+        <h1>{title}</h1>
+        <p class="tagline">{p1}</p>
+    </section>
+
+    <div class="showcase">
+        <div class="img-box">👟</div>
+        <div>
+            <div style="font-size:0.85rem;font-weight:700;letter-spacing:1px;color:#f97316;text-transform:uppercase;margin-bottom:6px;">Edition Pro • In Stock</div>
+            <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:8px;">{title} Flagship</h2>
+            <div class="p-price">$189 <s>$240</s></div>
+            <p style="color:#94a3b8;font-size:0.95rem;line-height:1.5;margin-bottom:15px;">{p2}</p>
+            <div class="size-row">
+                <button class="s-btn" onclick="setSize(this)">US 8</button>
+                <button class="s-btn active" onclick="setSize(this)">US 9</button>
+                <button class="s-btn" onclick="setSize(this)">US 10</button>
+                <button class="s-btn" onclick="setSize(this)">US 11</button>
+            </div>
+            <button class="btn-buy" onclick="addToBag()">⚡ Add to Bag & Checkout</button>
+        </div>
+    </div>
+    <footer>Powered by <strong>Saathi AI</strong> • Live Knowledge Fetched for {title}</footer>
+    <script>
+        let items=0;
+        function setSize(b){{ document.querySelectorAll('.s-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }}
+        function addToBag(){{
+            items++; document.getElementById('cartCnt').innerText=items;
+            alert("{title} Flagship added to your bag! 🛒🔥");
+            celebrate();
+        }}
+        function celebrate(){{
+            for(let i=0;i<60;i++){{
+                const d=document.createElement('div');
+                d.style.position='fixed'; d.style.left=Math.random()*window.innerWidth+'px'; d.style.top='-10px';
+                d.style.width='8px'; d.style.height='8px'; d.style.background=['#2563eb','#60a5fa','#f97316','#fff'][Math.floor(Math.random()*4)];
+                d.style.zIndex='9999'; d.style.pointerEvents='none'; document.body.appendChild(d);
+                d.animate([{{transform:'translate(0,0)'}}, {{transform:`translate(${{(Math.random()-0.5)*140}}px, ${{window.innerHeight+20}}px)`}}], {{duration:1800}}).onfinish=()=>d.remove();
+            }}
+        }}
+    </script>
+</body>
+</html>"""
+
+    # 4. Tech / SaaS / AI / Software / Developer Tools
+    if archetype == "tech_saas":
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | Next-Generation Neural Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{ --primary: #6366f1; --accent: #06b6d4; --bg: #05060f; --card: rgba(14, 18, 36, 0.8); --border: rgba(255,255,255,0.08); }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }}
+        body {{ background:var(--bg); color:#fff; min-height:100vh; overflow-x:hidden; position:relative; }}
+        .nav {{ position:sticky; top:16px; max-width:1100px; margin:0 auto; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; background:rgba(10,14,28,0.8); backdrop-filter:blur(16px); border:1px solid var(--border); border-radius:100px; z-index:100; }}
+        .brand {{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:8px; }}
+        .brand-dot {{ width:9px; height:9px; border-radius:50%; background:#22c55e; box-shadow:0 0 10px #22c55e; }}
+        .hero {{ max-width:1000px; margin:70px auto 40px; text-align:center; padding:0 24px; position:relative; z-index:10; }}
+        .badge {{ display:inline-block; padding:8px 20px; border-radius:50px; background:rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.3); color:#818cf8; font-size:0.85rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:20px; }}
+        h1 {{ font-size:clamp(2.8rem,7vw,5rem); font-weight:900; line-height:1.1; margin-bottom:20px; background:linear-gradient(135deg, #fff 40%, #818cf8 80%, #06b6d4 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }}
+        p.tagline {{ font-size:1.2rem; color:#94a3b8; max-width:720px; margin:0 auto 35px; line-height:1.65; }}
+        
+        /* Terminal Simulator */
+        .terminal {{ max-width:780px; margin:0 auto 60px; background:#0b0d19; border:1px solid rgba(99,102,241,0.3); border-radius:20px; overflow:hidden; font-family:'JetBrains Mono',monospace; box-shadow:0 20px 50px rgba(0,0,0,0.6); position:relative; z-index:10; }}
+        .t-bar {{ padding:12px 18px; background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.05); display:flex; gap:8px; align-items:center; }}
+        .dot {{ width:11px; height:11px; border-radius:50%; }}
+        .t-body {{ padding:24px; font-size:0.95rem; line-height:1.7; color:#38bdf8; }}
+        .btn {{ padding:16px 38px; background:linear-gradient(135deg, #6366f1, #4f46e5); border:none; border-radius:100px; color:#fff; font-size:1.05rem; font-weight:700; cursor:pointer; box-shadow:0 10px 30px rgba(99,102,241,0.4); }}
+        
+        /* Bento Features */
+        .bento {{ max-width:1100px; margin:0 auto 80px; padding:0 24px; display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; position:relative; z-index:10; }}
+        .card {{ background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px; backdrop-filter:blur(14px); }}
+        .card h3 {{ font-size:1.4rem; font-weight:800; margin-bottom:10px; color:#fff; }}
+        .card p {{ color:#94a3b8; line-height:1.6; font-size:0.95rem; }}
+        footer {{ text-align:center; padding:40px; border-top:1px solid var(--border); color:#64748b; }}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="brand"><div class="brand-dot"></div><span>{title.upper()}</span></div>
+        <div style="color:#22c55e;font-size:0.85rem;font-weight:700;">API Status: 99.99%</div>
+    </nav>
+    <section class="hero">
+        <div class="badge">⚡ {desc.upper()}</div>
+        <h1>{title}</h1>
+        <p class="tagline">{p1}</p>
+        <button class="btn" onclick="celebrate()">🚀 Deploy Microservice</button>
+    </section>
+
+    <div class="terminal">
+        <div class="t-bar">
+            <div class="dot" style="background:#ef4444;"></div>
+            <div class="dot" style="background:#f59e0b;"></div>
+            <div class="dot" style="background:#22c55e;"></div>
+            <span style="color:#64748b;font-size:0.8rem;margin-left:10px;">bash — saathi-cli v2.0</span>
+        </div>
+        <div class="t-body">
+            <span style="color:#a855f7;">$</span> curl -X POST https://api.saathi.ai/v1/init \\<br>
+            &nbsp;&nbsp;-H "Authorization: Bearer sk_live_{title.lower()[:8]}" \\<br>
+            &nbsp;&nbsp;-d '{{"model": "saathi-quantum", "stream": true}}'<br><br>
+            <span style="color:#22c55e;">✔ Connected to {title} Neural Cluster (Latency: 14ms)</span><br>
+            <span style="color:#cbd5e1;">&gt; Telemetry active. 100% test coverage verified.</span>
+        </div>
+    </div>
+
+    <div class="bento">
+        <div class="card">
+            <h3>Neural Core Acceleration</h3>
+            <p>{p2}</p>
+        </div>
+        <div class="card">
+            <h3>Enterprise Fault Tolerance</h3>
+            <p>{p3}</p>
+        </div>
+        <div class="card">
+            <h3>Zero-Trust Data Mesh</h3>
+            <p>{p4}</p>
+        </div>
+    </div>
+    <footer>Synthesized by <strong>Saathi AI</strong> • Live Knowledge Fetched for {title}</footer>
+    <script>
+        function celebrate(){{
+            alert("Cluster initialized for {title}! Real-time pipeline launched. ⚡");
+            for(let i=0;i<60;i++){{
+                const d=document.createElement('div');
+                d.style.position='fixed'; d.style.left=Math.random()*window.innerWidth+'px'; d.style.top='-10px';
+                d.style.width='7px'; d.style.height='7px'; d.style.background=['#6366f1','#06b6d4','#a855f7','#fff'][Math.floor(Math.random()*4)];
+                d.style.zIndex='9999'; d.style.pointerEvents='none'; document.body.appendChild(d);
+                d.animate([{{transform:'translate(0,0)'}}, {{transform:`translate(${{(Math.random()-0.5)*140}}px, ${{window.innerHeight+20}}px)`}}], {{duration:1800}}).onfinish=()=>d.remove();
+            }}
+        }}
+    </script>
+</body>
+</html>"""
+
+    # 5. Default General / Historical / Knowledge / World Showcase
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title} | Premier Global Exhibition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {{ --primary: #0ea5e9; --accent: #8b5cf6; --bg: #070913; --card: rgba(16, 20, 36, 0.8); --border: rgba(255,255,255,0.09); }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }}
+        body {{ background:var(--bg); color:#fff; min-height:100vh; overflow-x:hidden; position:relative; }}
+        .nav {{ position:sticky; top:16px; max-width:1100px; margin:0 auto; padding:14px 28px; display:flex; justify-content:space-between; align-items:center; background:rgba(12,16,30,0.8); backdrop-filter:blur(16px); border:1px solid var(--border); border-radius:100px; z-index:100; }}
+        .brand {{ font-family:'Cinzel',serif; font-size:1.3rem; font-weight:900; letter-spacing:1px; }}
+        .hero {{ max-width:1000px; margin:70px auto 40px; text-align:center; padding:0 24px; position:relative; z-index:10; }}
+        .badge {{ display:inline-block; padding:8px 20px; border-radius:50px; background:rgba(14,165,233,0.12); border:1px solid rgba(14,165,233,0.3); color:#38bdf8; font-size:0.85rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:20px; }}
+        h1 {{ font-family:'Cinzel',serif; font-size:clamp(2.8rem,7vw,5.2rem); font-weight:900; line-height:1.1; margin-bottom:20px; background:linear-gradient(135deg, #fff 40%, #38bdf8 80%, #8b5cf6 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }}
+        p.tagline {{ font-size:1.2rem; color:#94a3b8; max-width:740px; margin:0 auto 35px; line-height:1.65; }}
+        .btn {{ padding:16px 40px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border:none; border-radius:100px; color:#fff; font-size:1.05rem; font-weight:800; cursor:pointer; box-shadow:0 10px 30px rgba(14,165,233,0.4); }}
+        
+        /* Bento Exhibition */
+        .bento {{ max-width:1100px; margin:40px auto 80px; padding:0 24px; display:grid; grid-template-columns:repeat(12, 1fr); gap:24px; position:relative; z-index:10; }}
+        .card {{ background:var(--card); border:1px solid var(--border); border-radius:28px; padding:34px; backdrop-filter:blur(14px); }}
+        .c-8 {{ grid-column:span 8; }} .c-4 {{ grid-column:span 4; }}
+        @media(max-width:850px){{ .c-8, .c-4 {{ grid-column:span 12; }} }}
+        .card h3 {{ font-size:1.5rem; font-weight:800; margin-bottom:12px; color:#fff; }}
+        .card p {{ color:#94a3b8; line-height:1.65; font-size:1rem; }}
+        footer {{ text-align:center; padding:40px; border-top:1px solid var(--border); color:#64748b; }}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="brand">🏛️ {title.upper()}</div>
+        <button class="btn" style="padding:10px 24px;font-size:0.95rem;" onclick="celebrate()">Explore Archive</button>
+    </nav>
+    <section class="hero">
+        <div class="badge">★ {desc.upper()} ★</div>
+        <h1>{title}</h1>
+        <p class="tagline">{p1}</p>
+        <button class="btn" onclick="celebrate()">✨ Discover Landmark Heritage</button>
+    </section>
+
+    <div class="bento">
+        <div class="card c-8">
+            <h3>Foundational Impact & Significance</h3>
+            <p>{p2}</p>
+        </div>
+        <div class="card c-4">
+            <h3>Distinction & Evolution</h3>
+            <p>{p3}</p>
+        </div>
+        <div class="card c-4">
+            <h3>Enduring Legacy</h3>
+            <p>{p4}</p>
+        </div>
+        <div class="card c-8">
+            <h3>Global Milestone & Contemporary Horizon</h3>
+            <p>{extract}</p>
+        </div>
+    </div>
+    <footer>Curated with <strong>Saathi AI</strong> • Live Knowledge Fetched for {title}</footer>
+    <script>
+        function celebrate(){{
+            alert("Welcome to the {title} digital archive! 🏛️✨");
+            for(let i=0;i<60;i++){{
+                const d=document.createElement('div');
+                d.style.position='fixed'; d.style.left=Math.random()*window.innerWidth+'px'; d.style.top='-10px';
+                d.style.width='8px'; d.style.height='8px'; d.style.background=['#0ea5e9','#38bdf8','#8b5cf6','#fff'][Math.floor(Math.random()*4)];
+                d.style.zIndex='9999'; d.style.pointerEvents='none'; document.body.appendChild(d);
+                d.animate([{{transform:'translate(0,0)'}}, {{transform:`translate(${{(Math.random()-0.5)*140}}px, ${{window.innerHeight+20}}px)`}}], {{duration:1800}}).onfinish=()=>d.remove();
+            }}
+        }}
     </script>
 </body>
 </html>"""

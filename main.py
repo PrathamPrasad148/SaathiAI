@@ -825,7 +825,23 @@ class Saathi:
                         fn_name = fn.get("name", "")
                         fn_args = fn.get("arguments", {})
 
-                        self.status_queue.put(("action", f"Executing: {fn_name}({fn_args.get('path') or fn_args.get('target') or fn_args.get('city') or ''})"))
+                        if isinstance(fn_args, str):
+                            try:
+                                fn_args = json.loads(fn_args)
+                            except json.JSONDecodeError:
+                                fn_args = {}
+                        if not isinstance(fn_args, dict):
+                            fn_args = {}
+
+                        preview = (
+                            fn_args.get("path")
+                            or fn_args.get("target")
+                            or fn_args.get("city")
+                            or ""
+                        )
+                        self.status_queue.put(
+                            ("action", f"Executing: {fn_name}({preview})")
+                        )
                         self.status_queue.put(("status", f"Running {fn_name}..."))
 
                         try:
@@ -1274,15 +1290,15 @@ class Saathi:
             self.append_chat("assistant", f"Screenshot saved to: {target}")
             return str(target)
         except Exception as error:
-            return f"Screeīnshot error: {error}"
+            return f"Screenshot error: {error}"
 
     def choose_workspace(self):
         folder = filedialog.askdirectory(parent=self.root, title="Choose Workspace Folder")
         if folder:
             self.append_chat("assistant", f"Workspace set to: {folder}")
-        return folderī
+        return folder
 
 
 if __name__ == "__main__":
     app = Saathi()
-    app.root.mainloop()īīī
+    app.root.mainloop()

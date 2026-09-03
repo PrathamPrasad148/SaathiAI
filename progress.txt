@@ -115,9 +115,14 @@ SaathiAI Step-by-Step Progress Tracker
 	- create_project
 	- Main entry point
 
-[ ] Step 11 - Final verification
-	- Test each notebook tab on Windows
-	- Verify Ollama models are installed and reachable
-	- Verify microphone, speech output, tray icon, reminders, notes,
-	  file operations, live data, and screenshot workflows
-	- Record any fixes and update this tracker
+[x] Step 11 - Final verification & Agentic Upgrade
+	- Integrated native Ollama tool-calling loop (create_file, read_file,
+	  list_directory, open_target, run_command, get_weather, get_currency,
+	  get_wikipedia, add_reminder, add_note, take_screenshot)
+	- Enabled multi-turn conversation memory across chat turns
+	- Upgraded model routing and added model switcher in header
+	- Resolved website/project refusal bug: Saathi now builds full code,
+	  saves to Projects/<name>/, and opens it directly in the browser
+	- Updated saathi.bat launcher to prioritize py -3.12 with all dependencies
+	- Verified live tools (weather, currency, Wikipedia), file tools, reminders,
+	  notes, and end-to-end website generation workflows

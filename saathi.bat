@@ -26,36 +26,25 @@ echo Starting Saathi AI...
 echo =======================================================
 
 :: 1. Check Python installation
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo [ERROR] Python is not installed or not added to PATH.
-    pause
-    goto MENU
+py -3.12 --version >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=py -3.12"
+) else (
+    set "PY_CMD=python"
 )
 
-:: 2. Manage virtual environment
-if not exist ".venv" (
-    echo [INFO] Creating virtual environment (.venv)...
-    python -m venv .venv
-)
-call .venv\Scripts\activate.bat
-
-:: 3. Check and install dependencies
-if exist "requirements.txt" (
-    echo [INFO] Checking dependencies from requirements.txt...
-    pip install -r requirements.txt --quiet
-) else if exist "AI\requirements.txt" (
-    echo [INFO] Checking dependencies from AI\requirements.txt...
-    pip install -r AI\requirements.txt --quiet
+:: 2. Manage virtual environment if needed
+if exist ".venv\Scripts\activate.bat" (
+    call .venv\Scripts\activate.bat
 )
 
-:: 4. Run application
+:: 3. Run application
 if exist "main.py" (
-    echo [INFO] Launching main.py...
-    python main.py %*
+    echo [INFO] Launching main.py with %PY_CMD%...
+    %PY_CMD% main.py %*
 ) else if exist "AI\main.py" (
-    echo [INFO] Launching AI\main.py...
-    python AI\main.py %*
+    echo [INFO] Launching AI\main.py with %PY_CMD%...
+    %PY_CMD% AI\main.py %*
 ) else (
     echo [ERROR] main.py could not be found.
 )

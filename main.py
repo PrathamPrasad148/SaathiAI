@@ -601,6 +601,14 @@ class Saathi:
 
         # Fast direct shortcuts for simple explicit queries
         lowered = text.lower().strip()
+        if "independence day" in lowered and any(k in lowered for k in ("website", "page", "site", "web")):
+            self._create_independence_day_website()
+            reply = "Bhai, Independence Day website successfully generate karke aapke default browser mein open kar di hai! 🇮🇳\n\nFile saved at: Projects/IndependenceDay/index.html\nHappy Independence Day! 🎉"
+            self.messages.append(("assistant", reply))
+            self.append_chat("assistant", reply)
+            self.save_history()
+            threading.Thread(target=self.speak, args=(reply,), daemon=True).start()
+            return
         if lowered in ("open projects", "open projects folder", "projects"):
             self.open_projects_folder()
             return
@@ -770,6 +778,17 @@ class Saathi:
                 role = "assistant" if item[0] == "assistant" else "user"
                 conv_messages.append({"role": role, "content": str(item[1])})
 
+        # Start live progress ticker thread
+        stop_ticker = threading.Event()
+        start_time = time.time()
+
+        def ticker():
+            while not stop_ticker.wait(1.5):
+                elapsed = int(time.time() - start_time)
+                self.status_queue.put(("status", f"⚡ {model} generating... ({elapsed}s)"))
+
+        threading.Thread(target=ticker, daemon=True).start()
+
         try:
             # Multi-turn tool-calling loop (up to 4 iterations)
             final_reply = ""
@@ -778,6 +797,7 @@ class Saathi:
                     "model": model,
                     "messages": conv_messages,
                     "tools": TOOLS_SCHEMA,
+                    "keep_alive": "60m",
                     "stream": False,
                 }
                 req = urllib.request.Request(
@@ -785,7 +805,8 @@ class Saathi:
                     json.dumps(payload).encode("utf-8"),
                     {"Content-Type": "application/json"}
                 )
-                with urllib.request.urlopen(req, timeout=90) as response:
+                # 300 seconds timeout for large generations on CPU
+                with urllib.request.urlopen(req, timeout=300) as response:
                     res_data = json.loads(response.read().decode("utf-8"))
 
                 msg = res_data.get("message", {})
@@ -793,7 +814,6 @@ class Saathi:
                 tool_calls = msg.get("tool_calls", [])
 
                 if tool_calls:
-                    # Append assistant's tool call message
                     conv_messages.append({
                         "role": "assistant",
                         "content": content,
@@ -819,30 +839,32 @@ class Saathi:
                             "content": str(result)
                         })
 
-                    # Continue loop so assistant sees tool outputs
                     continue
                 else:
-                    # Final response
                     final_reply = content
                     break
 
             if not final_reply:
                 final_reply = "Main ready hoon! Kaam ho gaya."
 
-            # Safety fallback: if user asked for Independence Day website and model only gave code in text without calling tool:
-            if "independence day" in text.lower() and ("<html" in final_reply.lower() or "website" in text.lower()):
-                ind_file = PROJECTS_DIR / "IndependenceDay" / "index.html"
-                if not ind_file.exists():
-                    self._create_independence_day_website()
-                    final_reply += "\n\n(Maine aapke liye Independence Day website `Projects/IndependenceDay/index.html` mein generate karke browser mein launch kar di hai! 🇮🇳)"
-
             self.reply_queue.put(final_reply)
 
         except Exception as error:
-            err_msg = f"Ollama se connect nahi ho paaya: {error}"
+            err_str = str(error)
+            if "timed out" in err_str.lower():
+                err_msg = (
+                    "Ollama request timed out on CPU. Laptop CPU pe bada code generate karne mein "
+                    "thoda zyada time lag sakta hai.\n\n"
+                    "Tip: Aap upar Model dropdown se 'qwen3:4b-instruct' select kar sakte ho — "
+                    "wo CPU pe 2x faster response deta hai!"
+                )
+            else:
+                err_msg = f"Ollama se connect nahi ho paaya: {error}"
             self.reply_queue.put(err_msg)
 
-        self.status_queue.put(("status", "🟢 Ollama Online"))
+        finally:
+            stop_ticker.set()
+            self.status_queue.put(("status", "🟢 Ollama Online"))
 
     def _create_independence_day_website(self):
         """Creates an Independence Day website in Projects/IndependenceDay/index.html and opens it."""

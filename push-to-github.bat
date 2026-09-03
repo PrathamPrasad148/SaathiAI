@@ -49,6 +49,21 @@ if errorlevel 1 (
     echo [INFO] No new local changes to commit.
 )
 
+echo [INFO] Fetching the current GitHub main branch...
+git fetch origin main
+if errorlevel 1 goto FAILED
+
+git rev-parse --verify origin/main >nul 2>&1
+if not errorlevel 1 (
+    echo [INFO] Combining existing GitHub history with local history...
+    git merge origin/main --allow-unrelated-histories --no-edit
+    if errorlevel 1 (
+        echo [ERROR] The histories could not be merged automatically.
+        echo Resolve the conflicts, commit the result, and run this file again.
+        goto FAILED
+    )
+)
+
 echo [INFO] Pushing all committed project files to GitHub...
 git push -u origin main
 if errorlevel 1 (

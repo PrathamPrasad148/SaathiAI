@@ -1,7 +1,0 @@
-To install the "ui-ux-pro-max-skill" in Saathi AI, you would typically follow these steps:
-
-1. **Clone the Repository**: Use Git to clone the repository to your local machine.
-2. **Install Dependencies**: Navigate to the cloned directory and install any required dependencies, usually specified in a `requirements.txt` or similar file.
-3. **Integrate with Saathi AI**: Modify the Saathi AI code to include the new skill, ensuring that it can call the functions provided by the skill.
-
-However, since I can only generate file contents and not execute commands or modify the existing code directly, please provide me with the specific file path and any existing contents if you want to modify a file related to this skill. If you need a new file created for this skill, please specify the file name and its intended contents.

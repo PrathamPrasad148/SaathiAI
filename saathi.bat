@@ -33,9 +33,19 @@ if not errorlevel 1 (
     set "PY_CMD=python"
 )
 
-:: 2. Manage virtual environment if needed
-if exist ".venv\Scripts\activate.bat" (
-    call .venv\Scripts\activate.bat
+:: 2. Check and install dependencies
+echo [INFO] Checking required packages...
+%PY_CMD% -c "import sounddevice, faster_whisper, numpy, edge_tts, pygame, send2trash, pystray, PIL" >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Missing dependencies detected. Installing from requirements.txt...
+    %PY_CMD% -m pip install -r requirements.txt
+    if errorlevel 1 (
+        echo [ERROR] Failed to install dependencies.
+        pause
+        goto MENU
+    )
+) else (
+    echo [INFO] All dependencies verified.
 )
 
 :: 3. Run application

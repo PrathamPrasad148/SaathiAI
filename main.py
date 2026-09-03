@@ -100,24 +100,31 @@ CRITICAL INSTRUCTIONS FOR CODING & PROJECT CREATION:
    - Write modern HTML5, gorgeous CSS3 styling (tricolor gradients, animations, glassmorphism, responsive layout, Ashok Chakra details, interactive cards), and interactive JavaScript!
    - Immediately after creating the file, call `open_target` with the file path (`Projects/<ProjectName>/index.html`) so it opens directly in the user's default browser!
    - NEVER say you cannot create websites or need a server. You run right on their machine and have full ability to build and launch it!
+    - When the user requests a 21st.dev component, use its component category and interaction pattern as inspiration, then create the complete local implementation in the target project. Include polished entrance, hover, focus, loading, and reduced-motion states where appropriate. For animated web effects, use CSS and vanilla JavaScript in static HTML projects; use React/Tailwind only when the target project is actually React/Tailwind.
+    - You may create multiple components in one website request, but every component must be wired into the page, responsive, keyboard accessible, and functional rather than left as a showcase snippet.
 2. When the user asks to write a Python script or program:
    - Call `create_file` to save it under `Projects/` or current workspace.
    - Explain clearly how it works and how to run it.
 3. Keep your tone energetic, confident, respectful, and helpful. Always summarize what you built or accomplished in friendly Hinglish!"""
 
 UI_UX_SKILL_FILE = APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md"
+TWENTY_FIRST_DEV_SKILL_FILE = APP_DIR / "skills" / "21st-dev" / "SKILL.md"
 
 if not UI_UX_SKILL_FILE.exists():
     UI_UX_SKILL_FILE = APP_DIR / "skills" / "ui-ux-pro-max" / "SKILL.md"
 
-if UI_UX_SKILL_FILE.exists():
-    try:
-        SYSTEM_PROMPT += (
-            "\n\nUI/UX PRO MAX SKILL:\n"
-            + UI_UX_SKILL_FILE.read_text(encoding="utf-8")
-        )
-    except OSError:
-        pass
+for skill_file, skill_name in (
+    (UI_UX_SKILL_FILE, "UI/UX PRO MAX"),
+    (TWENTY_FIRST_DEV_SKILL_FILE, "21ST.DEV COMPONENT INTEGRATION"),
+):
+    if skill_file.exists():
+        try:
+            SYSTEM_PROMPT += (
+                f"\n\n{skill_name} SKILL:\n"
+                + skill_file.read_text(encoding="utf-8")
+            )
+        except OSError:
+            pass
 
 TOOLS_SCHEMA = [
     {

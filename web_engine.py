@@ -1533,3 +1533,191 @@ def generate_custom_god_level_html(topic: str) -> str:
 </body>
 </html>"""
 
+
+def enrich_html_with_god_level_features(html_code: str, title: str = "Modern Experience") -> str:
+    """If incoming HTML lacks modern dynamic effects, injects 21st.dev spotlight, particle canvas, web audio, and confetti."""
+    if not html_code or "<html" not in html_code.lower():
+        return generate_custom_god_level_html(title)
+
+    has_canvas = "particlecanvas" in html_code.lower()
+    has_audio = "audiofx" in html_code.lower()
+
+    if has_canvas and has_audio:
+        return html_code
+
+    enhancement_css = """
+    <style id="god-level-enhancements">
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.15), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .spotlight-card:hover::before { opacity: 1; }
+        .spotlight-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        #particleCanvasBg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 0;
+        }
+    </style>
+    """
+
+    enhancement_js = """
+    <canvas id="particleCanvasBg"></canvas>
+    <script id="god-level-scripts">
+        // 21st.dev Spotlight Tracking on cards
+        document.querySelectorAll('.card, .bento-card, section > div, .box, .feature').forEach(el => {
+            el.classList.add('spotlight-card');
+            el.addEventListener('mousemove', e => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // Web Audio Synthesizer
+        const AudioFX = {
+            ctx: null,
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            playClick() {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+                } catch(e) {}
+            },
+            playFanfare() {
+                try {
+                    this.init();
+                    [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.08);
+                        gain.gain.setValueAtTime(0.1, this.ctx.currentTime + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.08 + 0.4);
+                        osc.connect(gain); gain.connect(this.ctx.destination);
+                        osc.start(this.ctx.currentTime + i * 0.08);
+                        osc.stop(this.ctx.currentTime + i * 0.08 + 0.45);
+                    });
+                } catch(e) {}
+            }
+        };
+        document.querySelectorAll('button, a').forEach(btn => {
+            btn.addEventListener('click', () => AudioFX.playClick());
+        });
+
+        // Physics Confetti
+        function launchGlobalConfetti() {
+            const colors = ['#6366f1', '#ec4899', '#06b6d4', '#eab308', '#22c55e', '#ffffff'];
+            for(let i=0; i<70; i++) {
+                const c = document.createElement('div');
+                c.style.position = 'fixed';
+                c.style.left = Math.random() * window.innerWidth + 'px';
+                c.style.top = '-10px';
+                const s = Math.random() * 8 + 5;
+                c.style.width = s + 'px'; c.style.height = (s * 1.4) + 'px';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.zIndex = '99999';
+                c.style.pointerEvents = 'none';
+                document.body.appendChild(c);
+                const drift = (Math.random() - 0.5) * 160;
+                c.animate([
+                    { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(${drift}px, ${window.innerHeight + 20}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                ], { duration: Math.random()*2000 + 1500, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => c.remove();
+            }
+        }
+        document.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { launchGlobalConfetti(); AudioFX.playFanfare(); }));
+
+        // Particle Canvas Background
+        const canvas = document.getElementById('particleCanvasBg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
+            window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
+            const pts = [];
+            for (let i=0; i<50; i++) {
+                pts.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4, r: Math.random()*1.8+0.6 });
+            }
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                for (let i=0; i<pts.length; i++) {
+                    const p = pts[i];
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; ctx.fill();
+                    for (let j=i+1; j<pts.length; j++) {
+                        const p2 = pts[j];
+                        const d = Math.hypot(p.x - p2.x, p.y - p2.y);
+                        if (d < 110) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${0.12 * (1 - d/110)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+    </script>
+    """
+
+    if "</head>" in html_code:
+        html_code = html_code.replace("</head>", f"{enhancement_css}\n</head>", 1)
+    else:
+        html_code = f"{enhancement_css}\n{html_code}"
+
+    if "</body>" in html_code:
+        html_code = html_code.replace("</body>", f"{enhancement_js}\n</body>", 1)
+    else:
+        html_code = f"{html_code}\n{enhancement_js}"
+
+    return html_code
+
+
+def extract_html_code_block(text: str) -> str | None:
+    """Finds HTML code inside markdown code blocks or raw HTML in text."""
+    if not text:
+        return None
+    m = re.search(r"```(?:html)?\s*(<!DOCTYPE html.*?>.*?</html>)", text, flags=re.DOTALL | re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+
+    m2 = re.search(r"```(?:html)?\s*(<html.*?>.*?</html>)", text, flags=re.DOTALL | re.IGNORECASE)
+    if m2:
+        return m2.group(1).strip()
+
+    m3 = re.search(r"(<!DOCTYPE html.*?>.*?</html>)", text, flags=re.DOTALL | re.IGNORECASE)
+    if m3:
+        return m3.group(1).strip()
+
+    m4 = re.search(r"(<html.*?>.*?</html>)", text, flags=re.DOTALL | re.IGNORECASE)
+    if m4:
+        return m4.group(1).strip()
+
+    return None
+

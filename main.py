@@ -699,7 +699,10 @@ class Saathi:
             return
 
         # God-Level Website Creator Engine (21st.dev & UI/UX Pro Max standards)
-        if "independence day" in lowered and any(k in lowered for k in ("website", "page", "site", "web", "create", "make", "build")):
+        has_web_term = any(k in lowered for k in ("website", "web site", "webpage", "web page", "landing page", "portfolio"))
+        has_action_term = any(v in lowered for v in ("build", "create", "make", "design", "generate", "code", "want", "need", "give", "banao", "banado", "tayyar", "develop", "show"))
+
+        if "independence day" in lowered and has_web_term:
             file_path = self._create_independence_day_website()
             reply = (
                 "Bhai, 78th Independence Day ka GOD-LEVEL animated website ready hai! 🇮🇳\n\n"
@@ -716,15 +719,12 @@ class Saathi:
             threading.Thread(target=self.speak, args=(reply,), daemon=True).start()
             return
 
-        if any(w in lowered for w in (
-            "create website", "make website", "build website", "create a website",
-            "make a website", "build a website", "create landing page", "build landing page",
-            "make landing page", "portfolio website", "animated website", "god level website"
-        )):
+        if (has_web_term and has_action_term) or any(p in lowered for p in ("website on ", "website for ", "webpage for ", "site on ", "site for ")):
             topic = re.sub(
-                r'^(create|make|build|generate)\s+(me\s+)?(a\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
+                r'^(can you\s+)?(please\s+)?(create|make|build|generate|design|code|develop)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
                 '', text, flags=re.I
             ).strip()
+            topic = re.sub(r'^(website|landing page|portfolio)\s*(on|for|about|of)?\s*', '', topic, flags=re.I).strip()
             if not topic:
                 topic = "Modern Digital Experience"
             file_path = self.create_god_level_website(topic)
@@ -997,12 +997,51 @@ class Saathi:
                     final_reply = content
                     break
 
-            if website_request and created_html_files:
+            # 1. Did the model dump HTML code directly into final_reply instead of calling create_file?
+            extracted_html = web_engine.extract_html_code_block(final_reply)
+            if extracted_html:
+                clean_title = re.sub(
+                    r'^(can you\s+)?(please\s+)?(create|make|build|generate|design|code|develop)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
+                    '', text, flags=re.I
+                ).strip() or "Modern Experience"
+                enriched_html = web_engine.enrich_html_with_god_level_features(extracted_html, clean_title)
+                clean_folder = re.sub(r'[^a-zA-Z0-9_-]', '', clean_title.replace(' ', '_'))[:30] or "Website"
+                target_dir = PROJECTS_DIR / clean_folder
+                target_dir.mkdir(parents=True, exist_ok=True)
+                html_file = target_dir / "index.html"
+                html_file.write_text(enriched_html, encoding="utf-8")
+                created_html_files.append(str(html_file))
+
+                # Replace raw code in chat with clean confirmation
+                final_reply = (
+                    f"Bhai, '{clean_title}' ka GOD-LEVEL animated website successfully create karke browser mein automatically open kar diya hai! 🚀\n\n"
+                    f"• Saved at: {html_file}\n"
+                    "• 21st.dev Dynamic Spotlight Hover Cards & Web Audio Synthesizer\n"
+                    "• Extreme animations, starlight canvas & confetti celebration active!"
+                )
+
+            # 2. Guarantee that created website is launched in browser
+            if created_html_files:
                 finished_website = created_html_files[-1]
                 self.status_queue.put(("status", "Opening finished website..."))
                 self.execute_tool(
                     "open_target",
                     {"target": finished_website}
+                )
+            elif website_request and not created_html_files:
+                # If model failed to provide code or timed out, build God-Level site directly
+                clean_title = re.sub(
+                    r'^(can you\s+)?(please\s+)?(create|make|build|generate|design|code|develop)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*',
+                    '', text, flags=re.I
+                ).strip() or "Modern Experience"
+                finished_website = str(self.create_god_level_website(clean_title))
+                final_reply = (
+                    f"Bhai, '{clean_title}' ka GOD-LEVEL animated website 21st.dev spotlight cards aur extreme color skills ke saath ready hai! 🚀\n\n"
+                    f"• File save karke browser mein open kar diya: {finished_website}\n"
+                    "• 21st.dev Dynamic Spotlight Hover Cards\n"
+                    "• Interactive Canvas Starlight Particles\n"
+                    "• Zero-Dependency Web Audio Synthesizer\n"
+                    "• Physics Confetti Celebration Canon"
                 )
 
             if not final_reply:

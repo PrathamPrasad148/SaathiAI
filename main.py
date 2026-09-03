@@ -170,9 +170,9 @@ def _first_nonempty_skill(*candidates):
 
 
 UI_UX_SKILL_FILE = _first_nonempty_skill(
-    APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md",
-    APP_DIR / "skills" / "ui-ux-pro-max" / ".claude" / "skills" / "ui-ux-pro-max" / "SKILL.md",
     APP_DIR / "skills" / "ui-ux-pro-max" / "SKILL.md",
+    APP_DIR / "skills" / "ui-ux-pro-max" / ".claude" / "skills" / "ui-ux-pro-max" / "SKILL.md",
+    APP_DIR / "saathi-ai" / "skills" / "ui-ux-pro-max" / "SKILL.md",
 )
 TWENTY_FIRST_DEV_SKILL_FILE = _first_nonempty_skill(
     APP_DIR / "skills" / "21st-dev" / "SKILL.md",

@@ -1280,9 +1280,9 @@ class Saathi:
         folder = filedialog.askdirectory(parent=self.root, title="Choose Workspace Folder")
         if folder:
             self.append_chat("assistant", f"Workspace set to: {folder}")
-        return folder
+        return folderī
 
 
 if __name__ == "__main__":
     app = Saathi()
-    app.root.mainloop()
+    app.root.mainloop()īīī

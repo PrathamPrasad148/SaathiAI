@@ -217,6 +217,11 @@ class AICoreVisualizer(tk.Canvas):
         self.target_audio_level = min(1.0, max(0.0, level * 5.0))
 
     def _render_frame(self):
+        if not self._running:
+            return
+
+        self.delete("all")
+
         w = self.width
         h = self.height
 
@@ -274,14 +279,8 @@ class AICoreVisualizer(tk.Canvas):
         # --- 0D. CIRCUIT BUS STREAMING DATA PACKETS ---
         self._update_and_draw_circuit_packets(cx, cy)
 
-        # --- 1. TOP 30-DAY MATRIX CALENDAR RIBBON ---
-        self._draw_top_calendar_matrix(w)
-
-        # --- 2. TOP LOCATION & AUDIO MEDIA TICKER ---
-        self._draw_top_location_media(w, cx)
-
-        # --- 3. CIRCULAR CHRONOMETER DIAL (02:40) ---
-        self._draw_chronometer_dial(cx, 58)
+        # --- 1. TACTICAL HUD HORIZON & TELEMETRY RETICLE (REPLACES DUPLICATE CALENDAR/CLOCK) ---
+        self._draw_hud_horizon_line(w, cx)
 
         # --- 4. TOP-LEFT GIANT DATE & TIME DIAL ---
         self._draw_giant_date_dial(105, 105)
@@ -367,86 +366,21 @@ class AICoreVisualizer(tk.Canvas):
             self.create_line(20, gy, w - 210, gy, fill="#020d1c", width=1, dash=(2, 8))
 
     # -------------------------------------------------------------
-    # 1. TOP 30-DAY MATRIX CALENDAR RIBBON
+    # 1. TACTICAL HUD HORIZON BAR & TELEMETRY RETICLE
     # -------------------------------------------------------------
-    def _draw_top_calendar_matrix(self, w):
-        now = datetime.datetime.now()
-        cur_day = now.day
-        total_days = calendar.monthrange(now.year, now.month)[1]
+    def _draw_hud_horizon_line(self, w, cx):
+        # Subtle military HUD horizon line across the upper viewport
+        self.create_line(35, 18, w - 35, 18, fill="#072242", width=1)
 
-        start_x = 22
-        y = 12
-        spacing = 26
+        # Central azimuth notch
+        self.create_line(cx - 36, 18, cx - 12, 18, fill="#00f0ff", width=2)
+        self.create_line(cx + 12, 18, cx + 36, 18, fill="#00f0ff", width=2)
+        self.create_oval(cx - 4, 14, cx + 4, 22, outline="#00f0ff", fill="#01040a", width=1)
+        self.create_text(cx, 30, text="SAATHI HOLOGRAPHIC HUD // ONLINE", font=FONT_HUD_TINY, fill="#38bdf8")
 
-        for d in range(1, total_days + 1):
-            day_str = f"{d:02d}"
-            bx = start_x + (d - 1) * spacing
-            if d == cur_day:
-                # Active illuminated cyan indicator badge
-                self.create_rectangle(bx - 3, y - 2, bx + 19, y + 12, fill="#00f0ff", outline="")
-                self.create_text(bx + 8, y + 5, text=day_str, font=("Consolas", 8, "bold"), fill="#01040a")
-            else:
-                self.create_text(bx + 8, y + 5, text=day_str, font=("Consolas", 7), fill="#1e3a5f")
-
-    # -------------------------------------------------------------
-    # 2. TOP LOCATION & AUDIO MEDIA TICKER
-    # -------------------------------------------------------------
-    def _draw_top_location_media(self, w, cx):
-        # Grid Coordinates & Location
-        self.create_text(
-            w - 230, 26,
-            text="PRATHAM TOWER // NEW DELHI // SECTOR 07 // GRID SECURE",
-            font=FONT_HUD_TINY,
-            fill="#38bdf8",
-            anchor="e"
-        )
-
-        # Media Player Stream Header
-        media_x = cx + 75
-        media_y = 34
-        # Speaker Icon
-        self.create_polygon(
-            media_x, media_y, media_x + 4, media_y, media_x + 8, media_y - 4,
-            media_x + 8, media_y + 8, media_x + 4, media_y + 4, media_x, media_y + 4,
-            fill="#00f0ff", outline=""
-        )
-        # Real-time frequency bars beside speaker
-        for b in range(8):
-            bh = 2 + (self.audio_level * 12 * math.sin(self.pulse * 2 + b * 0.7))
-            bx = media_x + 12 + b * 4
-            self.create_line(bx, media_y + 2 - bh, bx, media_y + 2 + bh, fill="#00f0ff", width=2)
-
-        track_title = "Laichzeit // FLAC 96kHz"
-        artist = "Rammstein • Acoustic Matrix"
-        if self.state == "SPEAKING":
-            track_title = "Neural Audio Synthesizer"
-            artist = "Edge TTS // Saathi Voice Stream"
-        elif self.state == "LISTENING":
-            track_title = "Acoustic Sensor Stream"
-            artist = "Whisper Neural Decryption Active"
-
-        self.create_text(media_x + 50, media_y - 4, text=track_title, font=("Segoe UI", 9, "bold"), fill="#f8fafc", anchor="w")
-        self.create_text(media_x + 50, media_y + 8, text=f"• {artist} •", font=FONT_HUD_TINY, fill="#00f0ff", anchor="w")
-
-    # -------------------------------------------------------------
-    # 3. CIRCULAR CHRONOMETER DIAL (02:40)
-    # -------------------------------------------------------------
-    def _draw_chronometer_dial(self, x, y):
-        radius = 38
-        self.create_oval(x - radius, y - radius, x + radius, y + radius, outline="#082240", width=1)
-        self.create_arc(x - radius + 3, y - radius + 3, x + radius - 3, y + radius - 3, start=40, extent=-280, style="arc", outline="#00f0ff", width=2)
-
-        # Degree calibration ticks
-        for deg in range(0, 360, 30):
-            rad = math.radians(deg)
-            x1 = x + (radius - 5) * math.cos(rad)
-            y1 = y + (radius - 5) * math.sin(rad)
-            x2 = x + radius * math.cos(rad)
-            y2 = y + radius * math.sin(rad)
-            self.create_line(x1, y1, x2, y2, fill="#00a8ff", width=1)
-
-        now = datetime.datetime.now()
-        self.create_text(x, y, text=now.strftime("%H:%M"), font=("Segoe UI", 13, "bold"), fill="#ffffff")
+        # Telemetry corner watermarks (non-duplicative)
+        self.create_text(40, 10, text="AZM: 000° [NORAD]", font=("Consolas", 7), fill="#1e3a5f", anchor="w")
+        self.create_text(w - 40, 10, text="COORD: 28.61° N // 77.20° E", font=("Consolas", 7), fill="#1e3a5f", anchor="e")
 
     # -------------------------------------------------------------
     # 4. TOP-LEFT GIANT DATE & TIME DIAL
@@ -469,7 +403,7 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x, y - 22, text=month_str, font=("Segoe UI", 9, "bold"), fill="#38bdf8")
         self.create_text(x, y + 2, text=day_num, font=("Segoe UI", 26, "bold"), fill="#ffffff")
         self.create_text(x, y + 26, text=weekday_str, font=FONT_HUD_TINY, fill="#00ffaa")
-        self.create_text(x, y + radius + 12, text=sec_clock, font=FONT_HUD_TINY, fill="#00f0ff")
+        self.create_text(x, y + radius + 12, text="CALENDAR MATRIX", font=FONT_HUD_TINY, fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 5. UPPER-LEFT RAM & SWAP CONCENTRIC GAUGE
@@ -550,9 +484,9 @@ class AICoreVisualizer(tk.Canvas):
             py_e = y + ex_e * math.sin(rot) + ey_e * math.cos(rot)
             self.create_oval(px_e - 2, py_e - 2, px_e + 2, py_e + 2, fill="#00f0ff", outline="")
 
-        self.create_text(x, y - 8, text="PRATHAM", font=("Segoe UI", 9, "bold"), fill="#38bdf8")
-        self.create_text(x, y + 6, text="PRASAD", font=("Segoe UI", 12, "bold"), fill="#ffffff")
-        self.create_text(x, y + 18, text="AI LABS", font=("Segoe UI", 7, "bold"), fill="#00f0ff")
+        self.create_text(x, y - 8, text="QUANTUM", font=("Segoe UI", 8, "bold"), fill="#38bdf8")
+        self.create_text(x, y + 5, text="NUCLEUS", font=("Segoe UI", 11, "bold"), fill="#ffffff")
+        self.create_text(x, y + 18, text="MARK VII CORE", font=("Segoe UI", 7, "bold"), fill="#00ffaa")
 
     # -------------------------------------------------------------
     # 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER
@@ -589,16 +523,11 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x, y + 18, text="PEAK OUTPUT", font=FONT_HUD_TINY, fill="#00ffaa")
 
     # -------------------------------------------------------------
-    # 11. RECYCLE REPOSITORY & SYSTEM UPTIME TELEMETRY
+    # 11. RECYCLE REPOSITORY & SYSTEM STABILITY TELEMETRY
     # -------------------------------------------------------------
     def _draw_trash_uptime_telemetry(self, x, y):
         self.create_text(x, y, text="♺ TRASH REPOSITORY: 0 OBJECTS", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
-
-        elapsed = int(time.time() - self.start_time)
-        hrs = elapsed // 3600
-        mins = (elapsed % 3600) // 60
-        secs = elapsed % 60
-        self.create_text(x, y + 16, text=f"SYSTEM UPTIME: 0d {hrs}h {mins}m {secs}s", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
+        self.create_text(x, y + 16, text="SYSTEM STABILITY: 99.9% // OK", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
 
         self.create_text(x, y + 32, text="COMMS: 0 PENDING PACKETS // SECURE", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
         for i in range(3):
@@ -617,7 +546,7 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x, y + 6, text="1.6k", font=FONT_HUD_TINY, fill="#00ffaa")
 
     # -------------------------------------------------------------
-    # 13. BOTTOM-LEFT WINDOWS CONTROLS & IP ADDRESS
+    # 13. BOTTOM-LEFT WINDOWS CONTROLS & OS KERNEL STATUS
     # -------------------------------------------------------------
     def _draw_windows_system_controls(self, x, y):
         # Windows Logo Orb
@@ -631,8 +560,8 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x + 24, y - 5, text="⏻ POWER DOWN", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
         self.create_text(x + 24, y + 7, text="⟳ REBOOT CORE", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
 
-        # Local IP Address
-        self.create_text(x + 130, y + 2, text=f"IP: {self.local_ip}", font=FONT_MONO, fill="#00f0ff", anchor="w")
+        # OS Kernel Status
+        self.create_text(x + 130, y + 2, text="OS KERNEL: ACTIVE", font=FONT_MONO, fill="#00ffaa", anchor="w")
 
     # -------------------------------------------------------------
     # 14. THE GRAND MASTER ARC REACTOR CORE
@@ -802,7 +731,7 @@ class AICoreVisualizer(tk.Canvas):
             cx - 140, banner_y + 8, cx - 128, banner_y - 8, cx + 128, banner_y - 8,
             cx + 140, banner_y + 8, fill="", outline="#0e3a6c", width=1
         )
-        self.create_text(cx, banner_y, text="PRATHAM PRASAD // SAATHI AI", font=("Segoe UI", 11, "bold"), fill="#00f0ff")
+        self.create_text(cx, banner_y, text="SAATHI AI // COGNITIVE CORE MARK VII", font=("Segoe UI", 11, "bold"), fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 16. 3D ROTATING GYROSCOPE CUBE & RADAR SCOPE

@@ -76,7 +76,6 @@ class SaathiApp:
                 on_send_command=self.handle_user_input,
                 on_toggle_voice=self.toggle_voice
             ),
-            "tasks": self.task_observer,
             "memory": MemoryView(self.center_viewport, self.memory),
             "automations": AutomationWorkflowsView(self.center_viewport, self.automations, on_run_workflow=self._run_workflow_direct),
             "projects": ProjectsGalleryView(self.center_viewport, self.projects_dir, on_create_site=self.handle_user_input),

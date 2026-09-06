@@ -102,3 +102,4 @@ Don't create boring slides. Plain bullets on a white background won't impress an
    python scripts/office/soffice.py --headless --convert-to pdf output.pptx
    pdftoppm -jpeg -r 150 output.pdf slide
    ```
+

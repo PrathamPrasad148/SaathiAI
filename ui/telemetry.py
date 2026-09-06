@@ -73,6 +73,9 @@ class TopTelemetryBar(tk.Frame):
         self.lbl_ram = tk.Label(status_strip, text="RAM: --%", font=FONT_HUD_TINY, bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED)
         self.lbl_ram.pack(side="left", padx=8)
 
+        self.lbl_gpu = tk.Label(status_strip, text="GPU: N/A", font=FONT_HUD_TINY, bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED)
+        self.lbl_gpu.pack(side="left", padx=8)
+
         self.lbl_mic = tk.Label(status_strip, text="ACOUSTIC: READY", font=FONT_HUD_TINY, bg="#05192d", fg=COLOR_EMERALD, padx=6, pady=1)
         self.lbl_mic.pack(side="left", padx=8)
 
@@ -197,6 +200,20 @@ class TopTelemetryBar(tk.Frame):
             ram = info.get("ram_percent", 0.0)
             self.lbl_cpu.configure(text=f"CPU: {cpu}%")
             self.lbl_ram.configure(text=f"RAM: {ram}%")
+
+            # GPU Telemetry
+            try:
+                from automation.hardware import get_gpu_telemetry
+                gpu_info = get_gpu_telemetry()
+                if gpu_info.get("available"):
+                    temp = gpu_info.get("temp_c", 0)
+                    v_used = gpu_info.get("vram_used_gb", 0.0)
+                    v_tot = gpu_info.get("vram_total_gb", 0.0)
+                    self.lbl_gpu.configure(text=f"GPU: {temp}°C // VRAM {v_used}/{v_tot} GB", fg=COLOR_CYAN)
+                else:
+                    self.lbl_gpu.configure(text="GPU: ACTIVE", fg=COLOR_TEXT_MUTED)
+            except Exception:
+                pass
         except Exception:
             pass
         self.after(1000, self._update_telemetry)

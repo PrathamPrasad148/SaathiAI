@@ -190,6 +190,31 @@ class SaathiApp:
             )
         self.agent.on_reply_ready = on_reply
 
+        # 8. Initialize On-Device Wake-Word Listener ('Hey Saathi')
+        try:
+            from voice.wakeword import WakeWordListener
+            def on_wakeword(phrase):
+                self.root.after(0, lambda: self.voice.toggle_listening())
+            self.wakeword_listener = WakeWordListener(callback=on_wakeword)
+            self.wakeword_listener.start()
+        except Exception:
+            pass
+
+        # 9. Initialize Android Cross-Device Companion Bridge
+        try:
+            from bridge.android_bridge import AndroidBridgeServer
+            self.android_bridge = AndroidBridgeServer()
+            def on_android_evt(payload):
+                evt = payload.get("event", "notification")
+                txt = payload.get("text", "")
+                self.root.after(0, lambda: self._append_to_chat_views("action", f"[ANDROID SYNC // {evt.upper()}] {txt}"))
+            self.android_bridge.register_handler("notification", on_android_evt)
+            self.android_bridge.register_handler("sms", on_android_evt)
+            self.android_bridge.register_handler("call_alert", on_android_evt)
+            self.android_bridge.start()
+        except Exception:
+            pass
+
     def _switch_view(self, key: str):
         if key in self.views and key != self.current_view_key:
             self.views[self.current_view_key].pack_forget()

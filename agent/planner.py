@@ -31,6 +31,33 @@ When asked to create a website:
 - Immediately call open_target to launch it in the user's browser!
 Always summarize what you built or accomplished with energy, confidence, calm assurance, and genuine respect!"""
 
+COMMON_REFLEX_PHRASES = [
+    "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
+    "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
+    "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
+    "At your service, Pratham. All neural links active. How can I help you right now?",
+    "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
+    "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
+    "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?",
+    "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad.",
+    "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
+    "Bilkul Pratham, main yahin hoon aur dhyan se sun raha hoon. Boliye, kya madad karoon?",
+    "Always at your service, Pratham. Aap bas focus rakhiye, baki sab main dekh loonga.",
+    "A very good morning, Pratham! System vitals nominal, mind clear. Let's make today productive and great.",
+    "Good afternoon, Pratham! Systems are humming along nicely. What are we tackling this afternoon?",
+    "Good evening, Pratham! Ready for our evening run. Let me know what you'd like to work on.",
+    "Shubh ratri, Pratham. Rest well and recharge. Main background telemetry guard kar raha hoon.",
+    "Bilkul Pratham! Ready whenever you are.",
+    "Understood, sir. Standing by.",
+    "Main websites build kar sakta hoon, files organize kar sakta hoon, terminal commands safely run kar sakta hoon, aur reminders manage karta hoon.",
+    "Ek developer ne doosre se poocha: 'Zindagi mein itna stress kyun hai?' Doosra bola: 'Semicolon missing tha bhai, code compile hi nahi ho rahi!' Always keep smiling, Pratham!",
+    "Right away, Pratham. I'm preparing your workspace and architecting the interactive components for your website now.",
+    "On it, Pratham. Scanning your directory structure and preparing to categorize your files safely.",
+    "Accessing live meteorological telemetry for your requested location now.",
+    "Connecting to real-time financial exchange telemetry now.",
+    "Analyzing your directive, Pratham. Running cognitive inference and planning the optimal execution path."
+]
+
 class AgentPlanner:
     def __init__(self,
                  tool_registry: ToolRegistry,
@@ -63,7 +90,12 @@ class AgentPlanner:
     def pick_model(self, text: str) -> str:
         if self.selected_model and self.selected_model != "Auto (Smart Agent)":
             return self.selected_model
-        return "qwen2.5:7b"
+        lowered = text.lower().strip()
+        # Heavy coding and website creation routes to 7B
+        if any(k in lowered for k in ("website", "code", "python", "script", "program", "build", "generate", "portfolio")):
+            return "qwen2.5:7b"
+        # General queries route to ultra-fast 4B (2x higher tokens/sec on CPU)
+        return "qwen3:4b-instruct"
 
     def remove_thinking(self, text: str) -> str:
         return re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
@@ -74,7 +106,7 @@ class AgentPlanner:
         t.start()
 
     def _try_instant_chit_chat(self, text: str) -> Optional[str]:
-        """Sub-10ms Instant Reflex Engine for greetings, pleasantries, and general chit-chat."""
+        """Sub-10ms Instant Reflex Engine for greetings, pleasantries, affirmations, and general chit-chat."""
         import random
         t = re.sub(r"[^\w\s]", "", text.lower()).strip()
         
@@ -97,8 +129,8 @@ class AgentPlanner:
             ]
             return random.choice(options)
             
-        # 3. Identity / Who are you
-        if re.match(r"^(who are you|what is your name|tum kaun ho|aap kaun ho|apna naam batao|tell me about yourself)(\s+(saathi|bhai))?$", t):
+        # 3. Identity / Who are you / Who created you
+        if re.match(r"^(who are you|what is your name|tum kaun ho|aap kaun ho|apna naam batao|tell me about yourself|who made you|who created you|tumhe kisne banaya)(\s+(saathi|bhai))?$", t):
             return "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad. Main aapke computer controls, code, web projects, aur daily tasks ko effortlessly manage karne ke liye hamesha tayyar hoon."
 
         # 4. What are you doing / Kya kar rahe ho
@@ -127,7 +159,24 @@ class AgentPlanner:
             ]
             return random.choice(options)
 
-        # 7. Time of day greetings
+        # 7. Affirmations: ok, okay, theek hai, cool, great, understood
+        if re.match(r"^(ok|okay|theek hai|achha|cool|nice|great|got it|understood)(\s+(saathi|bhai|sir))?$", t):
+            options = [
+                "Bilkul Pratham! Ready whenever you are.",
+                "Understood, sir. Standing by.",
+                "Roger that, Pratham. Sab control mein hai."
+            ]
+            return random.choice(options)
+
+        # 8. Capabilities / What can you do
+        if re.match(r"^(what can you do|kya kar sakte ho|features|help|madad|capabilities)(\s+(saathi|bhai|sir))?$", t):
+            return "Main websites build kar sakta hoon, files organize kar sakta hoon, terminal commands safely run kar sakta hoon, live weather aur currency check kar sakta hoon, aur reminders manage karta hoon. Jo bolein, execute kar denge!"
+
+        # 9. Humor / Joke
+        if re.match(r"^(tell me a joke|koi joke sunao|joke|make me laugh)(\s+(saathi|bhai|sir))?$", t):
+            return "Ek developer ne doosre se poocha: 'Zindagi mein itna stress kyun hai?' Doosra bola: 'Semicolon missing tha bhai, code compile hi nahi ho rahi!' Always keep smiling, Pratham!"
+
+        # 10. Time of day greetings
         if re.match(r"^(good morning)(\s+(saathi|bhai|sir))?$", t):
             return "A very good morning, Pratham! System vitals nominal, mind clear. Let's make today productive and great."
         if re.match(r"^(good afternoon)(\s+(saathi|bhai|sir))?$", t):
@@ -137,7 +186,7 @@ class AgentPlanner:
         if re.match(r"^(good night|shubh ratri)(\s+(saathi|bhai|sir))?$", t):
             return "Shubh ratri, Pratham. Rest well and recharge. Main background telemetry guard kar raha hoon."
 
-        # 8. Farewell
+        # 11. Farewell
         if re.match(r"^(bye|goodbye|alvida|see you|catch you later)(\s+(saathi|bhai|sir))?$", t):
             return "Take care, Pratham! Standing by in the background whenever you need me."
 

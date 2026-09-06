@@ -3,11 +3,17 @@ from typing import Optional
 import numpy as np
 
 class STTEngine:
-    """Local high-performance Speech-to-Text powered by faster-whisper."""
-    def __init__(self, model_size: str = "base"):
+    """Local ultra-low-latency Speech-to-Text powered by faster-whisper."""
+    def __init__(self, model_size: str = "tiny"):
         self.model_size = model_size
         self._model = None
         self._lock = threading.Lock()
+        # Immediately prewarm model in background so first utterance has zero lag
+        self.prewarm()
+
+    def prewarm(self):
+        """Preload the Whisper model in a background thread."""
+        threading.Thread(target=self._get_model, daemon=True).start()
 
     def _get_model(self):
         if self._model is None:

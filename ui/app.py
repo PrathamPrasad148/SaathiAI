@@ -14,6 +14,7 @@ from .automation_view import AutomationWorkflowsView
 from .projects_view import ProjectsGalleryView
 from .system_view import SystemControlView
 from .settings_view import SettingsView
+from agent.planner import COMMON_REFLEX_PHRASES
 
 class SaathiApp:
     """
@@ -95,6 +96,9 @@ class SaathiApp:
 
         # Auto-activate continuous voice listening shortly after boot
         self.root.after(1200, self._auto_start_voice)
+
+        # Prewarm instant audio cache for common reflex responses
+        self.voice.tts.prewarm_phrases(COMMON_REFLEX_PHRASES)
 
     def _auto_start_voice(self):
         """Automatically engage continuous voice perception so Saathi listens without manual clicks."""

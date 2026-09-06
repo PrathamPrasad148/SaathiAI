@@ -12,7 +12,7 @@ class SystemControlView(tk.Frame):
         hdr = tk.Frame(self, bg=COLOR_BG)
         hdr.pack(fill="x", pady=(0, 12))
 
-        tk.Label(hdr, text="?? SYSTEM & PROCESS CONTROLLER", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(side="left")
+        tk.Label(hdr, text="💻 SYSTEM & PROCESS CONTROLLER", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(side="left")
         btn_min = tk.Button(hdr, text="Minimize All Windows", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 9), relief="flat", padx=10, pady=4, command=minimize_all_windows, cursor="hand2")
         btn_min.pack(side="right")
 

@@ -8,7 +8,7 @@ class MemoryView(tk.Frame):
         self.memory = memory_engine
 
         # Header
-        tk.Label(self, text="?? PERSISTENT MEMORY & KNOWLEDGE", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 12))
+        tk.Label(self, text="🧠 PERSISTENT MEMORY & KNOWLEDGE", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 12))
 
         # Add Fact Row
         add_frame = tk.Frame(self, bg=COLOR_CARD, padx=12, pady=10, highlightthickness=1, highlightbackground=COLOR_BORDER)

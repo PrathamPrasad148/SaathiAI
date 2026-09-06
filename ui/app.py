@@ -37,9 +37,9 @@ class SaathiApp:
         self.automations = automation_engine
         self.permissions = permission_manager
 
-        self.root.title("Saathi AI ? Desktop Operating Interface")
-        self.root.geometry("1240x820")
-        self.root.minsize(980, 680)
+        self.root.title("STARK INDUSTRIES // SAATHI AI — MARK VII OPERATING INTERFACE")
+        self.root.geometry("1280x840")
+        self.root.minsize(1020, 700)
         self.root.configure(bg=COLOR_BG)
 
         # 1. Top Telemetry Bar

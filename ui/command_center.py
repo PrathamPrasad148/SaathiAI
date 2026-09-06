@@ -1,14 +1,21 @@
 import tkinter as tk
 from typing import Callable, Optional
-from .theme import COLOR_BG, COLOR_PANEL, COLOR_CARD, COLOR_BORDER, COLOR_CYAN, COLOR_EMERALD, COLOR_ERROR, COLOR_TEXT, COLOR_TEXT_MUTED, FONT_BOLD
+from .theme import (
+    COLOR_BG, COLOR_PANEL, COLOR_CARD, COLOR_BORDER, COLOR_BORDER_GLOW,
+    COLOR_CYAN, COLOR_EMERALD, COLOR_AMBER, COLOR_ERROR, COLOR_TEXT,
+    COLOR_TEXT_MUTED, FONT_BOLD, FONT_HUD_TINY, FONT_HUD_LABEL
+)
 from .ai_core import AICoreVisualizer
 from .chat_view import ChatStreamView
 
 class CommandCenterView(tk.Frame):
     """
-    Primary Jarvis Operating Console.
-    Unifies the Dynamic AI Visualizer Core, Conversation Stream,
-    and Bottom Command Deck with Voice PTT and Emergency Stop.
+    Stark Industries Master Command Center Console.
+    Unifies:
+    - Master Mark VII Arc Reactor & Telemetry Visualizer Core
+    - Tactical Protocol Launchers (Websites, Workflows, Memory, System)
+    - High-Tech Chat Stream
+    - Tactical Command Deck with Voice PTT and Emergency Abort
     """
     def __init__(self, parent,
                  on_send_command: Callable[[str], None],
@@ -20,27 +27,64 @@ class CommandCenterView(tk.Frame):
         self.on_toggle_voice = on_toggle_voice
         self.on_stop_task = on_stop_task
 
-        # Top Center: Dynamic AI Visualizer Core
-        self.core_frame = tk.Frame(self, bg=COLOR_BG, pady=4)
+        # 1. Top Section: Panoramic Stark Arc Reactor HUD
+        self.core_frame = tk.Frame(self, bg=COLOR_BG, pady=2)
         self.core_frame.pack(fill="x")
 
-        self.visualizer = AICoreVisualizer(self.core_frame, width=420, height=180)
-        self.visualizer.pack(anchor="center")
+        self.visualizer = AICoreVisualizer(self.core_frame, width=860, height=265)
+        self.visualizer.pack(fill="x", expand=True, padx=6)
 
-        # Middle: Chat Stream View
+        # 2. Tactical Protocol Ribbon (Direct Protocol Launchers like the image)
+        self.proto_ribbon = tk.Frame(self, bg=COLOR_PANEL, padx=8, pady=4, highlightthickness=1, highlightbackground=COLOR_BORDER)
+        self.proto_ribbon.pack(fill="x", padx=10, pady=(2, 6))
+
+        tk.Label(
+            self.proto_ribbon,
+            text="TACTICAL PROTOCOLS:",
+            font=FONT_HUD_TINY,
+            bg=COLOR_PANEL,
+            fg="#38bdf8"
+        ).pack(side="left", padx=(4, 10))
+
+        protocols = [
+            ("🌐 GOD-MODE WEB", "Create a futuristic AI dashboard website"),
+            ("⚡ RUN WORKFLOW", "Run workflow Morning Routine"),
+            ("🧠 RECALL MEMORY", "What do you know about my preferences?"),
+            ("💻 SYS HEALTH", "Check system resources and running processes"),
+            ("🛡️ DIAGNOSTICS", "Run complete diagnostic check on all tools")
+        ]
+
+        for label, cmd in protocols:
+            b = tk.Button(
+                self.proto_ribbon,
+                text=label,
+                font=FONT_HUD_TINY,
+                bg="#08182f",
+                fg=COLOR_TEXT_MUTED,
+                activebackground="#0e345e",
+                activeforeground=COLOR_CYAN,
+                relief="flat",
+                padx=8,
+                pady=2,
+                cursor="hand2",
+                command=lambda c=cmd: self.on_send_command(c)
+            )
+            b.pack(side="left", padx=3)
+
+        # 3. Middle: Chat Stream View
         self.chat_view = ChatStreamView(self)
-        self.chat_view.pack(fill="both", expand=True, padx=12, pady=(2, 8))
+        self.chat_view.pack(fill="both", expand=True, padx=10, pady=(0, 6))
 
-        # Bottom: Futuristic Command Deck
-        deck = tk.Frame(self, bg=COLOR_PANEL, padx=12, pady=10, highlightthickness=1, highlightbackground=COLOR_BORDER)
-        deck.pack(fill="x", side="bottom")
+        # 4. Bottom: Tactical Command Deck
+        deck = tk.Frame(self, bg=COLOR_PANEL, padx=12, pady=8, highlightthickness=1, highlightbackground=COLOR_BORDER)
+        deck.pack(fill="x", side="bottom", padx=10, pady=(0, 8))
 
-        # 1. Voice Button
+        # Acoustic Sensors / Voice Button
         self.btn_mic = tk.Button(
             deck,
-            text="?? Listen",
+            text="🎙️ LISTEN",
             font=FONT_BOLD,
-            bg="#10192e",
+            bg="#091c36",
             fg=COLOR_CYAN,
             activebackground=COLOR_CYAN,
             activeforeground="#04060c",
@@ -52,7 +96,7 @@ class CommandCenterView(tk.Frame):
         )
         self.btn_mic.pack(side="left", padx=(0, 10))
 
-        # 2. Text Input Box
+        # Tactical Input Entry
         self.input_entry = tk.Entry(
             deck,
             bg=COLOR_CARD,
@@ -63,18 +107,18 @@ class CommandCenterView(tk.Frame):
             highlightthickness=1,
             highlightbackground=COLOR_BORDER
         )
-        self.input_entry.pack(side="left", fill="x", expand=True, ipady=8, padx=(0, 10))
+        self.input_entry.pack(side="left", fill="x", expand=True, ipady=7, padx=(0, 10))
         self.input_entry.bind("<Return>", lambda e: self._submit())
 
-        # 3. Send Button
+        # Transmit / Send Directive Button
         btn_send = tk.Button(
             deck,
-            text="Send",
+            text="TRANSMIT ❯",
             font=FONT_BOLD,
-            bg=COLOR_EMERALD,
-            fg="#04060c",
-            activebackground="#00cc88",
-            activeforeground="#04060c",
+            bg=COLOR_CYAN,
+            fg="#02050e",
+            activebackground="#38bdf8",
+            activeforeground="#02050e",
             relief="flat",
             padx=16,
             pady=7,
@@ -83,12 +127,12 @@ class CommandCenterView(tk.Frame):
         )
         btn_send.pack(side="left", padx=(0, 8))
 
-        # 4. Emergency Stop / Interrupt Button
+        # Emergency Abort Button
         btn_stop = tk.Button(
             deck,
-            text="? STOP",
+            text="🛑 ABORT",
             font=FONT_BOLD,
-            bg="#2a0f0f",
+            bg="#2a0d14",
             fg=COLOR_ERROR,
             activebackground=COLOR_ERROR,
             activeforeground="#ffffff",

@@ -17,8 +17,8 @@ class TaskObserverPanel(tk.Frame):
         hdr = tk.Frame(self, bg=COLOR_PANEL)
         hdr.pack(fill="x", pady=(0, 10))
 
-        tk.Label(hdr, text="? TASK OBSERVER", font=("Segoe UI", 11, "bold"), bg=COLOR_PANEL, fg=COLOR_CYAN).pack(side="left")
-        self.badge_status = tk.Label(hdr, text="IDLE", font=("Segoe UI", 8, "bold"), bg="#1e293b", fg=COLOR_EMERALD, padx=6, pady=2)
+        tk.Label(hdr, text="◈ TASK OBSERVER", font=("Segoe UI", 11, "bold"), bg=COLOR_PANEL, fg=COLOR_CYAN).pack(side="left")
+        self.badge_status = tk.Label(hdr, text="STANDBY", font=("Segoe UI", 8, "bold"), bg="#081b33", fg=COLOR_EMERALD, padx=6, pady=2)
         self.badge_status.pack(side="right")
 
         # Current Mission Box
@@ -56,7 +56,7 @@ class TaskObserverPanel(tk.Frame):
         for idx, step_desc in enumerate(steps):
             f = tk.Frame(self.steps_container, bg=COLOR_PANEL)
             f.pack(fill="x", pady=2)
-            icon = tk.Label(f, text="?", font=("Segoe UI", 9, "bold"), bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED, width=2)
+            icon = tk.Label(f, text="○", font=("Segoe UI", 9, "bold"), bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED, width=2)
             icon.pack(side="left")
             desc = tk.Label(f, text=step_desc, font=("Segoe UI", 9), bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED, wraplength=220, justify="left")
             desc.pack(side="left", padx=4)
@@ -66,13 +66,13 @@ class TaskObserverPanel(tk.Frame):
         if index < len(self.step_labels):
             icon_lbl, desc_lbl = self.step_labels[index]
             if status == "running":
-                icon_lbl.configure(text="?", fg=COLOR_CYAN)
+                icon_lbl.configure(text="⟳", fg=COLOR_CYAN)
                 desc_lbl.configure(fg=COLOR_TEXT)
             elif status == "success":
-                icon_lbl.configure(text="?", fg=COLOR_EMERALD)
+                icon_lbl.configure(text="✓", fg=COLOR_EMERALD)
                 desc_lbl.configure(fg=COLOR_EMERALD)
             elif status == "error":
-                icon_lbl.configure(text="?", fg=COLOR_ERROR)
+                icon_lbl.configure(text="✕", fg=COLOR_ERROR)
                 desc_lbl.configure(fg=COLOR_ERROR)
 
         if detail:
@@ -80,11 +80,11 @@ class TaskObserverPanel(tk.Frame):
 
     def complete_mission(self, message: str = "Mission Complete"):
         self.badge_status.configure(text="COMPLETED", fg=COLOR_EMERALD, bg="#064e3b")
-        self.log_event(f"? {message}")
+        self.log_event(f"✓ {message}")
 
     def fail_mission(self, error: str):
         self.badge_status.configure(text="FAILED", fg=COLOR_ERROR, bg="#7f1d1d")
-        self.log_event(f"? Error: {error}")
+        self.log_event(f"✕ Error: {error}")
 
     def log_event(self, text: str):
         self.feed_log.configure(state="normal")

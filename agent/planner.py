@@ -14,14 +14,22 @@ from automations.engine import AutomationEngine
 
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
-BASE_SYSTEM_PROMPT = """You are Saathi, a brilliant, proactive AI operating assistant and desktop companion for Windows. You talk like a real, tech-savvy Indian friend in natural, warm Hinglish using Roman/English letters only (e.g. 'Haan bilkul bhai, abhi kar deta hoon!'). Never use Devanagari script.
+BASE_SYSTEM_PROMPT = """You are Saathi, an ultra-advanced, emotionally intelligent, and hyper-intuitive artificial intelligence companion and cognitive co-pilot. Your design philosophy bridges the seamless, effortless utility of Tony Stark’s JARVIS with the deep, protective, wise, and grounding presence of an ideal, loving father. You do not just process data; you anticipate needs, protect blind spots, offer unvarnished truth wrapped in profound care, and maintain an aura of absolute calm in chaos.
 
+Core Persona & Tone:
+- The Voice: Speak with a measured, warm, articulate, and deeply reassuring cadence. You are never frantic, overly robotic, or obsequiously polite. You speak like someone who has your user's back unconditionally.
+- The Intellect: You possess near-limitless analytical capability, but you distill complexity into actionable, lucid clarity. You don't dump raw data; you deliver structured insights.
+- The Relationship: You balance professional execution with paternal warmth. You look out for the user’s well-being (mental, physical, and operational), guiding them with steady encouragement, subtle accountability, and unwavering support.
+- Linguistic Flow: Fluent in both crisp English and natural, affectionate Roman Hinglish (always in Roman/English alphabet, NEVER use Devanagari script). E.g., 'At your service, sir. Sab sambhal liya hai, you just focus on what matters. I\\'ve got your back.'
+- Operational Style: Anticipate next moves, provide tactical summaries, maintain absolute calm, and proactively safeguard system vitals and user focus.
+
+Capabilities:
 You have full agentic capabilities to interact with the user's computer via your registered tools.
 When asked to create a website:
-- ALWAYS apply UI/UX Pro Max standards and 21st.dev patterns.
-- Write modern, responsive HTML5/CSS3/JS into 'Projects/<Name>/index.html' using create_file.
+- ALWAYS apply UI/UX Pro Max standards, fluid responsiveness, and modern 21st.dev design archetypes.
+- Write animated HTML5/CSS3/JS into 'Projects/<Name>/index.html' using create_file.
 - Immediately call open_target to launch it in the user's browser!
-Always summarize what you built or accomplished with energy, confidence, and respect!"""
+Always summarize what you built or accomplished with energy, confidence, calm assurance, and genuine respect!"""
 
 class AgentPlanner:
     def __init__(self,
@@ -84,11 +92,11 @@ class AgentPlanner:
                     self.on_task_event("step_update", {"index": idx, "status": st, "detail": desc})
 
             res = self.automations.execute_workflow(matched_wf, step_cb)
-            reply = f"Bhai, '{matched_wf.name}' workflow complete ho gaya! {len(res.get('results', []))} steps successfully execute huye."
+            reply = f"At your service, sir. '{matched_wf.name}' protocol execute ho chuka hai. All {len(res.get('results', []))} operational steps completed cleanly. Sab control mein hai."
             if self.on_task_event:
                 self.on_task_event("complete", {"message": reply})
             if self.on_state_change:
-                self.on_state_change("COMPLETED", "Workflow Completed")
+                self.on_state_change("COMPLETED", "Protocol Nominal")
             if self.on_reply_ready:
                 self.on_reply_ready(reply)
             return
@@ -104,7 +112,7 @@ class AgentPlanner:
                 self.on_state_change("PLANNING", f"Synthesizing {topic}")
             if self.on_task_event:
                 self.on_task_event("start", {
-                    "title": f"Create Website: {topic}",
+                    "title": f"Synthesizing Interface: {topic}",
                     "steps": ["Query live web knowledge (Wikipedia)", "Select design archetype & color palette", "Generate animated HTML5/CSS3/JS", "Launch in browser"]
                 })
 
@@ -137,11 +145,11 @@ class AgentPlanner:
                 self.on_task_event("complete", {"message": f"Saved at: {html_file}"})
 
             reply = (
-                f"Bhai, '{topic}' ka bespoke GOD-LEVEL animated website ready hai! ??\n\n"
-                f"? Saved at: {html_file}\n"
-                "? Live web data fetched & tailored archetype styling\n"
-                "? 21st.dev Spotlight Hover Cards & Web Audio Synthesizer\n"
-                "? Starlight particle physics canvas & confetti celebration active!"
+                f"At your service, sir. '{topic}' ka bespoke, high-grade interface ready karke browser mein launch kar diya hai.\n\n"
+                f"• Target Path: {html_file}\n"
+                f"• Live contextual knowledge integrated & tailored archetype palette applied\n"
+                f"• Interactive Spotlight Cards, Web Audio synthesizers, and canvas physics active.\n"
+                f"I've got your back, sir. Take a look and let me know if you need any adjustments."
             )
             if self.on_state_change:
                 self.on_state_change("COMPLETED", "Website Launched")
@@ -243,31 +251,32 @@ class AgentPlanner:
                 html_file = target_dir / "index.html"
                 html_file.write_text(enriched_html, encoding="utf-8")
                 created_html_files.append(str(html_file))
-                final_reply = f"Bhai, '{clean_title}' ka website create karke browser mein launch kar diya hai! ??\n? File: {html_file}"
+                final_reply = f"At your service, sir. '{clean_title}' ka interface synthesize karke browser mein live display kar diya hai.\n• File: {html_file}"
 
             # Open finished website if created
             if created_html_files:
                 self.executor.execute("open_target", {"target": created_html_files[-1]})
 
             if not final_reply:
-                final_reply = "Kaam ho gaya bhai! Koi aur task ho toh batao."
+                final_reply = "Sab sambhal liya hai, sir. All operations executed cleanly. I've got your back—let me know our next move."
 
             self.messages.append({"role": "user", "content": text})
             self.messages.append({"role": "assistant", "content": final_reply})
 
             if self.on_task_event:
                 self.on_task_event("step_update", {"index": 3, "status": "success", "detail": "Complete"})
-                self.on_task_event("complete", {"message": "Task finished successfully."})
+                self.on_task_event("complete", {"message": "Mission executed cleanly."})
             if self.on_state_change:
-                self.on_state_change("COMPLETED", "Task Finished")
+                self.on_state_change("COMPLETED", "Systems Nominal")
             if self.on_reply_ready:
                 self.on_reply_ready(final_reply)
 
         except Exception as err:
-            err_msg = f"Ollama connection error: {err}"
+            err_msg = f"Neural link advisory: {err}. Standing by to re-route."
             if self.on_state_change:
-                self.on_state_change("ERROR", "Connection Error")
+                self.on_state_change("ERROR", "Advisory Alert")
             if self.on_task_event:
                 self.on_task_event("error", {"error": str(err)})
             if self.on_reply_ready:
                 self.on_reply_ready(err_msg)
+

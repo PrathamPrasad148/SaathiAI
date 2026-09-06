@@ -7,7 +7,7 @@ class SettingsView(tk.Frame):
         self.permissions = permission_manager
 
         # Header
-        tk.Label(self, text="?? CONFIGURATION & TRUST MODEL", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 16))
+        tk.Label(self, text="⚙ CONFIGURATION & TRUST MODEL", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 16))
 
         # Permissions box
         box_perm = tk.Frame(self, bg=COLOR_CARD, padx=16, pady=14, highlightthickness=1, highlightbackground=COLOR_BORDER)
@@ -16,9 +16,9 @@ class SettingsView(tk.Frame):
         tk.Label(box_perm, text="AUTHORIZATION & RISK POLICY", font=("Segoe UI", 10, "bold"), bg=COLOR_CARD, fg=COLOR_EMERALD).pack(anchor="w", pady=(0, 8))
         tk.Label(
             box_perm,
-            text="? Routine Safe Actions (reading files, opening websites, creating code): ALWAYS ALLOWED\n"
-                 "? Modifying Operations (terminal execution, sending to recycle bin): ASK ONCE PER SESSION\n"
-                 "? Destructive / High Risk Actions (process kill): REQUIRE CONFIRMATION",
+            text="• Routine Safe Actions (reading files, opening websites, creating code): ALWAYS ALLOWED\n"
+                 "• Modifying Operations (terminal execution, sending to recycle bin): ASK ONCE PER SESSION\n"
+                 "• Destructive / High Risk Actions (process kill): REQUIRE CONFIRMATION",
             font=("Segoe UI", 9),
             bg=COLOR_CARD,
             fg=COLOR_TEXT_MUTED,
@@ -32,10 +32,10 @@ class SettingsView(tk.Frame):
         tk.Label(box_keys, text="KEYBOARD SHORTCUTS", font=("Segoe UI", 10, "bold"), bg=COLOR_CARD, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 8))
         tk.Label(
             box_keys,
-            text="? Enter          ? Send message or command\n"
-                 "? Esc            ? Immediately STOP active task & voice\n"
-                 "? Space (Focus)  ? Push-to-Talk voice capture\n"
-                 "? Ctrl + L       ? Clear conversation stream",
+            text="• Enter          ❯ Send message or direct command\n"
+                 "• Esc            ❯ Immediately STOP active task & voice synthesis\n"
+                 "• Space (Focus)  ❯ Push-to-Talk voice capture\n"
+                 "• Ctrl + L       ❯ Clear conversation stream",
             font=("Consolas", 9),
             bg=COLOR_CARD,
             fg=COLOR_TEXT_MUTED,

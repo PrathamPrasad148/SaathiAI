@@ -15,7 +15,7 @@ class ProjectsGalleryView(tk.Frame):
         hdr = tk.Frame(self, bg=COLOR_BG)
         hdr.pack(fill="x", pady=(0, 12))
 
-        tk.Label(hdr, text="?? PROJECTS & GENERATED WEBSITES", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(side="left")
+        tk.Label(hdr, text="🌐 PROJECTS & GENERATED WEBSITES", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(side="left")
         btn_open_folder = tk.Button(hdr, text="Open Projects Folder", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 9), relief="flat", padx=10, pady=4, command=self._open_folder, cursor="hand2")
         btn_open_folder.pack(side="right")
 
@@ -28,7 +28,7 @@ class ProjectsGalleryView(tk.Frame):
         self.ent_topic.pack(side="left", padx=(0, 8))
         self.ent_topic.insert(0, "Cyberpunk Gaming Lounge")
 
-        btn_build = tk.Button(quick_frame, text="?? Build & Launch", bg=COLOR_EMERALD, fg="#04060c", font=("Segoe UI", 9, "bold"), relief="flat", padx=12, pady=4, command=self._build_topic, cursor="hand2")
+        btn_build = tk.Button(quick_frame, text="⚡ Build & Launch", bg=COLOR_EMERALD, fg="#04060c", font=("Segoe UI", 9, "bold"), relief="flat", padx=12, pady=4, command=self._build_topic, cursor="hand2")
         btn_build.pack(side="left")
 
         # Projects List

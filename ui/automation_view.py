@@ -9,7 +9,7 @@ class AutomationWorkflowsView(tk.Frame):
         self.on_run_workflow = on_run_workflow
 
         # Header
-        tk.Label(self, text="?? REUSABLE AUTOMATION WORKFLOWS", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 12))
+        tk.Label(self, text="⚡ REUSABLE AUTOMATION WORKFLOWS", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(anchor="w", pady=(0, 12))
 
         self.list_frame = tk.Frame(self, bg=COLOR_BG)
         self.list_frame.pack(fill="both", expand=True)
@@ -39,7 +39,7 @@ class AutomationWorkflowsView(tk.Frame):
             tk.Label(top_row, text=wf.name, font=("Segoe UI", 11, "bold"), bg=COLOR_CARD, fg=COLOR_CYAN).pack(side="left")
             tk.Label(top_row, text=f"Trigger: '{wf.trigger_value}'", font=("Segoe UI", 8, "italic"), bg=COLOR_CARD, fg=COLOR_TEXT_MUTED).pack(side="left", padx=10)
 
-            btn_run = tk.Button(top_row, text="? Run Workflow", bg=COLOR_EMERALD, fg="#04060c", font=("Segoe UI", 9, "bold"), relief="flat", padx=12, pady=4, cursor="hand2", command=lambda w=wf: self._trigger_workflow(w))
+            btn_run = tk.Button(top_row, text="▶ Run Workflow", bg=COLOR_EMERALD, fg="#04060c", font=("Segoe UI", 9, "bold"), relief="flat", padx=12, pady=4, cursor="hand2", command=lambda w=wf: self._trigger_workflow(w))
             btn_run.pack(side="right")
 
             tk.Label(card, text=wf.description, font=("Segoe UI", 9), bg=COLOR_CARD, fg=COLOR_TEXT_MUTED).pack(anchor="w", pady=(4, 6))

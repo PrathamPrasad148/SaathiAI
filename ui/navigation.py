@@ -15,13 +15,13 @@ class NavigationRail(tk.Frame):
         self.buttons = {}
 
         nav_items = [
-            ("core", "? Command Center"),
-            ("tasks", "? Task Observer"),
-            ("projects", "?? Projects & Web"),
-            ("automations", "?? Automations"),
-            ("memory", "?? Memory"),
-            ("system", "?? System & Apps"),
-            ("settings", "?? Settings")
+            ("core", "⬡ COMMAND CENTER"),
+            ("tasks", "◈ TASK OBSERVER"),
+            ("projects", "🌐 PROJECTS & WEB"),
+            ("automations", "⚡ AUTOMATIONS"),
+            ("memory", "🧠 NEURAL MEMORY"),
+            ("system", "💻 SYSTEM & APPS"),
+            ("settings", "⚙ CONFIGURATION")
         ]
 
         tk.Label(self, text="NAVIGATION", font=("Segoe UI", 8, "bold"), bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED).pack(anchor="w", padx=10, pady=(0, 10))

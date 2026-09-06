@@ -48,18 +48,45 @@ if errorlevel 1 (
 )
 if errorlevel 1 goto FAILED
 
-:: 5B. Check and Auto-Repair Git Index Corruption
+:: 5B. Auto-clean locks and fix corrupted index
+if exist ".git\index.lock" del /f /q ".git\index.lock" >nul 2>&1
+if exist ".git\HEAD.lock" del /f /q ".git\HEAD.lock" >nul 2>&1
+if exist ".git\refs\heads\main.lock" del /f /q ".git\refs\heads\main.lock" >nul 2>&1
+
+:: Check if index file exists and is 0-byte corrupted
+if exist ".git\index" (
+    for %%F in (".git\index") do (
+        if %%~zF EQU 0 (
+            echo [WARN] 0-byte corrupted Git index detected. Rebuilding...
+            del /f /q ".git\index" >nul 2>&1
+            git reset HEAD >nul 2>&1
+        )
+    )
+)
+
 git status >nul 2>&1
 if errorlevel 1 (
     echo [WARN] Corrupted Git index detected. Auto-repairing index...
-    if exist ".git\index" del /f /q ".git\index" >nul 2>&1
-    git reset >nul 2>&1
+    del /f /q ".git\index" >nul 2>&1
+    del /f /q ".git\index.lock" >nul 2>&1
+    git reset HEAD >nul 2>&1
+    git status >nul 2>&1
+    if errorlevel 1 (
+        echo [WARN] Performing deep index recovery...
+        powershell -NoProfile -Command "Remove-Item .git\index -Force -ErrorAction SilentlyContinue; git reset" >nul 2>&1
+    )
 )
 
 :: 6. Stage ALL files (code, skills, data, projects, configs)
 echo [INFO] Staging all files across the repository...
 git add -A
-if errorlevel 1 goto FAILED
+if errorlevel 1 (
+    echo [WARN] Staging encountered index lock. Retrying with fresh index...
+    del /f /q ".git\index" >nul 2>&1
+    git reset HEAD >nul 2>&1
+    git add -A
+    if errorlevel 1 goto FAILED
+)
 
 :: 7. Commit changes if any exist
 git diff --cached --quiet

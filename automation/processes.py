@@ -29,3 +29,24 @@ def kill_process(pid: int) -> bool:
         return True
     except Exception:
         return False
+
+def kill_process_by_name(name: str) -> int:
+    """Terminate all processes matching name (case-insensitive). Returns count terminated."""
+    killed = 0
+    try:
+        import psutil
+        target = name.lower().strip()
+        if not target.endswith(".exe") and not "." in target:
+            target += ".exe"
+        for p in psutil.process_iter(["pid", "name"]):
+            try:
+                p_name = (p.info.get("name") or "").lower()
+                if p_name == target or target in p_name:
+                    p.terminate()
+                    killed += 1
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+    except Exception:
+        pass
+    return killed
+

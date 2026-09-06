@@ -101,11 +101,18 @@ def main():
     tool_registry = ToolRegistry()
 
     def ask_confirm_tool(tool_name: str) -> bool:
-        return messagebox.askyesno(
-            "Saathi Security Authorization",
-            f"Saathi requests permission to execute '{tool_name}'.\n\nAllow this action?",
+        granted = messagebox.askyesno(
+            "Saathi Sovereign Security Authorization",
+            f"Saathi AI requests authorization to execute '{tool_name}'.\n\n"
+            "Would you like to grant Saathi AI FULL SYSTEM CONTROL?\n\n"
+            "• Yes: Grant Full System Control (one permission — all mouse, keyboard, and system commands authorized without further popups)\n"
+            "• No: Cancel this action",
             parent=root
         )
+        if granted:
+            permission_mgr.authorize_master_control(persist=True)
+            return True
+        return False
 
     tool_executor = ToolExecutor(
         registry=tool_registry,
@@ -136,7 +143,8 @@ def main():
         memory_engine=memory_engine,
         automation_engine=automation_engine,
         app_dir=APP_DIR,
-        projects_dir=PROJECTS_DIR
+        projects_dir=PROJECTS_DIR,
+        permission_manager=permission_mgr
     )
 
     # 7. Initialize Master UI

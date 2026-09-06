@@ -35,3 +35,14 @@ def minimize_all_windows():
     user32.keybd_event(0x4D, 0, 0, 0)
     user32.keybd_event(0x4D, 0, 2, 0)
     user32.keybd_event(0x5B, 0, 2, 0)
+
+def close_window_by_title(partial_title: str) -> bool:
+    target = partial_title.lower()
+    for win in list_open_windows():
+        if target in win["title"].lower():
+            hwnd = win["hwnd"]
+            WM_CLOSE = 0x0010
+            user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+            return True
+    return False
+

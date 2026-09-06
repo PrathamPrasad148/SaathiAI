@@ -46,7 +46,11 @@ class SaathiApp:
         self.root.configure(bg=COLOR_BG)
 
         # 1. Top Telemetry Bar
-        self.telemetry_bar = TopTelemetryBar(self.root, on_model_change=self._on_model_select)
+        self.telemetry_bar = TopTelemetryBar(
+            self.root,
+            on_model_change=self._on_model_select,
+            on_toggle_master_control=self._prompt_master_control_toggle
+        )
         self.telemetry_bar.pack(fill="x", side="top")
 
         # Body Container
@@ -75,10 +79,15 @@ class SaathiApp:
             "memory": MemoryView(self.center_viewport, self.memory),
             "automations": AutomationWorkflowsView(self.center_viewport, self.automations, on_run_workflow=self._run_workflow_direct),
             "projects": ProjectsGalleryView(self.center_viewport, self.projects_dir, on_create_site=self.handle_user_input),
-            "system": SystemControlView(self.center_viewport),
+            "system": SystemControlView(self.center_viewport, permission_manager=self.permissions),
             "settings": SettingsView(self.center_viewport, self.permissions)
         }
         self.current_view_key = "core"
+
+        # Listen to permission changes to update TopTelemetryBar badge
+        if hasattr(self.permissions, "add_listener"):
+            self.permissions.add_listener(lambda authed: self.root.after(0, lambda: self.telemetry_bar.set_master_control_status(authed)))
+        self.telemetry_bar.set_master_control_status(getattr(self.permissions, "master_system_control", False))
 
         # Pack Layout (Left Nav, Center Viewport, Right Task Observer)
         self.nav_rail = NavigationRail(self.body_frame, on_navigate=self._switch_view)
@@ -229,6 +238,34 @@ class SaathiApp:
         cmd_center: CommandCenterView = self.views["core"]
         cmd_center.visualizer.set_state("STOPPED")
         self.task_observer.fail_mission("Operation stopped by user (ESC)")
+
+    def _prompt_master_control_toggle(self):
+        if getattr(self.permissions, "master_system_control", False):
+            ans = messagebox.askyesno(
+                "Revoke Full System Control",
+                "Saathi AI currently possesses Full System Control.\n\n"
+                "Do you want to revoke autonomous system access and return to safe restricted mode?",
+                parent=self.root
+            )
+            if ans:
+                self.permissions.revoke_master_control(persist=True)
+                self.voice.tts.speak("Full system control revoked, Pratham. Standing by in restricted mode.")
+        else:
+            ans = messagebox.askyesno(
+                "Grant Full System Control",
+                "Saathi AI Sovereign Authorization:\n\n"
+                "Do you grant Saathi AI FULL SYSTEM CONTROL?\n\n"
+                "• Full autonomous control of mouse, keyboard, and open applications\n"
+                "• Sovereign volume adjustments, media playback, and power control\n"
+                "• Unrestricted process management and command execution\n"
+                "• Requires only this SINGLE permission — no repetitive interruptions.\n\n"
+                "Authorize Full System Control for Pratham Prasad?",
+                parent=self.root
+            )
+            if ans:
+                self.permissions.authorize_master_control(persist=True)
+                self.voice.tts.speak("Full system control authorized, Pratham. All operational controls are armed.")
+
 
     def _run_workflow_direct(self, wf):
         self.handle_user_input(f"Run workflow {wf.name}")

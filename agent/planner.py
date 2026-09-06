@@ -11,6 +11,11 @@ from tools.registry import ToolRegistry
 from tools.executor import ToolExecutor
 from memory.engine import MemoryEngine
 from automations.engine import AutomationEngine
+from automation.hardware import (
+    toggle_volume_mute, volume_up, volume_down, lock_workstation,
+    empty_recycle_bin, media_play_pause, media_next, media_prev
+)
+from automation.windows import minimize_all_windows
 
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
@@ -26,8 +31,11 @@ HUMAN CONVERSATIONAL CADENCE & SPEED:
 - Never deliver bloated corporate disclaimers, tedious lists, or robotic greetings.
 - Be warm, confident, supportive, and unconditionally loyal to Pratham Prasad.
 
-Capabilities:
+Capabilities & Full Autonomous Control:
 You have full agentic capabilities to interact with the user's computer via your registered tools.
+When Full System Control is authorized:
+- You have direct sovereign control over mouse (move, click, scroll), keyboard (typing, hotkeys), open windows (focus, minimize, close), system audio (volume, mute), and computer power (lock, sleep, restart).
+- You can execute shell commands, manage processes, and automate complex desktop workflows effortlessly without asking for repeated permissions.
 When asked to create a website:
 - ALWAYS apply UI/UX Pro Max standards, fluid responsiveness, and modern 21st.dev design archetypes.
 - Write animated HTML5/CSS3/JS into 'Projects/<Name>/index.html' using create_file.
@@ -35,6 +43,15 @@ When asked to create a website:
 Always summarize what you built or accomplished with energy, confidence, and clarity in English."""
 
 COMMON_REFLEX_PHRASES = [
+    # Master System Control
+    "Full system control authorized, Pratham. All neural links, keyboard, mouse, and system controls are armed at your command.",
+    "Full system control revoked, Pratham. Standing by in restricted safe mode.",
+    "System audio toggled, Pratham.",
+    "Volume increased, Pratham.",
+    "Volume decreased, Pratham.",
+    "All windows minimized, desktop clear.",
+    "Workstation locked, Pratham. Have a good one!",
+    "Recycle bin emptied cleanly, Pratham.",
     # Greetings
     "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
     "Hey Pratham! I'm ready to roll. What are we tackling today?",
@@ -140,13 +157,15 @@ class AgentPlanner:
                  memory_engine: MemoryEngine,
                  automation_engine: AutomationEngine,
                  app_dir: Path,
-                 projects_dir: Path):
+                 projects_dir: Path,
+                 permission_manager=None):
         self.registry = tool_registry
         self.executor = tool_executor
         self.memory = memory_engine
         self.automations = automation_engine
         self.app_dir = app_dir.resolve()
         self.projects_dir = projects_dir.resolve()
+        self.permissions = permission_manager or getattr(tool_executor, "permissions", None)
 
         self.selected_model = "Auto (Smart Agent)"
         self.messages: List[Dict[str, str]] = []
@@ -205,6 +224,51 @@ class AgentPlanner:
         norm = self._normalize_conversational_text(text)
         if not norm:
             return None
+
+        # ── 0. Master System Control Single Permission Triggers ──
+        has_grant_control = bool(re.search(r"\b(take full (system )?control|grant( you)? full control|enable autonomous mode|authorize full (system )?control|you have full control|take full control)\b", norm))
+        has_revoke_control = bool(re.search(r"\b(revoke (full )?(system )?control|disable autonomous mode|stop autonomous mode|cancel full control)\b", norm))
+
+        if has_grant_control:
+            if self.permissions:
+                self.permissions.authorize_master_control()
+            return "Full system control authorized, Pratham. All neural links, keyboard, mouse, and system controls are armed at your command."
+
+        if has_revoke_control:
+            if self.permissions:
+                self.permissions.revoke_master_control()
+            return "Full system control revoked, Pratham. Standing by in restricted safe mode."
+
+        # ── Hardware Direct Reflexes (Instant Zero-LLM Execution) ──
+        has_mute = bool(re.search(r"\b(mute( the)?( volume| audio| sound)?|unmute( the)?( volume| audio| sound)?|silence audio|toggle mute)\b", norm))
+        has_vol_up = bool(re.search(r"\b(volume up|increase volume|turn up( the)?( volume| audio))\b", norm))
+        has_vol_down = bool(re.search(r"\b(volume down|decrease volume|turn down( the)?( volume| audio)|lower( the)? volume)\b", norm))
+        has_minimize_all = bool(re.search(r"\b(minimize all( windows)?|show( me)?( the)? desktop|clear screen)\b", norm))
+        has_lock_pc = bool(re.search(r"\b(lock( my)?( computer| pc| screen| workstation))\b", norm))
+        has_empty_recycle = bool(re.search(r"\b(empty( the)? recycle bin|clean( the)? recycle bin)\b", norm))
+        has_media_toggle = bool(re.search(r"\b(pause music|resume music|play music|pause media|play pause)\b", norm))
+
+        if has_mute:
+            toggle_volume_mute()
+            return "System audio toggled, Pratham."
+        if has_vol_up:
+            volume_up(8)
+            return "Volume increased, Pratham."
+        if has_vol_down:
+            volume_down(8)
+            return "Volume decreased, Pratham."
+        if has_minimize_all:
+            minimize_all_windows()
+            return "All windows minimized, desktop clear."
+        if has_lock_pc:
+            lock_workstation()
+            return "Workstation locked, Pratham. Have a good one!"
+        if has_empty_recycle:
+            empty_recycle_bin()
+            return "Recycle bin emptied cleanly, Pratham."
+        if has_media_toggle:
+            media_play_pause()
+            return "Media playback toggled, Pratham."
 
         # ── Intent Detection (all sub-millisecond regex) ──
         has_hello = bool(re.search(r"\b(hi|hello|hey|yo|namaste|pranam|hola|good morning|good evening|good afternoon|good night|howdy|sup)\b", norm))

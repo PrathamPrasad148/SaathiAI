@@ -3,18 +3,31 @@ from .theme import COLOR_BG, COLOR_PANEL, COLOR_CARD, COLOR_BORDER, COLOR_CYAN, 
 from automation.processes import list_running_processes
 from automation.windows import list_open_windows, focus_window_by_title, minimize_all_windows
 from automation.system import get_system_telemetry
+from automation.hardware import (
+    toggle_volume_mute, volume_up, volume_down, lock_workstation, empty_recycle_bin
+)
 
 class SystemControlView(tk.Frame):
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, permission_manager=None, **kwargs):
         super().__init__(parent, bg=COLOR_BG, padx=20, pady=16, **kwargs)
+        self.permissions = permission_manager
 
         # Header
         hdr = tk.Frame(self, bg=COLOR_BG)
         hdr.pack(fill="x", pady=(0, 12))
 
         tk.Label(hdr, text="💻 SYSTEM & PROCESS CONTROLLER", font=FONT_HEADING, bg=COLOR_BG, fg=COLOR_CYAN).pack(side="left")
-        btn_min = tk.Button(hdr, text="Minimize All Windows", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 9), relief="flat", padx=10, pady=4, command=minimize_all_windows, cursor="hand2")
-        btn_min.pack(side="right")
+        
+        # Hardware Quick Actions Strip
+        actions_bar = tk.Frame(hdr, bg=COLOR_BG)
+        actions_bar.pack(side="right")
+
+        tk.Button(actions_bar, text="🔒 Lock PC", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8, "bold"), relief="flat", padx=8, pady=3, command=lock_workstation, cursor="hand2").pack(side="left", padx=3)
+        tk.Button(actions_bar, text="🔇 Mute", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8), relief="flat", padx=8, pady=3, command=toggle_volume_mute, cursor="hand2").pack(side="left", padx=3)
+        tk.Button(actions_bar, text="🔊 Vol +", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8), relief="flat", padx=8, pady=3, command=lambda: volume_up(8), cursor="hand2").pack(side="left", padx=3)
+        tk.Button(actions_bar, text="🔉 Vol -", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8), relief="flat", padx=8, pady=3, command=lambda: volume_down(8), cursor="hand2").pack(side="left", padx=3)
+        tk.Button(actions_bar, text="🗑️ Empty Bin", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8), relief="flat", padx=8, pady=3, command=empty_recycle_bin, cursor="hand2").pack(side="left", padx=3)
+        tk.Button(actions_bar, text="🗔 Show Desktop", bg=COLOR_PANEL, fg=COLOR_TEXT, font=("Segoe UI", 8), relief="flat", padx=8, pady=3, command=minimize_all_windows, cursor="hand2").pack(side="left", padx=3)
 
         # Two-column layout: Left = Top Processes, Right = Open Windows
         cols = tk.Frame(self, bg=COLOR_BG)

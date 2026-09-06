@@ -79,3 +79,4 @@ python scripts/office/soffice.py --headless --convert-to pdf output.docx
 pdftoppm -jpeg -r 100 output.pdf page
 ls page-*.jpg
 ```
+

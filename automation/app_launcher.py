@@ -179,3 +179,4 @@ def search_web_live(query: str, engine: str = "google") -> Tuple[bool, str]:
     url = f"https://www.google.com/search?q={encoded}"
     open_url_in_browser(url)
     return True, f"Searching Google for '{clean_q}' in browser."
+

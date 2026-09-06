@@ -217,23 +217,14 @@ class AICoreVisualizer(tk.Canvas):
         self.target_audio_level = min(1.0, max(0.0, level * 5.0))
 
     def _render_frame(self):
-        if not self._running:
-            return
-
-        self.delete("all")
-
         w = self.width
         h = self.height
 
-        # Dynamic proportional columns: mathematically balanced for 1000px to 1920px widths
-        left_w = min(255, int(w * 0.25))
-        weather_w = min(210, int(w * 0.21))
-        mid_right_w = min(170, int(w * 0.17))
-
-        weather_x = max(w - weather_w, 805)
-        tactical_div_x = weather_x - 12
-        mid_right_x = tactical_div_x - mid_right_w + 5
-        avail_left = left_w + 15
+        # Airtight proportional columns: mathematically tuned for 1000px to 1920px widths
+        weather_x = max(w - 165, 840)
+        tactical_div_x = weather_x - 14
+        mid_right_x = tactical_div_x - 165
+        avail_left = 255
         avail_right = mid_right_x - 15
         cx = (avail_left + avail_right) / 2.0
         cy = max(310, min(int(h * 0.46), h - 330))
@@ -290,37 +281,37 @@ class AICoreVisualizer(tk.Canvas):
         self._draw_top_location_media(w, cx)
 
         # --- 3. CIRCULAR CHRONOMETER DIAL (02:40) ---
-        self._draw_chronometer_dial(cx + 125, 75)
+        self._draw_chronometer_dial(cx, 58)
 
         # --- 4. TOP-LEFT GIANT DATE & TIME DIAL ---
-        self._draw_giant_date_dial(115, 115)
+        self._draw_giant_date_dial(105, 105)
 
         # --- 5. UPPER-LEFT RAM & SWAP CONCENTRIC GAUGE ---
-        self._draw_ram_swap_gauge(255, 65)
+        self._draw_ram_swap_gauge(235, 60)
 
         # --- 6. MID-LEFT CPU GAUGE & 8-CORE THREAD EQUALIZER ---
-        self._draw_cpu_and_multicore_cluster(215, 135)
+        self._draw_cpu_and_multicore_cluster(195, 130)
 
         # --- 7. MID-LEFT DISK STORAGE & NVMe MONITOR ---
-        self._draw_storage_volume_monitor(90, 245)
+        self._draw_storage_volume_monitor(80, 230)
 
         # --- 8. PRATHAM EXPO ATOM HOLOGRAM ---
-        self._draw_pratham_expo_atom_hologram(215, 255)
+        self._draw_pratham_expo_atom_hologram(195, 235)
 
         # --- 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER ---
-        self._draw_pitch_horizon_ladder(215, 360)
+        self._draw_pitch_horizon_ladder(195, 335)
 
         # --- 10. REACTOR ENERGY GAUGE (100% // PEAK) ---
-        self._draw_reactor_energy_gauge(95, 360)
+        self._draw_reactor_energy_gauge(85, 340)
 
         # --- 11. RECYCLE REPOSITORY & SYSTEM UPTIME TELEMETRY ---
-        self._draw_trash_uptime_telemetry(95, 455)
+        self._draw_trash_uptime_telemetry(85, 430)
 
         # --- 12. LOWER-LEFT DUAL CONCENTRIC NETWORK METER (0.0k / 1.6k) ---
-        self._draw_dual_network_dial(215, 485)
+        self._draw_dual_network_dial(200, 455)
 
         # --- 13. BOTTOM-LEFT WINDOWS CONTROLS & IP ADDRESS ---
-        self._draw_windows_system_controls(30, h - 30)
+        self._draw_windows_system_controls(25, h - 30)
 
         # --- 14. THE GRAND MASTER ARC REACTOR CORE ---
         self._draw_grand_arc_reactor(cx, cy, core_cyan, glow_blue, accent_red)
@@ -335,13 +326,13 @@ class AICoreVisualizer(tk.Canvas):
         self._draw_bottom_launchers(cx, cy + 185)
 
         # --- 16. MID-RIGHT 3D ROTATING GYROSCOPE CUBE & RADAR SCOPE ---
-        self._draw_3d_cube_and_radar(mid_right_x + 35, cy - 25)
+        self._draw_3d_cube_and_radar(mid_right_x + 18, cy)
 
         # --- 17. MID-RIGHT TACTICAL INTEL STREAM ---
         self._draw_tactical_intel_stream(mid_right_x, cy - 145)
 
         # --- 18. LOWER-RIGHT LIVE NETWORK TRAFFIC SPARKLINES ---
-        self._draw_network_sparklines(mid_right_x, cy + 175)
+        self._draw_network_sparklines(mid_right_x, cy + 95)
 
         # --- 19. FAR-RIGHT SATELLITE METEOROLOGICAL & MOON STATION ---
         self._draw_weather_moon_station(weather_x, 35, h)
@@ -818,13 +809,13 @@ class AICoreVisualizer(tk.Canvas):
     # -------------------------------------------------------------
     def _draw_3d_cube_and_radar(self, x, y):
         # Frame 1: 3D Holographic Rotating Gyroscope Cube
-        r_box = 42
+        r_box = 30
         self.create_oval(x - r_box, y - r_box, x + r_box, y + r_box, outline="#00f0ff", width=1)
-        self.create_arc(x - r_box + 2, y - r_box + 2, x + r_box - 2, y + r_box - 2, start=30, extent=-120, style="arc", outline="#0088ff", width=3)
+        self.create_arc(x - r_box + 2, y - r_box + 2, x + r_box - 2, y + r_box - 2, start=30, extent=-120, style="arc", outline="#0088ff", width=2)
 
         # 3D Math Projection
         d = 60
-        scale_size = 18
+        scale_size = 13
         ax = self.angle_3d_x
         ay = self.angle_3d_y
         cos_x = math.cos(ax); sin_x = math.sin(ax)
@@ -847,12 +838,12 @@ class AICoreVisualizer(tk.Canvas):
         for p1, p2 in self.cube_edges:
             self.create_line(proj[p1][0], proj[p1][1], proj[p2][0], proj[p2][1], fill="#00f0ff", width=1)
 
-        self.create_text(x, y + r_box + 10, text="3D GIMBAL CORE", font=FONT_HUD_TINY, fill="#38bdf8")
+        self.create_text(x, y + r_box + 9, text="3D GIMBAL", font=FONT_HUD_TINY, fill="#38bdf8")
 
         # Frame 2: Tactical Radar Scope with Sweeping Blips
-        r_rad = x + 95
+        r_rad = x + 72
         self.create_oval(r_rad - r_box, y - r_box, r_rad + r_box, y + r_box, outline="#00f0ff", width=1)
-        self.create_oval(r_rad - 24, y - 24, r_rad + 24, y + 24, outline="#082547", width=1)
+        self.create_oval(r_rad - 18, y - 18, r_rad + 18, y + 18, outline="#082547", width=1)
         self.create_line(r_rad - r_box, y, r_rad + r_box, y, fill="#082547", width=1)
         self.create_line(r_rad, y - r_box, r_rad, y + r_box, fill="#082547", width=1)
 
@@ -862,94 +853,92 @@ class AICoreVisualizer(tk.Canvas):
 
         # Radar blips
         for b_r, b_ang, b_int in self.radar_blips:
-            # Blip pulses when sweep passes
+            scaled_br = min(b_r * 0.72, r_box - 3)
             diff = (sw_ang - b_ang) % (2 * math.pi)
             if diff < 0.8:
                 col = "#00ffaa"
             else:
                 col = "#005533"
-            bx = r_rad + b_r * math.cos(b_ang)
-            by = y + b_r * math.sin(b_ang)
+            bx = r_rad + scaled_br * math.cos(b_ang)
+            by = y + scaled_br * math.sin(b_ang)
             self.create_oval(bx - 2, by - 2, bx + 2, by + 2, fill=col, outline="")
 
-        self.create_text(r_rad, y + r_box + 10, text="RADAR // 360° SCOPE", font=FONT_HUD_TINY, fill="#00ffaa")
+        self.create_text(r_rad, y + r_box + 9, text="360° RADAR", font=FONT_HUD_TINY, fill="#00ffaa")
 
     # -------------------------------------------------------------
     # 17. MID-RIGHT TACTICAL INTEL STREAM
     # -------------------------------------------------------------
     def _draw_tactical_intel_stream(self, x, y):
-        self.create_text(x, y, text="TACTICAL INTEL STREAM // SATELLITE", font=("Segoe UI", 9, "bold"), fill="#00f0ff", anchor="w")
+        self.create_text(x, y, text="TACTICAL INTEL STREAM", font=("Segoe UI", 8, "bold"), fill="#00f0ff", anchor="w")
 
         intel_items = [
-            "Kinopoisk • High-Bandwidth Autonomous Link Active",
-            "Battleship Protocol • Defense Grid Nominal (Grade 1)",
-            "Crimson Snowfall • Threat Interception Ready",
-            "Harmonic Link • Acoustic Signal Synchronized",
-            "Le Havre Hub • Local Cache Integrity 100%",
-            "Vanguard Co-Pilot • Full Operational Capability"
+            ("KINOPOISK", "LINK ACTIVE", "#00ffaa"),
+            ("BATTLESHIP", "GRID NOMINAL", "#38bdf8"),
+            ("CRIMSON", "THREAT RDY", "#ffaa00"),
+            ("HARMONIC", "SYNCED OK", "#00ffaa"),
+            ("LE HAVRE", "CACHE 100%", "#38bdf8"),
+            ("VANGUARD", "FOC READY", "#8b5cf6")
         ]
-        for idx, item in enumerate(intel_items):
+        for idx, (label, status, scol) in enumerate(intel_items):
             iy = y + 16 + idx * 14
-            self.create_text(x, iy, text=f"— {item}", font=FONT_HUD_TINY, fill="#38bdf8" if idx == 0 else "#64748b", anchor="w")
+            self.create_text(x, iy, text=f"• {label}:", font=FONT_HUD_TINY, fill="#38bdf8" if idx == 0 else "#64748b", anchor="w")
+            self.create_text(x + 145, iy, text=status, font=FONT_HUD_TINY, fill=scol, anchor="e")
 
     # -------------------------------------------------------------
     # 18. LOWER-RIGHT ROLLING NETWORK SPARKLINES
     # -------------------------------------------------------------
     def _draw_network_sparklines(self, x, y):
         # Inflow / Download
-        self.create_text(x - 10, y, text=f"NET INFLOW: {self.cur_down_kb:.1f} KB/S", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
-        self.create_text(x + 130, y, text="169.39 GB", font=FONT_HUD_TINY, fill="#00ffaa", anchor="e")
+        self.create_text(x, y, text=f"NET IN: {self.cur_down_kb:.1f} KB/S", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
+        self.create_text(x + 145, y, text="169.4 GB", font=FONT_HUD_TINY, fill="#00ffaa", anchor="e")
 
         pts_down = []
-        graph_w = 140
-        graph_h = 18
+        graph_w = 145
+        graph_h = 16
         for i, val in enumerate(self.net_down_history):
-            gx = (x - 10) + i * (graph_w / len(self.net_down_history))
-            gy = (y + 22) - (val / 100.0) * graph_h
+            gx = x + i * (graph_w / len(self.net_down_history))
+            gy = (y + 20) - (val / 100.0) * graph_h
             pts_down.extend([gx, gy])
         if len(pts_down) >= 4:
             self.create_line(pts_down, fill="#00f0ff", width=1)
 
         # Outflow / Upload
-        up_y = y + 36
-        self.create_text(x - 10, up_y, text=f"NET OUTFLOW: {self.cur_up_kb:.1f} KB/S", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
-        self.create_text(x + 130, up_y, text="32.95 GB", font=FONT_HUD_TINY, fill="#0088ff", anchor="e")
+        up_y = y + 28
+        self.create_text(x, up_y, text=f"NET OUT: {self.cur_up_kb:.1f} KB/S", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
+        self.create_text(x + 145, up_y, text="32.9 GB", font=FONT_HUD_TINY, fill="#0088ff", anchor="e")
 
         pts_up = []
         for i, val in enumerate(self.net_up_history):
-            gx = (x - 10) + i * (graph_w / len(self.net_up_history))
-            gy = (up_y + 22) - (val / 100.0) * graph_h
+            gx = x + i * (graph_w / len(self.net_up_history))
+            gy = (up_y + 20) - (val / 100.0) * graph_h
             pts_up.extend([gx, gy])
         if len(pts_up) >= 4:
             self.create_line(pts_up, fill="#0088ff", width=1)
 
         # Media Control Strip
-        strip_y = up_y + 36
-        self.create_rectangle(x - 10, strip_y, x + 130, strip_y + 14, outline="#0a2a50", fill="#030d1c")
-        self.create_text(x + 60, strip_y + 7, text="⏮   ▶   ⏸   ⏭   🔊 [━━━━●━━]", font=FONT_HUD_TINY, fill="#00f0ff")
+        strip_y = up_y + 28
+        self.create_rectangle(x, strip_y, x + 145, strip_y + 14, outline="#0a2a50", fill="#030d1c")
+        self.create_text(x + 72, strip_y + 7, text="⏮   ▶   ⏸   ⏭   🔊 [━●━]", font=FONT_HUD_TINY, fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 19. FAR-RIGHT SATELLITE METEOROLOGICAL & MOON STATION
     # -------------------------------------------------------------
     def _draw_weather_moon_station(self, x, start_y, total_h):
-        # Vertical tactical boundary
-        self.create_line(x - 15, start_y, x - 15, total_h - 20, fill="#081e3a", width=1)
-
         now = datetime.datetime.now()
-        self.create_text(x, start_y, text=f"SYNCED {now.strftime('%m/%d/%y %H:%M')}", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
+        self.create_text(x, start_y, text=f"SYNC {now.strftime('%m/%d %H:%M')}", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
 
         # Temperature
-        self.create_text(x, start_y + 28, text="24°C", font=("Segoe UI", 24, "bold"), fill="#ffffff", anchor="w")
+        self.create_text(x, start_y + 26, text="24°C", font=("Segoe UI", 22, "bold"), fill="#ffffff", anchor="w")
 
         # Glowing Moon Graphic
-        m_x = x + 110
-        m_y = start_y + 28
-        self.create_oval(m_x - 20, m_y - 20, m_x + 20, m_y + 20, fill="#1c3a60", outline="#00f0ff", width=1)
-        self.create_oval(m_x - 8, m_y - 6, m_x - 2, m_y, fill="#0d1f36", outline="")
-        self.create_oval(m_x + 2, m_y + 4, m_x + 9, m_y + 11, fill="#0d1f36", outline="")
-        self.create_oval(m_x - 4, m_y + 8, m_x - 1, m_y + 11, fill="#0d1f36", outline="")
+        m_x = x + 115
+        m_y = start_y + 26
+        self.create_oval(m_x - 18, m_y - 18, m_x + 18, m_y + 18, fill="#1c3a60", outline="#00f0ff", width=1)
+        self.create_oval(m_x - 7, m_y - 5, m_x - 2, m_y, fill="#0d1f36", outline="")
+        self.create_oval(m_x + 2, m_y + 3, m_x + 8, m_y + 9, fill="#0d1f36", outline="")
+        self.create_oval(m_x - 3, m_y + 7, m_x, m_y + 10, fill="#0d1f36", outline="")
 
-        self.create_text(x, start_y + 54, text="ATMOSPHERE: CLEAR // OPTIMAL", font=("Segoe UI", 8, "bold"), fill="#00ffaa", anchor="w")
+        self.create_text(x, start_y + 50, text="ATMOSPHERE: CLEAR // OK", font=("Segoe UI", 8, "bold"), fill="#00ffaa", anchor="w")
 
         # Atmospheric Metrics in English
         specs = [
@@ -957,17 +946,18 @@ class AICoreVisualizer(tk.Canvas):
             ("FEELS LIKE", "24°C"),
             ("PRECIPITATION", "0%"),
             ("VISIBILITY", "10.0 KM"),
-            ("WIND VELOCITY", "3 KM/H (NNW)"),
+            ("WIND VELOCITY", "3 KM/H"),
             ("SOLAR DAWN", "05:42 AM"),
             ("SOLAR DUSK", "06:38 PM")
         ]
         for idx, (lbl, val) in enumerate(specs):
-            sy = start_y + 72 + idx * 14
-            self.create_text(x, sy, text=f"{lbl}: {val}", font=FONT_HUD_TINY, fill="#38bdf8" if idx == 0 else "#64748b", anchor="w")
+            sy = start_y + 66 + idx * 13
+            self.create_text(x, sy, text=f"{lbl}:", font=FONT_HUD_TINY, fill="#38bdf8" if idx == 0 else "#64748b", anchor="w")
+            self.create_text(x + 130, sy, text=val, font=FONT_HUD_TINY, fill="#ffffff" if idx == 0 else "#94a3b8", anchor="e")
 
         # 7-Day Meteorological Trajectory
-        fc_start_y = start_y + 185
-        self.create_text(x, fc_start_y, text="7-DAY TRAJECTORY:", font=("Segoe UI", 8, "bold"), fill="#00f0ff", anchor="w")
+        fc_start_y = start_y + 165
+        self.create_text(x, fc_start_y, text="7-DAY FORECAST:", font=("Segoe UI", 8, "bold"), fill="#00f0ff", anchor="w")
 
         forecast = [
             ("TONIGHT", "18°C", "☁ PARTLY CLOUDY", "#38bdf8"),
@@ -980,40 +970,90 @@ class AICoreVisualizer(tk.Canvas):
             ("WEDNESDAY", "25° / 18°", "🌧 PRECIP / RAIN", "#00f0ff")
         ]
         for f_idx, (day, temp, cond, c_col) in enumerate(forecast):
-            fy = fc_start_y + 18 + f_idx * 28
-            if fy + 24 > total_h - 10:
+            fy = fc_start_y + 16 + f_idx * 26
+            if fy + 22 > total_h - 10:
                 break
             self.create_text(x, fy, text=day, font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
             self.create_text(x + 130, fy, text=temp, font=("Segoe UI", 8, "bold"), fill="#00ffaa", anchor="e")
-            self.create_text(x, fy + 12, text=cond, font=FONT_HUD_TINY, fill=c_col, anchor="w")
+            self.create_text(x, fy + 11, text=cond, font=FONT_HUD_TINY, fill=c_col, anchor="w")
 
     # -------------------------------------------------------------
     # 20. NEURAL NETWORK INITIALIZATION & SYNAPTIC PLEXUS
     # -------------------------------------------------------------
     def _init_neural_network(self):
-        """Initialize drifting neural nodes across the holographic workspace."""
+        """Initialize deep machinery neural nodes across the holographic workspace."""
         self.neural_nodes = []
-        offsets = [
-            # Left Cognitive Cluster (Near Date & CPU meters)
-            (-360, -150), (-320, -100), (-380, -50), (-420, -120), (-290, -170),
-            (-440, 20), (-390, 80), (-430, 160), (-360, 220), (-400, 290),
-            # Central Arc Halo (Surrounding the Arc Reactor)
-            (-195, -120), (-145, -180), (0, -215), (145, -180), (195, -120),
-            (-205, 40), (-185, 120), (-125, 185), (125, 185), (185, 120), (205, 40),
-            # Right Tactical Cluster (Near Radar & Intel Feed)
-            (285, -185), (360, -155), (410, -105), (440, -35),
-            (360, 65), (420, 115), (380, 185)
+        raw_nodes = [
+            # Cognitive Cluster (Left Manifold)
+            {"ox": -360, "oy": -150, "layer": "surface", "hub": True, "label": "SYN-A1"},
+            {"ox": -320, "oy": -100, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -380, "oy": -50, "layer": "deep", "hub": False, "label": ""},
+            {"ox": -420, "oy": -120, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -290, "oy": -170, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -440, "oy": 20, "layer": "deep", "hub": False, "label": ""},
+            {"ox": -390, "oy": 80, "layer": "surface", "hub": True, "label": "AXON-4"},
+            {"ox": -430, "oy": 160, "layer": "deep", "hub": False, "label": ""},
+            {"ox": -360, "oy": 220, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -400, "oy": 290, "layer": "surface", "hub": False, "label": ""},
+
+            # Deep Machinery Sub-Surface Lattice (Central Interior)
+            {"ox": -220, "oy": -60, "layer": "deep", "hub": False, "label": ""},
+            {"ox": -170, "oy": -90, "layer": "deep", "hub": False, "label": ""},
+            {"ox": -110, "oy": -140, "layer": "deep", "hub": True, "label": "COR-01"},
+            {"ox": -60, "oy": -180, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 60, "oy": -180, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 110, "oy": -140, "layer": "deep", "hub": True, "label": "COR-02"},
+            {"ox": 170, "oy": -90, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 220, "oy": -60, "layer": "deep", "hub": False, "label": ""},
+
+            # Central Core Orbit Halo
+            {"ox": -195, "oy": -120, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -145, "oy": -180, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 0, "oy": -215, "layer": "surface", "hub": True, "label": "NEXUS-0"},
+            {"ox": 145, "oy": -180, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 195, "oy": -120, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -205, "oy": 40, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -185, "oy": 120, "layer": "surface", "hub": False, "label": ""},
+            {"ox": -125, "oy": 185, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 0, "oy": 220, "layer": "surface", "hub": True, "label": "NEXUS-B"},
+            {"ox": 125, "oy": 185, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 185, "oy": 120, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 205, "oy": 40, "layer": "surface", "hub": False, "label": ""},
+
+            # Conduit Bridges to Column 3
+            {"ox": 235, "oy": 20, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 260, "oy": -80, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 250, "oy": 110, "layer": "deep", "hub": False, "label": ""},
+
+            # Tactical Right Cluster
+            {"ox": 285, "oy": -185, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 340, "oy": -155, "layer": "surface", "hub": True, "label": "SYN-R1"},
+            {"ox": 390, "oy": -115, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 420, "oy": -45, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 340, "oy": 65, "layer": "surface", "hub": False, "label": ""},
+            {"ox": 400, "oy": 115, "layer": "deep", "hub": False, "label": ""},
+            {"ox": 360, "oy": 175, "layer": "surface", "hub": True, "label": "SYN-R2"}
         ]
-        for idx, (ox, oy) in enumerate(offsets):
+
+        for idx, item in enumerate(raw_nodes):
             self.neural_nodes.append({
-                "ox": ox, "oy": oy,
-                "dx": random.uniform(-4, 4), "dy": random.uniform(-4, 4),
-                "vx": random.uniform(-0.3, 0.3), "vy": random.uniform(-0.3, 0.3),
+                "ox": item["ox"],
+                "oy": item["oy"],
+                "layer": item["layer"],
+                "hub": item["hub"],
+                "label": item["label"],
+                "dx": random.uniform(-4, 4),
+                "dy": random.uniform(-4, 4),
+                "vx": random.uniform(-0.25, 0.25),
+                "vy": random.uniform(-0.25, 0.25),
                 "pulse": random.uniform(0, math.pi * 2),
                 "color": "#00f0ff" if idx % 3 != 0 else "#8b5cf6",
                 "flash": 0.0
             })
+
         self.synaptic_pulses = []
+        self.random_synaptic_bridges = []
+        self.synapse_rewire_counter = 0
 
     def _init_circuit_packets(self):
         """Initialize data packets flowing through laser circuit traces."""
@@ -1056,18 +1096,19 @@ class AICoreVisualizer(tk.Canvas):
     def _update_and_draw_neural_plexus(self, cx, cy, w, h, core_color):
         """Update and render interconnected neural nodes and streaming synaptic data packets."""
         node_coords = []
+        num_nodes = len(self.neural_nodes)
 
         # 1. Update positions & draw node bodies
         for node in self.neural_nodes:
             # Drift within bounds
             node["dx"] += node["vx"]
             node["dy"] += node["vy"]
-            if abs(node["dx"]) > 14:
+            if abs(node["dx"]) > 12:
                 node["vx"] *= -1
-            if abs(node["dy"]) > 14:
+            if abs(node["dy"]) > 12:
                 node["vy"] *= -1
 
-            node["pulse"] = (node["pulse"] + 0.08) % (math.pi * 2)
+            node["pulse"] = (node["pulse"] + 0.07) % (math.pi * 2)
             if node["flash"] > 0:
                 node["flash"] = max(0.0, node["flash"] - 0.08)
 
@@ -1075,21 +1116,32 @@ class AICoreVisualizer(tk.Canvas):
             ny = cy + node["oy"] + node["dy"]
             node_coords.append((nx, ny))
 
-            # Draw Node Halo & Core
-            base_r = 2.5 + math.sin(node["pulse"]) * 0.8
-            if node["flash"] > 0:
-                # Flash on synaptic arrival
-                flash_r = base_r + node["flash"] * 6
-                self.create_oval(nx - flash_r, ny - flash_r, nx + flash_r, ny + flash_r, outline="#ffffff", width=1)
-                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill="#ffffff", outline="")
-            else:
-                self.create_oval(nx - (base_r + 2), ny - (base_r + 2), nx + (base_r + 2), ny + (base_r + 2), outline="#072445", width=1)
-                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill=node["color"], outline="")
+        # 2. Manage Dynamic Randomized Neural Bridges (Deep Machinery Visuals)
+        self.synapse_rewire_counter += 1
+        alive_bridges = []
+        for bridge in self.random_synaptic_bridges:
+            bridge["life"] -= 1
+            if bridge["life"] > 0:
+                alive_bridges.append(bridge)
+        self.random_synaptic_bridges = alive_bridges
 
-        # 2. Draw Synaptic Connection Filaments
-        num_nodes = len(self.neural_nodes)
+        # Spawn new random neural links periodically or if pool is small
+        if num_nodes >= 2 and (len(self.random_synaptic_bridges) < 7 or self.synapse_rewire_counter % 18 == 0):
+            i = random.randrange(num_nodes)
+            j = random.randrange(num_nodes)
+            if i != j:
+                bridge_colors = ["#00f0ff", "#8b5cf6", "#00ffaa", "#38bdf8", "#06b6d4"]
+                b_col = random.choice(bridge_colors)
+                self.random_synaptic_bridges.append({
+                    "i": i,
+                    "j": j,
+                    "life": random.randint(45, 90),
+                    "max_life": 90,
+                    "color": b_col
+                })
+
+        # 3. Draw Proximity Filaments
         connected_pairs = []
-
         for i in range(num_nodes):
             x1, y1 = node_coords[i]
             for j in range(i + 1, num_nodes):
@@ -1097,31 +1149,73 @@ class AICoreVisualizer(tk.Canvas):
                 dx = x1 - x2
                 dy = y1 - y2
                 dist_sq = dx * dx + dy * dy
-                if dist_sq < 9025: # < 95 pixels
+                if dist_sq < 8100:  # < 90 pixels
                     dist = math.sqrt(dist_sq)
                     connected_pairs.append((i, j, x1, y1, x2, y2))
-                    # Line alpha-like color gradient by distance
-                    if dist < 55:
-                        fil_col = "#0e447a"
-                    elif dist < 75:
-                        fil_col = "#092e54"
+                    is_deep = (self.neural_nodes[i]["layer"] == "deep" and self.neural_nodes[j]["layer"] == "deep")
+                    if is_deep:
+                        fil_col = "#04182e" if dist > 55 else "#062242"
+                        self.create_line(x1, y1, x2, y2, fill=fil_col, width=1, dash=(2, 4))
                     else:
-                        fil_col = "#051a33"
-                    self.create_line(x1, y1, x2, y2, fill=fil_col, width=1)
+                        fil_col = "#062242" if dist > 65 else "#0a3666"
+                        self.create_line(x1, y1, x2, y2, fill=fil_col, width=1)
 
-        # 3. Spawn New Synaptic Pulses (Action Potentials)
-        spawn_rate = 0.35 + self.audio_level * 0.9
+        # 4. Draw Randomized Futuristic Neural Bridges
+        for bridge in self.random_synaptic_bridges:
+            idx_a, idx_b = bridge["i"], bridge["j"]
+            if idx_a < num_nodes and idx_b < num_nodes:
+                bx1, by1 = node_coords[idx_a]
+                bx2, by2 = node_coords[idx_b]
+                fade_ratio = bridge["life"] / bridge["max_life"]
+                # Cyber dash pattern for randomized deep machinery links
+                self.create_line(bx1, by1, bx2, by2, fill=bridge["color"] if fade_ratio > 0.4 else "#0a3666", width=1, dash=(3, 5))
+
+        # 5. Draw Node Bodies, Hub Halos & Labels
+        for idx, node in enumerate(self.neural_nodes):
+            nx, ny = node_coords[idx]
+            base_r = 2.4 + math.sin(node["pulse"]) * 0.6
+
+            if node["flash"] > 0:
+                # Expanding high-energy ripple on arrival
+                flash_r = base_r + node["flash"] * 7
+                self.create_oval(nx - flash_r, ny - flash_r, nx + flash_r, ny + flash_r, outline="#ffffff", width=1)
+                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill="#ffffff", outline="")
+            elif node["layer"] == "deep":
+                # Deep machinery sub-surface junction (tiny diamond marker)
+                self.create_rectangle(nx - 2, ny - 2, nx + 2, ny + 2, outline="#082c54", fill="#041428")
+                self.create_oval(nx - 1, ny - 1, nx + 1, ny + 1, fill=node["color"], outline="")
+            else:
+                # Surface synaptic node
+                self.create_oval(nx - (base_r + 2), ny - (base_r + 2), nx + (base_r + 2), ny + (base_r + 2), outline="#072445", width=1)
+                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill=node["color"], outline="")
+
+            # Major Hub Tag & Ring
+            if node["hub"]:
+                hub_r = base_r + 5
+                self.create_oval(nx - hub_r, ny - hub_r, nx + hub_r, ny + hub_r, outline="#00f0ff", width=1, dash=(2, 3))
+                if node["label"]:
+                    self.create_text(nx, ny - 10, text=node["label"], font=FONT_HUD_TINY, fill="#38bdf8")
+
+        # 6. Spawn New Synaptic Pulses (Action Potentials)
+        spawn_rate = 0.40 + self.audio_level * 0.8
         if self.state in ("THINKING", "PLANNING", "SPEAKING"):
-            spawn_rate = 0.75
+            spawn_rate = 0.85
 
-        if connected_pairs and random.random() < spawn_rate:
-            pair = random.choice(connected_pairs)
-            i, j = pair[0], pair[1]
-            speed = random.uniform(0.04, 0.08)
-            pulse_col = "#00f0ff" if random.random() < 0.7 else "#8b5cf6"
-            self.synaptic_pulses.append([i, j, 0.0, speed, pulse_col])
+        if random.random() < spawn_rate:
+            # Can spawn along standard proximity filament OR along random dynamic bridge
+            if self.random_synaptic_bridges and random.random() < 0.45:
+                br = random.choice(self.random_synaptic_bridges)
+                i, j = br["i"], br["j"]
+                speed = random.uniform(0.03, 0.07)
+                self.synaptic_pulses.append([i, j, 0.0, speed, br["color"]])
+            elif connected_pairs:
+                pair = random.choice(connected_pairs)
+                i, j = pair[0], pair[1]
+                speed = random.uniform(0.04, 0.08)
+                pulse_col = "#00f0ff" if random.random() < 0.65 else "#8b5cf6"
+                self.synaptic_pulses.append([i, j, 0.0, speed, pulse_col])
 
-        # 4. Advance & Render Active Synaptic Pulses
+        # 7. Advance & Render Active Synaptic Pulses
         alive_pulses = []
         for pulse in self.synaptic_pulses:
             i, j, t, spd, col = pulse
@@ -1133,20 +1227,20 @@ class AICoreVisualizer(tk.Canvas):
                 continue
 
             alive_pulses.append([i, j, t, spd, col])
-            x1, y1 = node_coords[i]
-            x2, y2 = node_coords[j]
-            px = x1 + (x2 - x1) * t
-            py = y1 + (y2 - y1) * t
+            if i < num_nodes and j < num_nodes:
+                x1, y1 = node_coords[i]
+                x2, y2 = node_coords[j]
+                px = x1 + (x2 - x1) * t
+                py = y1 + (y2 - y1) * t
 
-            # Draw Bright Glowing Action Potential Packet
-            self.create_oval(px - 2, py - 2, px + 2, py + 2, fill="#ffffff", outline="")
-            # Small trailing spark
-            tail_t = max(0.0, t - 0.15)
-            tx = x1 + (x2 - x1) * tail_t
-            ty = y1 + (y2 - y1) * tail_t
-            self.create_line(tx, ty, px, py, fill=col, width=2)
+                # Glowing Action Potential Packet with Comet Spark Tail
+                self.create_oval(px - 2.5, py - 2.5, px + 2.5, py + 2.5, fill="#ffffff", outline="")
+                tail_t = max(0.0, t - 0.16)
+                tx = x1 + (x2 - x1) * tail_t
+                ty = y1 + (y2 - y1) * tail_t
+                self.create_line(tx, ty, px, py, fill=col, width=2)
 
-        self.synaptic_pulses = alive_pulses[:40] # cap max active pulses
+        self.synaptic_pulses = alive_pulses[:45]
 
     # -------------------------------------------------------------
     # 23. CIRCUIT BUS STREAMING DATA PACKETS

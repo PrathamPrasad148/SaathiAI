@@ -103,19 +103,19 @@ class VoiceEngine:
                             silence_frames = 0
 
                             # Process transcription in background worker
-                            if len(audio_full) > self.sample_rate * 0.4:  # Minimum 0.4s speech
+                            if len(audio_full) > self.sample_rate * 0.25:  # Minimum 0.25s speech
                                 self._dispatch_transcription(audio_full)
 
                             if not self.continuous_mode:
                                 break
                     else:
-                        # Keep a small rolling window of ambient audio (0.2s)
-                        if len(self._audio_buffer) > 4:
+                        # Keep a small rolling window of ambient audio (0.25s)
+                        if len(self._audio_buffer) > 5:
                             self._audio_buffer.pop(0)
                         self._audio_buffer.append(chunk)
 
         except Exception as err:
-            pass
+            print(f"[VOICE STREAM ERROR] {err}")
         finally:
             if not self.continuous_mode or self._stop_stream.is_set():
                 self.is_listening = False
@@ -132,10 +132,12 @@ class VoiceEngine:
 
                 text = self.stt.transcribe(audio_data)
                 cleaned = text.strip()
-                if cleaned and self.on_transcription_complete:
-                    self.on_transcription_complete(cleaned)
-            except Exception:
-                pass
+                if cleaned:
+                    print(f"[VOICE HEARD] '{cleaned}'")
+                    if self.on_transcription_complete:
+                        self.on_transcription_complete(cleaned)
+            except Exception as err:
+                print(f"[TRANSCRIPTION EXCEPTION] {err}")
             finally:
                 self._is_transcribing = False
                 if self.is_listening and self.on_status_change:

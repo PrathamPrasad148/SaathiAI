@@ -14,7 +14,10 @@ class STTEngine:
             with self._lock:
                 if self._model is None:
                     from faster_whisper import WhisperModel
-                    self._model = WhisperModel(self.model_size, compute_type="int8")
+                    try:
+                        self._model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+                    except Exception:
+                        self._model = WhisperModel(self.model_size, device="cpu", compute_type="float32")
         return self._model
 
     def transcribe(self, audio_data: np.ndarray, language: Optional[str] = None) -> str:

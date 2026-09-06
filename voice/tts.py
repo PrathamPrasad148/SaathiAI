@@ -17,7 +17,11 @@ class TTSEngine:
 
     def is_speaking(self) -> bool:
         """Returns True if TTS is actively playing or finished within cooldown period."""
-        return self.is_playing or (time.time() - self.last_speech_finish_time < 0.45)
+        if self.is_playing:
+            return True
+        if self.last_speech_finish_time > 0:
+            return (time.time() - self.last_speech_finish_time < 0.35)
+        return False
 
     def stop(self):
         """Immediately interrupt and stop ongoing speech."""

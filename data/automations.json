@@ -1,0 +1,68 @@
+[
+  {
+    "id": "wf-study",
+    "name": "Study Session",
+    "description": "Opens Projects folder, creates quick notes, and fetches weather",
+    "trigger_type": "voice_phrase",
+    "trigger_value": "start study",
+    "steps": [
+      {
+        "tool_name": "open_target",
+        "arguments": {
+          "target": "Projects"
+        },
+        "description": "Open Projects workspace",
+        "continue_on_error": false
+      },
+      {
+        "tool_name": "get_weather",
+        "arguments": {
+          "city": "Delhi"
+        },
+        "description": "Check local weather",
+        "continue_on_error": false
+      },
+      {
+        "tool_name": "add_note",
+        "arguments": {
+          "note": "Study session started"
+        },
+        "description": "Log study note",
+        "continue_on_error": false
+      }
+    ],
+    "enabled": true,
+    "created_at": "2026-09-06T09:13:07.082066",
+    "last_run": null,
+    "run_count": 0
+  },
+  {
+    "id": "wf-devmode",
+    "name": "Developer Mode",
+    "description": "Launches VS Code / notepad and opens projects directory",
+    "trigger_type": "voice_phrase",
+    "trigger_value": "dev mode",
+    "steps": [
+      {
+        "tool_name": "open_target",
+        "arguments": {
+          "target": "notepad"
+        },
+        "description": "Launch text editor",
+        "continue_on_error": false
+      },
+      {
+        "tool_name": "open_target",
+        "arguments": {
+          "target": "Projects"
+        },
+        "description": "Open projects folder",
+        "continue_on_error": false
+      }
+    ],
+    "enabled": true,
+    "created_at": "2026-09-06T09:13:07.082066",
+    "last_run": null,
+    "run_count": 0
+  }
+]

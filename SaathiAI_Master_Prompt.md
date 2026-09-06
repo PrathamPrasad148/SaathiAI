@@ -94,7 +94,14 @@ c:\SAATHIAI\
 │   ├── executor.py             # ToolExecutor for safe multi-turn execution
 │   ├── schemas.py              # Tool schema definitions & risk levels
 │   └── builtin\                # Builtin tool definitions (system, web, files, etc.)
-└── Projects\                   # Output directory for generated Web Projects
+├── skills\                     # Special Agentic Skill Blueprints
+│   ├── pptx\                   # PowerPoint (.pptx/.potx) creation, editing, & QA skill
+│   │   └── SKILL.md
+│   ├── ui-ux-pro-max\          # Modern UI/UX Pro Max web component generation skill
+│   │   └── SKILL.md
+│   └── 21st-dev\               # 21st.dev component blueprint skill
+│       └── SKILL.md
+└── Projects\                   # Output directory for generated Web Projects & Presentations
 ```
 
 ---
@@ -192,3 +199,4 @@ cy = max(310, min(int(h * 0.46), h - 330))
 - **GitHub Publisher**: Always commit and push via PowerShell:
   `powershell -ExecutionPolicy Bypass -File .\Push-ToGitHub.ps1 "Commit description"`
   *(Note: The publisher script automatically detects 0-byte corrupted Git index files and rebuilds them before pushing).*
+

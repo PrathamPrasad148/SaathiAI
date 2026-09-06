@@ -104,3 +104,4 @@ class WakeWordListener:
                     p.terminate()
                 except Exception:
                     pass
+

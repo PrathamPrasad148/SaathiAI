@@ -48,6 +48,14 @@ if errorlevel 1 (
 )
 if errorlevel 1 goto FAILED
 
+:: 5B. Check and Auto-Repair Git Index Corruption
+git status >nul 2>&1
+if errorlevel 1 (
+    echo [WARN] Corrupted Git index detected. Auto-repairing index...
+    if exist ".git\index" del /f /q ".git\index" >nul 2>&1
+    git reset >nul 2>&1
+)
+
 :: 6. Stage ALL files (code, skills, data, projects, configs)
 echo [INFO] Staging all files across the repository...
 git add -A

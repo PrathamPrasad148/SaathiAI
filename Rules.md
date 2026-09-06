@@ -1,41 +1,51 @@
-# Saathi AI Engineering and Product Rules
+# Saathi AI — Engineering & Security Governance Rules
+### Defined by **Pratham Prasad**
 
-## Safety
+```text
+================================================================================
+                     SAATHI AI SYSTEM & ENGINEERING RULES
+                          Prescribed by Pratham Prasad
+================================================================================
+```
 
-1. Never execute destructive or system-impacting actions silently.
-2. Always confirm command execution and destructive file operations.
-3. Keep protected paths protected, even when routine permissions are enabled.
-4. Do not expose private files, tokens, or conversation history to external services.
-5. Report what an action did; do not imply success when a tool failed.
+## 1. Safety & System Integrity Guardrails
 
-## Architecture
+1. **Explicit Human Confirmation for High-Impact Actions**:
+   - Deleting files (`delete_path`), moving files (`move_path`), and executing system terminal commands (`run_command`) MUST prompt the user with clear, unambiguous confirmation dialogs.
+   - Never execute destructive disk operations or shell commands silently.
 
-6. Keep Tkinter work on the main thread.
-7. Use worker threads for network, speech, and long-running operations.
-8. Communicate worker results through queues or `root.after`.
-9. Prefer existing helpers and constants over duplicate behavior.
-10. Keep local persistence backward-compatible and UTF-8 encoded.
+2. **System Root & Protected Path Isolation**:
+   - `C:\Windows`, `C:\Program Files`, `System32`, user AppData roots, and the core Saathi application directory are strictly protected.
+   - Deletions or forced modifications targeted at protected system paths must be intercepted and immediately aborted.
 
-## Assistant Behavior
+3. **100% Local Data Privacy**:
+   - Private user chat histories, notes, and reminders must never be dispatched to external analytics or telemetry endpoints.
+   - All conversation logs are preserved exclusively on local disk under `data/`.
 
-11. Speak in natural Roman-script Hinglish unless the user requests another style.
-12. Be honest about capabilities, dependencies, and failures.
-13. For website requests, create complete files under `Projects/` and open them when appropriate.
-14. Use UI/UX Pro Max and 21st.dev guidance as design input, not as permission to add unrelated dependencies.
-15. Do not claim a 21st.dev component was installed unless local source was actually added.
+---
 
-## Generated UI
+## 2. Architecture & Concurrency Standards
 
-16. Match the implementation to the actual stack.
-17. Do not paste JSX into static HTML projects.
-18. Make interactive controls keyboard accessible and visibly focused.
-19. Support responsive layouts and reduced motion.
-20. Use icons appropriately and do not rely on emoji as the only UI affordance.
-21. Include meaningful loading, empty, error, and success states when the workflow needs them.
+4. **Main Thread Exclusivity**:
+   - The Tkinter event loop must exclusively execute UI updates.
+   - Long-running operations (Ollama HTTP inference, Edge TTS synthesis, faster-whisper transcription, disk scans) must run on dedicated background threads.
 
-## Delivery
+5. **Inter-Thread Communication Protocol**:
+   - Background threads must communicate with the UI thread strictly using thread-safe queues (`reply_queue`, `status_queue`) or scheduled callbacks via `root.after()`. Direct cross-thread widget manipulation is strictly prohibited.
 
-22. Make the smallest focused change that satisfies the request.
-23. Run a syntax, test, or behavior-scoped validation after edits.
-24. Update documentation when public behavior or setup changes.
-25. Never commit or revert user changes unless explicitly requested.
+6. **Deterministic Error Handling**:
+   - Subsystem failures (e.g., network unavailability, model timeouts, missing microphone) must degrade gracefully with informative HUD feedback rather than terminating the application.
+
+---
+
+## 3. Cognitive Persona & Assistant Behavior
+
+7. **The Saathi Identity**:
+   - Saathi speaks with a calm, articulate, measured cadence, blending high-intellect execution with deep paternal warmth and protective loyalty toward Pratham Prasad.
+   - Tone is natural Roman-script Hinglish or English, avoiding sterile robotic phrasing or sycophantic politeness.
+
+8. **Honest Operational Feedback**:
+   - Always state precisely what action was executed. Never report an operation as successful if a tool call encountered an error.
+
+9. **Complete Code Generation**:
+   - When generating web projects or coding tasks, generate complete, working, production-grade files under `Projects/<ProjectName>/`. Never truncate critical sections with lazy placeholders.

@@ -1,54 +1,78 @@
-# Saathi AI Technical Specification
-
-## Architecture
-
-Saathi is a single-process Python desktop application built with Tkinter. The `Saathi` class owns UI state, local persistence, command routing, tool execution, background workers, and lifecycle management.
+# Saathi AI — Technical Specification
+### Engineered by **Pratham Prasad**
 
 ```text
-Tkinter UI
-  |-- direct shortcut handlers
-  |-- conversation history
-  |-- status/reply queues
-  '-- Ollama HTTP client
-          '-- model response and tool calls
-
-Local files: data/history.json, data/reminders.json, data/notes.txt
-External services: Ollama, wttr.in, ExchangeRate API, Wikipedia, Edge TTS
-Windows integrations: os.startfile, tray icon, clipboard, screenshots
+================================================================================
+                    SAATHI AI TECHNICAL SPECIFICATION & STACK
+                           Engineered by Pratham Prasad
+================================================================================
 ```
 
-## Runtime
+## 1. System Architecture Overview
 
-- Python 3.12 is the documented target.
-- Tkinter is used for the native UI.
-- Ollama is expected at `http://127.0.0.1:11434`.
-- Default coding model: `qwen2.5:7b`.
-- Optional packages are listed in `requirements.txt`.
+Saathi AI is an event-driven, multithreaded desktop operating system and cognitive co-pilot built natively in Python for Windows.
 
-## Concurrency
+```text
++-------------------------------------------------------------------------------+
+|                       PRATHAM PRASAD // SAATHI AI HUD                         |
++-------------------------------------------------------------------------------+
+|  Top Telemetry Deck (ui/telemetry.py): Clock, FPS, CPU Load, Model Switcher   |
++---------------------------------------+---------------------------------------+
+|  AI Core Vector Canvas (ui/ai_core):  |  Tactical Deck (ui/command_center):   |
+|  - 60 FPS Canvas Redraw Engine        |  - Scrollable Multi-Turn Chat Log     |
+|  - 28-Node Synaptic Plexus & Pulses   |  - Real-Time Action & Status Badges   |
+|  - High-Voltage Arc Reactor & Sparks  |  - Instant Directive Stream Input Bar |
+|  - 3D Gyroscope & 360 Tactical Radar  |  - Mic VAD & Spoken Speech Controls   |
++---------------------------------------+---------------------------------------+
+|  Background Multi-Threaded Engine Subsystems:                                 |
+|  - Ollama Agent Reasoning Client      |  - faster-whisper On-Device STT       |
+|  - Autonomous Tool Dispatcher         |  - edge-tts Audio Neural Synthesizer  |
+|  - Windows Automations & Shell Bridge |  - 20-Second Scheduler & Cron Worker  |
++---------------------------------------+---------------------------------------+
+```
 
-Tkinter must remain on the main thread. Ollama requests, speech synthesis, and microphone transcription run in worker threads. Workers communicate with the UI through `reply_queue`, `status_queue`, and `root.after(...)` callbacks.
+---
 
-## Model and Tool Protocol
+## 2. Technology Stack & Dependencies
 
-The application sends a system prompt, recent conversation messages, the selected model, and `TOOLS_SCHEMA` to Ollama's `/api/chat` endpoint. Tool calls are executed locally, their results are appended to the conversation, and the model may continue for up to four iterations before a final reply is displayed.
+- **Language & Runtime**: Python 3.12 64-bit on Windows 10/11
+- **User Interface Framework**: Python Tkinter (Native Windows Win32 graphics bridge)
+- **Local AI Inference Engine**: Ollama HTTP API (`http://127.0.0.1:11434`)
+  - Default Model: `qwen2.5:7b` (High-speed tool execution & coding)
+  - Secondary Models: `qwen3:14b`, `qwen3:4b-instruct`
+- **Speech-to-Text**: `faster-whisper` (CTranslate2-optimized local Whisper)
+- **Speech Synthesis**: `edge-tts` (Microsoft Neural Speech API with Indian-English voice profile)
+- **Audio Output & Channels**: `pygame` mixer streaming
+- **Computer Vision & Capture**: `Pillow` (`ImageGrab`)
+- **System Tray Integration**: `pystray` Windows shell notifications
+- **Safe File Management**: `send2trash` recycle bin bridge
 
-## Persistence
+---
 
-- `data/history.json`: recent role/text message tuples, capped during save.
-- `data/reminders.json`: reminder objects containing text, ISO timestamp, and completion state.
-- `data/notes.txt`: timestamped append-only notes.
+## 3. Concurrency & Performance Model
 
-All paths are derived from `APP_DIR`; required directories are created during initialization.
+1. **Main UI Thread**:
+   - Manages the Tkinter event loop, canvas vector rendering, and input focus.
+   - Vector canvas uses mathematical coordinate calculations with batch canvas updates to achieve smooth 50-60 FPS performance without lagging user input.
 
-## Error Handling
+2. **Asynchronous Worker Thread Pool**:
+   - `_reply_worker`: Manages multi-turn network streaming with the local Ollama daemon.
+   - `_speech_worker`: Streams and synthesizes audio without freezing the HUD.
+   - `_transcribe_worker`: Processes raw audio PCM buffers through Whisper.
+   - `_reminder_checker_loop`: Autonomous daemon waking every 20 seconds to monitor scheduled directives.
 
-Network, model, audio, and file errors should be converted into user-visible messages or safe fallback values. Background failures must not crash the Tkinter event loop. Timeouts should explain that CPU inference may be slow and suggest the lightweight model.
+3. **Message & State Synchronization**:
+   - Worker threads push structured events into `queue.Queue` buffers (`reply_queue`, `status_queue`).
+   - The UI thread polls queues during frame ticks using `root.after(50, self._process_queues)`.
 
-## Security
+---
 
-Resolve relative paths against `APP_DIR`. Use protected-path checks before destructive operations. Require confirmation for command execution and destructive file operations. Do not log secrets or expose private local data in external queries.
+## 4. Security & Isolation Matrix
 
-## Extension Guidance
-
-New tools require a schema entry, an `execute_tool` branch, confirmation policy, user-facing status handling, and a focused test or manual verification path. New web-generation behavior belongs in the system prompt and the 21st.dev/UI UX skill guidance, not in Tkinter rendering code.
+| Capability | Policy | Implementation Mechanism |
+| :--- | :--- | :--- |
+| **System Terminal Commands** | Restricted / Human Approval Required | `confirm_action` modal displaying exact command line. |
+| **File Deletions / Moves** | Restricted / Human Approval Required | `confirm_action` modal displaying source and destination. |
+| **Protected System Folders** | Strictly Forbidden | Path validation against system blacklists. |
+| **Conversation Memory** | 100% On-Device | Plaintext / JSON stored locally in `data/history.json`. |
+| **External Network Calls** | Read-Only Live Endpoints | wttr.in (weather), Wikipedia, open exchange APIs. |

@@ -44,7 +44,7 @@ class CommandCenterView(tk.Frame):
         self.chat_frame = tk.Frame(self, bg="#040b1a", height=180, highlightthickness=1, highlightbackground="#0c2847")
         self.chat_view = ChatStreamView(self.chat_frame)
         self.chat_view.pack(fill="both", expand=True, padx=8, pady=4)
-        # By default, keep collapsed to display 100% pure Iron Man HUD, but readily toggleable
+        # By default, keep collapsed to display 100% pure Pratham Prasad Cognitive HUD, but readily toggleable
 
         # 3. Bottom Tactical Directive Deck
         self.deck = tk.Frame(self, bg="#040b1a", padx=12, pady=8, highlightthickness=1, highlightbackground="#0c2847")

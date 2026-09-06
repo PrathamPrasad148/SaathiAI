@@ -1,30 +1,58 @@
-# Saathi AI Delivery Tracker
+# Saathi AI — Engineering Roadmap & Milestone Tracker
+### Lead Architect & Maintainer: **Pratham Prasad**
 
-## Completed
+```text
+================================================================================
+                    SAATHI AI ROADMAP & MILESTONE TRACKER
+                         Maintained by Pratham Prasad
+================================================================================
+```
 
-- [x] Tkinter application foundation and themed shell
-- [x] Chat history and response controls
-- [x] Ollama model selection and tool-calling loop
-- [x] Voice input and speech output integration
-- [x] Permission toggle and confirmation behavior
-- [x] File, application, browser, and command operations
-- [x] Weather, currency, and Wikipedia lookups
-- [x] Reminders and notes
-- [x] Clipboard and screenshot utilities
-- [x] Workspace and project creation
-- [x] UI/UX Pro Max skill loading
-- [x] 21st.dev component-integration guidance
+## 1. Completed Milestones
 
-## Next
+- [x] **Milestone 1 — Core Cognitive Shell**:
+  - Python 3.12 architecture with Tkinter native graphics bridge.
+  - Multi-threaded worker queue pipeline for non-blocking UI responsiveness.
+  - Windows System Tray integration with background daemon mode.
 
-- [ ] Add automated unit tests for path protection and reminder parsing
-- [ ] Add a repeatable headless prompt-loading test
-- [ ] Improve Ollama availability and model error messaging
-- [ ] Add a daily dashboard for weather, reminders, and shortcuts
-- [ ] Add wake-word support with explicit privacy controls
-- [ ] Add richer project preview and browser-based UI verification
-- [ ] Add Android companion actions behind per-action approval
+- [x] **Milestone 2 — Autonomous Tool-Calling Agent**:
+  - Direct integration with local Ollama `/api/chat` function-calling protocol.
+  - Multi-turn execution loop supporting up to 4 iterative autonomous cycles.
+  - Native tools: file operations, terminal commands, web lookups, reminders, notes, and screenshots.
 
-## Definition Of Done
+- [x] **Milestone 3 — Cybernetic Vector HUD & Holographic Canvas**:
+  - 60 FPS vector canvas engine with dynamic respiration and rotation physics.
+  - 28-node neural constellation plexus with distance-based synaptic filaments.
+  - Dynamic action potential electrical pulses traversing connected neural nodes.
+  - High-voltage Arc Reactor assembly with procedural fractal plasma lightning arcs.
+  - Concentric hexagonal honeycomb forcefield shield with dynamic energy absorption ripples.
+  - 3D Wireframe rotating gyroscope cube with true perspective projection.
+  - 360° Circular sweeping laser radar scope with 4 dynamic pulsing target blips.
+  - 8-Core CPU multithread hardware load monitors and 48-band reactive audio spectrum equalizers.
 
-A feature is done when its behavior is implemented, permission implications are reviewed, errors are handled, documentation is updated, and a focused manual or automated verification has passed.
+- [x] **Milestone 4 — Voice & Acoustic Subsystem**:
+  - Integrated `faster-whisper` for on-device voice recognition.
+  - High-clarity Indian-English neural speech synthesis via `edge-tts`.
+  - Dynamic audio RMS feedback driving HUD waveform animations.
+
+- [x] **Milestone 5 — Autonomous Web Project Generator**:
+  - Deep integration of UI/UX Pro Max and 21st.dev component blueprints.
+  - Instant code generation under `Projects/<ProjectName>/` with automated browser launching.
+
+- [x] **Milestone 6 — Enterprise Developer Automation**:
+  - Self-healing `push-to-github.bat` script with automatic Git index repair.
+  - Instant one-click launcher `Start-Saathi.bat` with automated dependency installer.
+  - Interactive terminal management console `saathi.bat`.
+
+---
+
+## 2. Upcoming Roadmap (Next Phases)
+
+- [ ] **Phase 7 — Hardware Vision & Multimodal Perception**:
+  - Direct screen OCR and live window analysis using lightweight local vision models (e.g., MiniCPM-V / LLaVA).
+- [ ] **Phase 8 — Custom Wake-Word Engine**:
+  - Ultra-lightweight on-device wake-word detection ("Hey Saathi") running at `< 1%` CPU idle.
+- [ ] **Phase 9 — Hardware Telemetry Sidecar**:
+  - GPU VRAM, temperature, and fan speed telemetry gauges integrated directly into the HUD header deck.
+- [ ] **Phase 10 — Android Companion Bridge**:
+  - Secure local Wi-Fi / USB cable synchronization for notifications and clipboard sharing between Windows and Android.

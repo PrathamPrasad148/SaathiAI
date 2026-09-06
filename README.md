@@ -1,66 +1,151 @@
-# Saathi
+# Saathi AI — Cognitive Operating Interface & Desktop Co-Pilot
+### Designed, Engineered & Built by **Pratham Prasad**
 
-Saathi is a personal desktop helper for Windows that you talk to in Hinglish — a natural mix of Hindi and English, the way people actually speak. Think of it as a friendly assistant that lives on your laptop: you can chat with it, ask it to open things, have it manage files for you, or just ask it questions, and it answers back in text or a spoken voice.
+[![Platform](https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010-00f0ff?style=flat-square&logo=windows)](https://github.com/PrathamPrasad148/SaathiAI)
+[![Python](https://img.shields.io/badge/Python-3.12-38bdf8?style=flat-square&logo=python)](https://www.python.org/)
+[![AI Engine](https://img.shields.io/badge/AI%20Engine-Ollama%20%7C%20Qwen%20Local-ffd700?style=flat-square)](https://ollama.ai)
+[![Author](https://img.shields.io/badge/Author-Pratham%20Prasad-00ff88?style=flat-square)](https://github.com/PrathamPrasad148)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=flat-square)](LICENSE)
 
-Everything runs on your own laptop. There's no monthly subscription and no company reading your conversations on a server somewhere — the "brain" behind the chat (called Ollama) runs locally, so your chats stay on your machine.
+---
 
-## What it can do today
+## Executive Summary
 
-**Talk with you naturally.** Type or speak, and Saathi replies in casual Hinglish, like a friend would. It automatically switches between a quick-response mode for everyday chat and a slower, more careful mode when you ask for something complicated like writing code.
+**Saathi AI** is a next-generation personal desktop artificial intelligence operating system and cognitive co-pilot built for Windows. Engineered from the ground up by **Pratham Prasad**, Saathi bridges the gap between deep local agentic intelligence and an ultra-futuristic tactical Heads-Up Display (HUD).
 
-**Open things for you.** Say "open YouTube," "play some Brazilian funk on Spotify," or "launch Notepad," and it happens immediately — no digging through menus.
+Saathi operates entirely on-device using local Large Language Models (powered by Ollama), guaranteeing 100% privacy with zero cloud data leakages, zero subscription fees, and complete offline autonomy. It speaks and understands natural Roman-script **Hinglish** and **English**, listening through on-device Whisper models and speaking with fluid neural text-to-speech.
 
-**Handle your files.** Ask it to list what's in a folder, read a text file, create a new file or folder, move something, or delete something — all through plain typed instructions instead of digging through File Explorer.
+---
 
-**Run computer commands.** For anyone comfortable with basic technical tasks, you can ask Saathi to run a command on your behalf, and it will show you exactly what it's about to do before running it.
+## Key Architectural Innovations
 
-**Look things up for you, for real.** Ask about today's weather somewhere, convert currency, look up a word's meaning, get a quick Wikipedia summary, hear a joke or a quote, get a random piece of advice, check today's top tech headlines, translate a phrase into another language, or find your computer's public IP address — Saathi fetches this from live, free sources on the internet instead of just guessing from memory.
+### 1. Futuristic Cybernetic HUD & AI Core Visualizer
+- **60 FPS Vector Canvas**: Rendered directly in Python Tkinter without sluggish webview wrappers or heavy Electron dependencies.
+- **Dynamic 28-Node Neural Plexus**: Real-time simulated synaptic constellation network with autonomous vector drift, distance-based synaptic filament connections, and high-velocity action potential pulses.
+- **High-Voltage Arc Reactor Energy Assembly**: Central magnetic confinement rings, 12 stator induction coils, dynamic fractal lightning arcs, and holographic honeycomb forcefield shields.
+- **Tactical Flight & Navigation Telemetry**: 3D wireframe rotating gyroscope gimbal, 360° sweeping laser radar scope with dynamic target blips, 8-core CPU hardware thread monitors, and 48-band reactive audio spectrum equalizers.
 
-**Remember things for you.** Say "remind me to call mom in 20 minutes" or "remind me to submit the assignment at 6pm," and Saathi will pop up a reminder and read it out loud when the time comes — even if you're not looking at the chat window. Jot down quick thoughts with "note: buy milk tomorrow," and read them all back later with "show notes."
+### 2. Autonomous Multi-Tool Agentic Reasoning
+- **Native Tool-Calling Loop**: Autonomous multi-turn iterative execution supporting file manipulation, computer commands, web requests, knowledge retrieval, reminders, and notes.
+- **Safe Execution Policy**: Sandboxed permission architecture that requires explicit user confirmation before executing system commands or destructive file operations.
+- **Protected System Paths**: Strict guardrails preventing unauthorized modifications to critical system directories.
 
-**Tidy up your files automatically.** Say "organize Downloads" and Saathi sorts everything in that folder into tidy subfolders — Images, Documents, Videos, Music, Installers, Archives — after showing you exactly what it's about to do.
+### 3. Voice & Acoustic Subsystem
+- **On-Device STT**: Integrated with `faster-whisper` for lightning-fast speech-to-text without cloud roundtrips.
+- **Neural Speech Synthesis**: Integrated with `edge-tts` for articulate Indian-English spoken responses.
+- **Audio Activity Feedback**: Waveform and spectrum visualizers animate dynamically according to microphone input and speech synthesis audio RMS.
 
-**Work with your clipboard and screen.** "Read clipboard" shows you what you last copied; "summarize clipboard" has Saathi read and summarize it for you. "Take a screenshot" saves a snapshot of your screen straight into your Projects folder.
+### 4. Autonomous Project & Web Application Generator
+- **Instant Full-Stack Generation**: Builds complete responsive websites, landing pages, and interactive utilities under `Projects/<ProjectName>/`.
+- **UI/UX Pro Max & 21st.dev Design System Integration**: Adheres to modern design standards (contrast ratios, fluid typography, micro-interactions, responsive grids, and accessible components).
+- **Auto-Launch Verification**: Automatically opens generated web applications in the default browser upon compilation.
 
-**Stay within reach.** A small chat panel sits pinned to the right edge of your screen at all times, so you don't need to reopen the whole program every time you want to ask something quick. There's also a system tray icon so closing the main window doesn't shut Saathi down — it just steps out of the way.
+---
 
-**Listen and speak.** Saathi can listen through your microphone and reply out loud in a natural-sounding Indian-English voice.
+## Repository Structure
 
-## Keeping you in control
-
-Saathi asks before doing anything that could go wrong. There's one simple switch to let it open apps, websites, and read/create files without asking every single time — handy once you trust it. But a few things always ask you first, no exceptions: deleting or moving a file, and running any command on your computer. You'll always see exactly what it's about to do before it does it. A short list of especially risky actions (like wiping a hard drive) is blocked outright and can't be approved even by accident.
-
-## Where this project is headed
-
-This is very much a living project, and the plan is to keep growing it in stages:
-
-1. **Right now — the foundation.** Chat, voice, memory of past conversations, safe file and app control, and live information lookups. This part is done and working.
-
-2. **Next — a true daily companion.** Teaching Saathi to recognize your voice specifically (a "wake word," so you can just say its name to get its attention instead of clicking a button), and giving it a simple dashboard showing your day at a glance — weather, reminders, and quick shortcuts, all in one glance without needing to ask.
-
-3. **After that — actually getting things done for you.** Letting Saathi handle small recurring chores on its own once you approve them — for example, automatically organizing downloaded files into folders, or reminding you about things at set times, the way a very organized assistant would.
-
-4. **Longer term — reaching your phone too.** Extending Saathi so it can talk to an Android phone connected by cable, letting you, for example, transfer files or trigger simple actions between your phone and laptop without needing a separate app. This will be rolled out carefully, one approved action at a time, rather than opening full access all at once.
-
-5. **Eventually — real personalization.** Saathi remembering more about your habits and preferences over time (with your control over what it keeps), understanding more languages and accents, and connecting to more of the free online tools and information sources out there so it becomes genuinely useful for a wider range of everyday questions, not just the ones it's specifically been taught to answer.
-
-6. **The guiding idea throughout.** Saathi should feel less like software you have to operate, and more like someone helpful you can just talk to — while always being upfront and honest about what it actually did, and never doing anything permanent or risky without your say-so first.
-
-## Getting it running
-
-From the project folder, open Command Prompt and run:
-
+```text
+SAATHIAI/
+├── agent/                  # Autonomous planner and tool-calling engine
+│   └── planner.py          # Cognitive co-pilot system prompt & execution loop
+├── automations/            # Windows OS automation routines & system tasks
+│   └── engine.py           # Process control, file manager, system utilities
+├── memory/                 # Persistent memory and storage subsystems
+│   └── storage.py          # Chat history, reminder schedules, local notes
+├── ui/                     # Futuristic HUD, FUI canvases & widget controls
+│   ├── ai_core.py          # 60 FPS vector Arc Reactor, neural plexus & radar
+│   ├── app.py              # Main desktop window & window management
+│   ├── command_center.py   # Tactical directive deck, mission logs & telemetry
+│   ├── navigation.py       # Mode selector & status monitors
+│   ├── telemetry.py        # System hardware gauges & clock telemetry
+│   └── theme.py            # High-contrast cybernetic palette tokens
+├── voice/                  # Acoustic input/output subsystems
+│   ├── engine.py           # Speech recognition & Edge TTS synthesis
+│   └── listener.py         # Voice activity detection & microphone capture
+├── tools/                  # Built-in agent tool schemas & execution handlers
+├── Projects/               # Workspaces for generated apps and websites
+├── main.py                 # Application bootstrapper and orchestrator
+├── Start-Saathi.bat        # Instant dependency check & launcher
+├── saathi.bat              # Interactive terminal manager
+├── push-to-github.bat      # Self-healing automated Git publisher
+└── requirements.txt        # Python package dependencies
 ```
+
+---
+
+## Quick Start Guide
+
+### Prerequisites
+1. **Windows 10 or 11 (64-bit)**
+2. **Python 3.12** installed and added to `PATH`
+3. **Ollama** installed and running locally (`ollama serve`)
+
+### Installation & Launch
+
+1. **Clone the Repository**:
+   ```powershell
+   git clone https://github.com/PrathamPrasad148/SaathiAI.git
+   cd SaathiAI
+   ```
+
+2. **Pull the Recommended Models**:
+   ```powershell
+   ollama pull qwen2.5:7b
+   ollama pull qwen3:14b
+   ollama pull qwen3:4b-instruct
+   ```
+
+3. **Launch Saathi**:
+   Double-click `Start-Saathi.bat` or run from PowerShell:
+   ```powershell
+   .\Start-Saathi.bat
+   ```
+
+Alternatively, launch directly using Python:
+```powershell
 py -3.12 -m pip install -r requirements.txt
-ollama pull qwen3:14b
-ollama pull qwen3:4b-instruct
 py -3.12 main.py
 ```
 
-Or just double-click `Start-Saathi.bat` once everything above is installed.
+---
 
-The first time you use the microphone, Saathi downloads a small free speech-recognition model automatically — no extra sign-up or account needed. Voice recognition works fine on any laptop's regular processor; you don't need a fancy graphics card. Spoken replies do need an internet connection (to generate the voice), but nothing else about the assistant does.
+## Interactive Controls & Capabilities
 
-## Implementation progress
+| Command / Trigger | Action Performed |
+| :--- | :--- |
+| **"Create a modern portfolio website"** | Generates HTML/CSS/JS in `Projects/` and launches it in the browser. |
+| **"Organize Downloads folder"** | Groups loose files into Images, Documents, Videos, Music, and Archives. |
+| **"Remind me in 30 minutes to review code"** | Schedules an autonomous desktop reminder and speaks it aloud when due. |
+| **"What's the weather in New Delhi?"** | Fetches live meteorological conditions via free live endpoints. |
+| **"Take a screenshot"** | Captures display snapshot directly to the active project workspace. |
+| **"Summarize clipboard"** | Reads and synthetically condenses the current Windows clipboard content. |
+| **"Run command: dir /w"** | Presents a safety prompt with the exact command for user confirmation. |
 
-The detailed step-by-step implementation checklist is maintained in [progress.txt](progress.txt). It records the completed application areas and the remaining Windows verification work.
+---
+
+## Development & Automation Scripts
+
+- **`Start-Saathi.bat`**: Automatic interpreter verification, dependency auto-installer, and one-click app launch.
+- **`saathi.bat`**: Full management console with quick-launch, GitHub synchronization, and dependency audits.
+- **`push-to-github.bat`**: Self-healing Git publisher created by Pratham Prasad that detects index corruption, fixes repository locks, stages all assets, and publishes to GitHub.
+- **`erasegitdata.bat`**: Safe remote file cleanup script preserving local repository state.
+
+---
+
+## Security & Safety Guardrails
+
+- **Zero Remote Telemetry**: Conversations, notes, and reminders remain 100% on the local disk under `data/`.
+- **Human-in-the-Loop Confirmation**: Destructive file deletions, file moves, and terminal commands are blocked until explicitly confirmed by the user.
+- **Protected Paths**: Windows system roots, `System32`, user application roots, and core script directories cannot be accidentally deleted or overwritten.
+
+---
+
+## Author & Maintainer
+
+**Pratham Prasad**  
+*Lead Architect & Engineer of Saathi AI*  
+- GitHub: [@PrathamPrasad148](https://github.com/PrathamPrasad148)  
+- Repository: [https://github.com/PrathamPrasad148/SaathiAI.git](https://github.com/PrathamPrasad148/SaathiAI.git)
+
+---
+*Built with passion, precision, and an uncompromising standard for futuristic user experience.*

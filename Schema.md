@@ -1,65 +1,88 @@
-# Saathi AI Data Schema
+# Saathi AI — Data Schema & Tool Contract
+### Architected by **Pratham Prasad**
 
-## Conversation History
+```text
+================================================================================
+                       SAATHI AI DATA SCHEMA DEFINITIONS
+                          Architected by Pratham Prasad
+================================================================================
+```
 
-File: `data/history.json`
+## 1. Local Storage Schema
+
+All local persistence files are stored under the root `data/` directory using standard UTF-8 encoding.
+
+### A. Conversation History (`data/history.json`)
+Stores recent multi-turn conversation dialogues between the user and Saathi.
 
 ```json
 [
-  ["user", "Remind me in ten minutes"],
-  ["assistant", "Reminder set kar diya."]
+  ["user", "Open Projects folder and check recent builds."],
+  ["action", "[FILE] Directory listed: 3 items found."],
+  ["assistant", "Main aapke Projects folder ko dekh chuka hoon. 3 items maujood hain."]
 ]
 ```
+- Supported Roles: `user`, `assistant`, `action`, `system`.
+- Retention Policy: Automatically capped to the last 20 messages upon save to ensure lightweight memory overhead and optimal inference token budgets.
 
-Each entry is an array with a role and message text. Supported persisted roles are normally `user` and `assistant`; transient display roles may include `action` and `system`.
-
-## Reminders
-
-File: `data/reminders.json`
+### B. Reminders & Task Schedules (`data/reminders.json`)
+Stores autonomous scheduled reminders monitored by the background cron loop.
 
 ```json
 [
   {
-    "text": "Call mom",
-    "when": "2026-09-03T18:30:00",
+    "text": "Review architecture documents with team",
+    "when": "2026-09-06T18:00:00",
     "done": false
   }
 ]
 ```
+- `text` *(string)*: The reminder directive to be spoken and displayed.
+- `when` *(string, ISO 8601)*: Local timestamp indicating when the reminder triggers.
+- `done` *(boolean)*: Completion flag preventing duplicate alerts.
 
-`when` is a local ISO datetime. `done` prevents repeated notification.
-
-## Notes
-
-File: `data/notes.txt`
+### C. Persistent Notes Ledger (`data/notes.txt`)
+Append-only timestamped notepad for quick user thoughts and directives.
 
 ```text
-[2026-09-03 18:00] Buy milk tomorrow
+[2026-09-06 10:30] Deploy Saathi AI HUD v2.0 update to GitHub repository
 ```
 
-Notes are append-only timestamped UTF-8 text lines.
+---
 
-## Ollama Message Shape
+## 2. Agent Tool Specification Contract
+
+All agent tools exposed to the local Ollama LLM follow the strict JSON schema specification:
 
 ```json
 {
-  "model": "qwen2.5:7b",
-  "messages": [
-    {"role": "system", "content": "..."},
-    {"role": "user", "content": "..."}
-  ],
-  "tools": [],
-  "keep_alive": "60m",
-  "stream": false
+  "type": "function",
+  "function": {
+    "name": "<tool_name>",
+    "description": "<Clear explanation of utility and constraints>",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "<param_name>": {
+          "type": "<string|number|boolean>",
+          "description": "<Parameter role>"
+        }
+      },
+      "required": ["<required_param>"]
+    }
+  }
 }
 ```
 
-Tool responses are appended with role `tool`; assistant tool-call messages may include `tool_calls`.
-
-## Tool Contract
-
-Each tool schema has a function name, description, JSON parameter object, and required fields. Tool execution returns a string suitable for both status display and model context. New tools must preserve this contract.
-
-## Compatibility Rules
-
-Readers must tolerate missing files, invalid JSON, empty arrays, and older entries. Writes should use UTF-8 and should preserve only the intended retention limit for history.
+### Supported Core Tools:
+- `create_file`: Writes source code or text files under allowed directories.
+- `read_file`: Reads local file contents with size safety caps.
+- `list_directory`: Traverses directories and returns folder structure.
+- `open_target`: Launches local folders, files, or external URLs via Windows shell.
+- `run_command`: Executes terminal commands with human-in-the-loop approval.
+- `get_weather`: Retrieves real-time weather reports for any city.
+- `get_currency`: Real-time currency conversions via live exchange endpoints.
+- `get_wikipedia`: Fetches concise encyclopedic knowledge summaries.
+- `add_reminder`: Schedules an autonomous spoken desktop reminder.
+- `add_note`: Appends a timestamped entry to the notes ledger.
+- `take_screenshot`: Captures current screen display to active workspace.

@@ -1,31 +1,39 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
-TITLE Saathi AI Manager
+TITLE Saathi AI Control Console - Pratham Prasad
 cd /d "%~dp0"
 
 :MENU
 cls
-echo =======================================================
-echo                   SAATHI AI MANAGER
-echo =======================================================
-echo [1] Start Saathi AI
-echo [2] Update and Push to GitHub (PrathamPrasad148/SaathiAI)
-echo [3] Exit
-echo =======================================================
-set /p CHOICE="Select an option (1-3): "
+echo ===================================================================
+echo               SAATHI AI — SYSTEM MANAGEMENT CONSOLE
+echo                    Engineered by Pratham Prasad
+echo ===================================================================
+echo  Repository : https://github.com/PrathamPrasad148/SaathiAI.git
+echo  Platform   : Windows 10/11 64-bit
+echo ===================================================================
+echo.
+echo  [1] Launch Saathi AI (Full Vector HUD & Cognitive Agent)
+echo  [2] Push Repository to GitHub (Auto-Repair & Sync)
+echo  [3] Verify & Install Python Dependencies
+echo  [4] Run Integrity Check & Module Compilation
+echo  [5] Exit Console
+echo.
+echo ===================================================================
+set /p CHOICE="Select directive [1-5]: "
 
-if "%CHOICE%"=="1" goto START_SAATHI
-if "%CHOICE%"=="2" goto UPDATE_GITHUB
-if "%CHOICE%"=="3" goto QUIT
+if "%CHOICE%"=="1" goto LAUNCH_APP
+if "%CHOICE%"=="2" goto PUSH_GITHUB
+if "%CHOICE%"=="3" goto INSTALL_DEPS
+if "%CHOICE%"=="4" goto COMPILE_CHECK
+if "%CHOICE%"=="5" goto QUIT
 goto MENU
 
-:START_SAATHI
+:LAUNCH_APP
 cls
-echo =======================================================
-echo Starting Saathi AI...
-echo =======================================================
-
-:: 1. Check Python installation
+echo ===================================================================
+echo Initializing Saathi AI HUD...
+echo ===================================================================
 py -3.12 --version >nul 2>&1
 if not errorlevel 1 (
     set "PY_CMD=py -3.12"
@@ -33,84 +41,60 @@ if not errorlevel 1 (
     set "PY_CMD=python"
 )
 
-:: 2. Check and install dependencies
-echo [INFO] Checking required packages...
-%PY_CMD% -c "import sounddevice, faster_whisper, numpy, edge_tts, pygame, send2trash, pystray, PIL" >nul 2>&1
+echo [INFO] Using interpreter: %PY_CMD%
+%PY_CMD% main.py %*
 if errorlevel 1 (
-    echo [INFO] Missing dependencies detected. Installing from requirements.txt...
-    %PY_CMD% -m pip install -r requirements.txt
-    if errorlevel 1 (
-        echo [ERROR] Failed to install dependencies.
-        pause
-        goto MENU
-    )
-) else (
-    echo [INFO] All dependencies verified.
+    echo.
+    echo [ERROR] Saathi AI exited with code %ERRORLEVEL%.
+    pause
 )
+goto MENU
 
-:: 3. Run application
-if exist "main.py" (
-    echo [INFO] Launching main.py with %PY_CMD%...
-    %PY_CMD% main.py %*
-) else if exist "AI\main.py" (
-    echo [INFO] Launching AI\main.py with %PY_CMD%...
-    %PY_CMD% AI\main.py %*
+:PUSH_GITHUB
+cls
+call "%~dp0push-to-github.bat"
+pause
+goto MENU
+
+:INSTALL_DEPS
+cls
+echo ===================================================================
+echo Installing & Verifying Dependencies...
+echo ===================================================================
+py -3.12 --version >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=py -3.12"
 ) else (
-    echo [ERROR] main.py could not be found.
+    set "PY_CMD=python"
+)
+%PY_CMD% -m pip install -r requirements.txt
+if errorlevel 1 (
+    echo [ERROR] Dependency installation encountered an issue.
+) else (
+    echo [SUCCESS] All requirements satisfied!
 )
 pause
 goto MENU
 
-:UPDATE_GITHUB
+:COMPILE_CHECK
 cls
-echo =======================================================
-echo Updating GitHub: PrathamPrasad148/SaathiAI
-echo =======================================================
-
-:: 1. Check Git installation
-git --version >nul 2>&1
-if errorlevel 1 (
-    echo [ERROR] Git is not installed or not configured in your PATH.
-    pause
-    goto MENU
-)
-
-:: 2. Ensure repository initialization
-if not exist ".git" (
-    echo [INFO] Initializing git repository...
-    git init
-    git branch -M main
-)
-
-:: 3. Configure origin remote
-git remote get-url origin >nul 2>&1
-if errorlevel 1 (
-    echo [INFO] Adding remote origin...
-    git remote add origin https://github.com/PrathamPrasad148/SaathiAI.git
+echo ===================================================================
+echo Running System Integrity & Bytecode Compilation...
+echo ===================================================================
+py -3.12 --version >nul 2>&1
+if not errorlevel 1 (
+    set "PY_CMD=py -3.12"
 ) else (
-    git remote set-url origin https://github.com/PrathamPrasad148/SaathiAI.git
+    set "PY_CMD=python"
 )
-
-:: 4. Stage changes
-echo [INFO] Staging project files...
-git add .
-
-:: 5. Commit changes
-git status --porcelain | findstr /R "." >nul
+%PY_CMD% -m compileall main.py ui agent automations memory voice tools
 if errorlevel 1 (
-    echo [INFO] No local changes found to commit.
+    echo.
+    echo [WARN] Compilation reported warnings or errors. Review output above.
 ) else (
-    set /p MSG="Enter commit message (Leave blank for default): "
-    if "!MSG!"=="" set "MSG=Update Saathi AI configurations and scripts"
-    git commit -m "!MSG!"
+    echo.
+    echo [SUCCESS] All modules compiled with 0 syntax errors!
 )
-
-:: 6. Push to GitHub main branch
-echo [INFO] Pushing changes to GitHub main...
-git push -u origin main
-
-echo.
-echo [SUCCESS] Saathi AI successfully synced to GitHub!
 pause
 goto MENU
 

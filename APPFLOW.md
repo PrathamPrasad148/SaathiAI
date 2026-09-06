@@ -1,62 +1,127 @@
-# Saathi AI Application Flow
-
-## Startup
-
-1. Python starts `main.py`.
-2. `Saathi.__init__` creates the Tk root and initializes paths, state, theme, persistence, UI, tray icon, queues, and reminder polling.
-3. The UI opens with Chat & Agent, Projects & Tools, and Settings tabs.
-4. Ollama availability is checked shortly after rendering.
-
-## Chat Flow
+# Saathi AI — System Application Flow
+### Architecture by **Pratham Prasad**
 
 ```text
-User types or speaks
-        |
-        v
-process_user_text
-        |
-        +--> direct shortcut? --> execute local handler --> append reply
-        |
-        '--> start_next_reply --> worker thread
-                                  |
-                                  v
-                           Ollama /api/chat
-                                  |
-                  +---------------+---------------+
-                  |                               |
-             tool calls                       final text
-                  |                               |
-          execute_tool loop                 reply_queue
-                  |                               |
-                  '------------> process_queues --> chat log + speech
+================================================================================
+                         SAATHI AI APPLICATION PIPELINE
+                        Engineered by Pratham Prasad
+================================================================================
 ```
 
-## Voice Flow
+## 1. System Boot & Initialization Sequence
 
-The user presses Voice. Saathi records a short microphone sample, transcribes it with faster-whisper, and forwards non-empty text through the normal chat path. The final assistant message may be spoken with Edge TTS.
+```text
+[main.py: Application Entry Point]
+       |
+       +---> Check Python 3.12 Environment & Runtime Flags
+       |
+       +---> Instantiate SaathiApp Controller (ui/app.py)
+       |        |
+       |        +---> Initialize High-Contrast FUI Theme Tokens (ui/theme.py)
+       |        +---> Bootstrap 60 FPS Hardware Vector HUD Canvas (ui/ai_core.py)
+       |        +---> Setup Telemetry Deck & Navigation Matrix (ui/telemetry.py)
+       |        +---> Initialize Local Persistence & Schemas (memory/storage.py)
+       |        +---> Bind Windows System Tray Icon & Intercept Handlers
+       |
+       +---> Start Background System Daemon Workers
+                |
+                +---> Ollama Engine Health & Model Discovery Daemon
+                +---> Acoustic Engine Listener & VAD Service (voice/)
+                +---> Smart Reminder & Scheduler Cron Loop (20s cycle)
+                +---> Automation Queue Dispatcher (automations/engine.py)
+```
 
-## File and Command Flow
+---
 
-1. The model or direct command identifies an operation.
-2. The operation resolves a path or target.
-3. Saathi checks protected paths and permission policy.
-4. A confirmation dialog appears for risky operations.
-5. The operation runs and returns a concise result.
-6. The result is shown as an action/status entry and included in the assistant context.
+## 2. Multi-Modal Cognitive Communication Flow
 
-## Reminder Flow
+```text
+[User Input: Microphone or Keyboard Directive]
+       |
+       +--- [Acoustic Branch] ---> faster-whisper On-Device Transcriber
+       |                                   |
+       |                                   v (Stream text to prompt buffer)
+       +--- [Text Input Branch]  ---> Directive Input Stream Deck
+                                           |
+                                           v
+                             [Intent Pre-Processor & Filter]
+                                           |
+             +-----------------------------+-----------------------------+
+             |                                                           |
+      [Direct Shortcut]                                           [Agent Reasoning]
+  (Volume, Theme, Exit, Clear)                                            |
+             |                                             Ollama /api/chat Native Loop
+             v                                                           |
+   Immediate Execution                                     +-------------+-------------+
+                                                           |                           |
+                                                      [Tool Calls]               [Direct Text]
+                                                           |                           |
+                                                  Execute Tool Dispatcher              |
+                                                  (Sandboxed with Confirmation)        |
+                                                           |                           |
+                                                           +------------+--------------+
+                                                                        |
+                                                                        v
+                                                            [Synthesize Spoken Audio]
+                                                            (edge-tts Indian-English)
+                                                                        |
+                                                                        v
+                                                             Update 60 FPS Visualizer
+                                                             (Waveform & Spectrum EQ)
+```
 
-Reminders are loaded at startup, checked every 20 seconds, marked done when due, displayed in chat, spoken aloud, and persisted again.
+---
 
-## Website Generation Flow
+## 3. Sandboxed Tool Execution Pipeline
 
-1. The user requests a website or 21st.dev-inspired component.
-2. The model receives UI/UX Pro Max and 21st.dev integration guidance.
-3. The model detects the target stack.
-4. It creates complete local files under `Projects/<ProjectName>/`.
-5. Static HTML projects receive HTML/CSS/JavaScript; React projects receive local React components.
-6. The generated page is opened in the default browser when applicable.
+```text
+Model Emits Tool Call: { name: "run_command", args: { ... } }
+       |
+       v
+Check Permission Policy:
+       |
+       +---> Is Target Path Protected? (e.g., Windows root, System32)
+       |        `---> YES: Terminate with Security Exception.
+       |
+       +---> Is Action High-Impact or Destructive? (Delete, Move, Execute)
+                |
+                +---> YES: Trigger Tactical User Confirmation Dialog
+                |        |
+                |        +---> User Approves: Run in Subprocess / File System
+                |        `---> User Rejects:  Abort with User Rejection Feedback
+                |
+                `---> NO: Execute Silently in Background & Return Payload
+       |
+       v
+Inject Tool Response Payload into Conversation Context (`role: tool`)
+       |
+       v
+Allow Model to Complete Multi-Step Reasoning Cycle (Max 4 Iterations)
+```
 
-## Shutdown
+---
 
-Closing the window saves history and destroys the Tk root. The tray menu can show the window or quit the application.
+## 4. Autonomous Web & Project Generation Flow
+
+```text
+User Requests: "Build a cybernetic dashboard landing page"
+       |
+       v
+Cognitive Co-Pilot Activates Project Builder Module
+       |
+       +---> Resolve target path: Projects/<ProjectName>/
+       +---> Apply UI/UX Pro Max standards & 21st.dev component blueprints
+       +---> Synthesize complete static or modern stack assets:
+       |        |-- index.html (Responsive, semantic, accessible)
+       |        |-- style.css  (Modern CSS variables, animations, dark mode)
+       |        `-- app.js     (Vanilla JavaScript or component logic)
+       +---> Record build log in Mission Telemetry stream
+       `---> Automatically launch rendered application in default Windows browser
+```
+
+---
+
+## 5. Lifecycle & Teardown Protocol
+
+- **Window Close Event**: Application intercepts window closure; minimizes smoothly to the Windows System Tray to maintain background monitoring and reminder dispatching without consuming primary screen real estate.
+- **Graceful Termination**: User can quit cleanly via system tray or command center; saves conversation state, releases audio hardware devices, terminates worker threads safely, and cleanly closes the Tk event loop.

@@ -1,4 +1,4 @@
-Imports and constants (including the JARVIS color palette)
+Imports and constants (including the Saathi cybernetic color palette)
 Saathi class with init
 check_ollama_status
 configure_theme
@@ -48,7 +48,7 @@ SaathiAI Step-by-Step Progress Tracker
 ======================================
 
 [x] Step 1 - Application foundation
-	- Imports and constants, including the JARVIS color palette
+	- Imports and constants, including the Saathi cybernetic color palette
 	- Saathi class with init
 	- check_ollama_status
 	- configure_theme

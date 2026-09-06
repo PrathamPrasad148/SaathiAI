@@ -76,24 +76,6 @@ class TopTelemetryBar(tk.Frame):
         self.lbl_mic = tk.Label(status_strip, text="ACOUSTIC: READY", font=FONT_HUD_TINY, bg="#05192d", fg=COLOR_EMERALD, padx=6, pady=1)
         self.lbl_mic.pack(side="left", padx=8)
 
-        # Master System Control Authorization HUD Badge
-        self.on_toggle_master_control = on_toggle_master_control
-        self.btn_master_control = tk.Button(
-            status_strip,
-            text="🛡️ CONTROL: RESTRICTED",
-            font=FONT_HUD_TINY,
-            bg="#0f172a",
-            fg="#94a3b8",
-            activebackground="#1e293b",
-            activeforeground="#38bdf8",
-            relief="flat",
-            padx=8,
-            pady=1,
-            cursor="hand2",
-            command=self._handle_master_control_click
-        )
-        self.btn_master_control.pack(side="left", padx=8)
-
         # Right: AI Model Selector & Clock
         right_frame = tk.Frame(self.main_row, bg=COLOR_PANEL)
         right_frame.pack(side="right")
@@ -172,22 +154,23 @@ class TopTelemetryBar(tk.Frame):
             self.on_toggle_master_control()
 
     def set_master_control_status(self, authorized: bool):
-        if authorized:
-            self.btn_master_control.configure(
-                text="⚡ FULL CONTROL: ACTIVE",
-                bg="#064e3b",
-                fg="#34d399",
-                activebackground="#047857",
-                activeforeground="#6ee7b7"
-            )
-        else:
-            self.btn_master_control.configure(
-                text="🛡️ CONTROL: RESTRICTED",
-                bg="#0f172a",
-                fg="#94a3b8",
-                activebackground="#1e293b",
-                activeforeground="#38bdf8"
-            )
+        if hasattr(self, "btn_master_control"):
+            if authorized:
+                self.btn_master_control.configure(
+                    text="⚡ FULL CONTROL: ACTIVE",
+                    bg="#064e3b",
+                    fg="#34d399",
+                    activebackground="#047857",
+                    activeforeground="#6ee7b7"
+                )
+            else:
+                self.btn_master_control.configure(
+                    text="🛡️ CONTROL: RESTRICTED",
+                    bg="#0f172a",
+                    fg="#94a3b8",
+                    activebackground="#1e293b",
+                    activeforeground="#38bdf8"
+                )
 
     def set_mic_status(self, text: str, is_active: bool = False):
         self.lbl_mic.configure(

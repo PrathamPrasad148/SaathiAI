@@ -115,6 +115,12 @@ class AICoreVisualizer(tk.Canvas):
             [28, 5.5, 0.4]
         ]
 
+        # Neural Constellation Network (28 drifting synaptic nodes)
+        self._init_neural_network()
+
+        # Circuit Bus Streaming Packets
+        self._init_circuit_packets()
+
         # Telemetry Background Thread
         self._running = True
         self._start_telemetry_thread()
@@ -219,16 +225,18 @@ class AICoreVisualizer(tk.Canvas):
         w = self.width
         h = self.height
 
-        # Dynamic layout anchors: keep left, center reactor, mid-right, and far-right in perfect harmony
-        left_bound = 365
-        weather_x = max(w - 185, 960)
-        mid_right_x = max(weather_x - 175, 780)
-        
-        # Center of Arc Reactor dynamically placed midway between left cluster and mid-right cluster
-        avail_left = left_bound + 20
-        avail_right = mid_right_x - 30
+        # Dynamic proportional columns: mathematically balanced for 1000px to 1920px widths
+        left_w = min(255, int(w * 0.25))
+        weather_w = min(210, int(w * 0.21))
+        mid_right_w = min(170, int(w * 0.17))
+
+        weather_x = max(w - weather_w, 805)
+        tactical_div_x = weather_x - 12
+        mid_right_x = tactical_div_x - mid_right_w + 5
+        avail_left = left_w + 15
+        avail_right = mid_right_x - 15
         cx = (avail_left + avail_right) / 2.0
-        cy = max(320, min(h * 0.46, h - 330))
+        cy = max(310, min(int(h * 0.46), h - 330))
 
         # Smooth audio level
         self.audio_level += (self.target_audio_level - self.audio_level) * 0.35
@@ -266,6 +274,15 @@ class AICoreVisualizer(tk.Canvas):
         # --- 0. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
         self._draw_laser_circuit_bus(cx, cy, w, h, core_cyan)
 
+        # --- 0B. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD ---
+        self._draw_honeycomb_shield(cx, cy)
+
+        # --- 0C. DYNAMIC NEURAL SYNAPSE PLEXUS & ACTION POTENTIALS ---
+        self._update_and_draw_neural_plexus(cx, cy, w, h, core_cyan)
+
+        # --- 0D. CIRCUIT BUS STREAMING DATA PACKETS ---
+        self._update_and_draw_circuit_packets(cx, cy)
+
         # --- 1. TOP 30-DAY MATRIX CALENDAR RIBBON ---
         self._draw_top_calendar_matrix(w)
 
@@ -273,49 +290,55 @@ class AICoreVisualizer(tk.Canvas):
         self._draw_top_location_media(w, cx)
 
         # --- 3. CIRCULAR CHRONOMETER DIAL (02:40) ---
-        self._draw_chronometer_dial(cx + 175, 78)
+        self._draw_chronometer_dial(cx + 125, 75)
 
         # --- 4. TOP-LEFT GIANT DATE & TIME DIAL ---
-        self._draw_giant_date_dial(145, 120)
+        self._draw_giant_date_dial(115, 115)
 
         # --- 5. UPPER-LEFT RAM & SWAP CONCENTRIC GAUGE ---
-        self._draw_ram_swap_gauge(340, 75)
+        self._draw_ram_swap_gauge(255, 65)
 
         # --- 6. MID-LEFT CPU GAUGE & 8-CORE THREAD EQUALIZER ---
-        self._draw_cpu_and_multicore_cluster(275, 145)
+        self._draw_cpu_and_multicore_cluster(215, 135)
 
         # --- 7. MID-LEFT DISK STORAGE & NVMe MONITOR ---
-        self._draw_storage_volume_monitor(125, 260)
+        self._draw_storage_volume_monitor(90, 245)
 
         # --- 8. PRATHAM EXPO ATOM HOLOGRAM ---
-        self._draw_pratham_expo_atom_hologram(275, 275)
+        self._draw_pratham_expo_atom_hologram(215, 255)
 
         # --- 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER ---
-        self._draw_pitch_horizon_ladder(275, 385)
+        self._draw_pitch_horizon_ladder(215, 360)
 
         # --- 10. REACTOR ENERGY GAUGE (100% // PEAK) ---
-        self._draw_reactor_energy_gauge(130, 380)
+        self._draw_reactor_energy_gauge(95, 360)
 
         # --- 11. RECYCLE REPOSITORY & SYSTEM UPTIME TELEMETRY ---
-        self._draw_trash_uptime_telemetry(130, 475)
+        self._draw_trash_uptime_telemetry(95, 455)
 
         # --- 12. LOWER-LEFT DUAL CONCENTRIC NETWORK METER (0.0k / 1.6k) ---
-        self._draw_dual_network_dial(285, 520)
+        self._draw_dual_network_dial(215, 485)
 
         # --- 13. BOTTOM-LEFT WINDOWS CONTROLS & IP ADDRESS ---
-        self._draw_windows_system_controls(40, h - 35)
+        self._draw_windows_system_controls(30, h - 30)
 
         # --- 14. THE GRAND MASTER ARC REACTOR CORE ---
         self._draw_grand_arc_reactor(cx, cy, core_cyan, glow_blue, accent_red)
+
+        # --- 14B. HIGH-VOLTAGE PLASMA LIGHTNING DISCHARGES ---
+        self._draw_plasma_lightning(cx, cy, 42 + self.audio_level * 24, core_cyan)
+
+        # --- 14C. TACTICAL RETICLE LOCK-ON SYSTEM ---
+        self._draw_tactical_lock_reticle(cx, cy)
 
         # --- 15. BOTTOM LAUNCHER NODES & PRATHAM PRASAD BADGE ---
         self._draw_bottom_launchers(cx, cy + 185)
 
         # --- 16. MID-RIGHT 3D ROTATING GYROSCOPE CUBE & RADAR SCOPE ---
-        self._draw_3d_cube_and_radar(mid_right_x, cy - 30)
+        self._draw_3d_cube_and_radar(mid_right_x + 35, cy - 25)
 
         # --- 17. MID-RIGHT TACTICAL INTEL STREAM ---
-        self._draw_tactical_intel_stream(mid_right_x - 20, cy - 145)
+        self._draw_tactical_intel_stream(mid_right_x, cy - 145)
 
         # --- 18. LOWER-RIGHT LIVE NETWORK TRAFFIC SPARKLINES ---
         self._draw_network_sparklines(mid_right_x, cy + 175)
@@ -963,3 +986,270 @@ class AICoreVisualizer(tk.Canvas):
             self.create_text(x, fy, text=day, font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
             self.create_text(x + 130, fy, text=temp, font=("Segoe UI", 8, "bold"), fill="#00ffaa", anchor="e")
             self.create_text(x, fy + 12, text=cond, font=FONT_HUD_TINY, fill=c_col, anchor="w")
+
+    # -------------------------------------------------------------
+    # 20. NEURAL NETWORK INITIALIZATION & SYNAPTIC PLEXUS
+    # -------------------------------------------------------------
+    def _init_neural_network(self):
+        """Initialize drifting neural nodes across the holographic workspace."""
+        self.neural_nodes = []
+        offsets = [
+            # Left Cognitive Cluster (Near Date & CPU meters)
+            (-360, -150), (-320, -100), (-380, -50), (-420, -120), (-290, -170),
+            (-440, 20), (-390, 80), (-430, 160), (-360, 220), (-400, 290),
+            # Central Arc Halo (Surrounding the Arc Reactor)
+            (-195, -120), (-145, -180), (0, -215), (145, -180), (195, -120),
+            (-205, 40), (-185, 120), (-125, 185), (125, 185), (185, 120), (205, 40),
+            # Right Tactical Cluster (Near Radar & Intel Feed)
+            (285, -185), (360, -155), (410, -105), (440, -35),
+            (360, 65), (420, 115), (380, 185)
+        ]
+        for idx, (ox, oy) in enumerate(offsets):
+            self.neural_nodes.append({
+                "ox": ox, "oy": oy,
+                "dx": random.uniform(-4, 4), "dy": random.uniform(-4, 4),
+                "vx": random.uniform(-0.3, 0.3), "vy": random.uniform(-0.3, 0.3),
+                "pulse": random.uniform(0, math.pi * 2),
+                "color": "#00f0ff" if idx % 3 != 0 else "#8b5cf6",
+                "flash": 0.0
+            })
+        self.synaptic_pulses = []
+
+    def _init_circuit_packets(self):
+        """Initialize data packets flowing through laser circuit traces."""
+        self.circuit_packets = []
+        for i in range(6):
+            self.circuit_packets.append({
+                "trace_idx": i,
+                "t": random.uniform(0.0, 1.0),
+                "speed": random.uniform(0.015, 0.035),
+                "color": "#00f0ff" if i % 2 == 0 else "#ffffff"
+            })
+
+    # -------------------------------------------------------------
+    # 21. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD
+    # -------------------------------------------------------------
+    def _draw_honeycomb_shield(self, cx, cy):
+        """Draw concentric hexagonal forcefield matrix with expanding energy ripple."""
+        radii = [190, 215, 240]
+        pulse_scale = math.sin(self.pulse * 1.5) * 3
+
+        for idx, base_r in enumerate(radii):
+            r = base_r + pulse_scale
+            # 6 Hexagonal Vertices
+            pts = []
+            for h_i in range(6):
+                ang = h_i * (math.pi / 3) + (self.pulse * 0.05 if idx % 2 == 0 else -self.pulse * 0.05)
+                px = cx + r * math.cos(ang)
+                py = cy + r * math.sin(ang)
+                pts.extend([px, py])
+                # Small corner junction diamond
+                self.create_oval(px - 1.5, py - 1.5, px + 1.5, py + 1.5, fill="#00f0ff", outline="")
+
+            # Close hexagon polygon
+            pts.extend([pts[0], pts[1]])
+            self.create_line(pts, fill="#072242", width=1, dash=(4, 6))
+
+    # -------------------------------------------------------------
+    # 22. DYNAMIC NEURAL SYNAPSE PLEXUS & ACTION POTENTIALS
+    # -------------------------------------------------------------
+    def _update_and_draw_neural_plexus(self, cx, cy, w, h, core_color):
+        """Update and render interconnected neural nodes and streaming synaptic data packets."""
+        node_coords = []
+
+        # 1. Update positions & draw node bodies
+        for node in self.neural_nodes:
+            # Drift within bounds
+            node["dx"] += node["vx"]
+            node["dy"] += node["vy"]
+            if abs(node["dx"]) > 14:
+                node["vx"] *= -1
+            if abs(node["dy"]) > 14:
+                node["vy"] *= -1
+
+            node["pulse"] = (node["pulse"] + 0.08) % (math.pi * 2)
+            if node["flash"] > 0:
+                node["flash"] = max(0.0, node["flash"] - 0.08)
+
+            nx = cx + node["ox"] + node["dx"]
+            ny = cy + node["oy"] + node["dy"]
+            node_coords.append((nx, ny))
+
+            # Draw Node Halo & Core
+            base_r = 2.5 + math.sin(node["pulse"]) * 0.8
+            if node["flash"] > 0:
+                # Flash on synaptic arrival
+                flash_r = base_r + node["flash"] * 6
+                self.create_oval(nx - flash_r, ny - flash_r, nx + flash_r, ny + flash_r, outline="#ffffff", width=1)
+                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill="#ffffff", outline="")
+            else:
+                self.create_oval(nx - (base_r + 2), ny - (base_r + 2), nx + (base_r + 2), ny + (base_r + 2), outline="#072445", width=1)
+                self.create_oval(nx - base_r, ny - base_r, nx + base_r, ny + base_r, fill=node["color"], outline="")
+
+        # 2. Draw Synaptic Connection Filaments
+        num_nodes = len(self.neural_nodes)
+        connected_pairs = []
+
+        for i in range(num_nodes):
+            x1, y1 = node_coords[i]
+            for j in range(i + 1, num_nodes):
+                x2, y2 = node_coords[j]
+                dx = x1 - x2
+                dy = y1 - y2
+                dist_sq = dx * dx + dy * dy
+                if dist_sq < 9025: # < 95 pixels
+                    dist = math.sqrt(dist_sq)
+                    connected_pairs.append((i, j, x1, y1, x2, y2))
+                    # Line alpha-like color gradient by distance
+                    if dist < 55:
+                        fil_col = "#0e447a"
+                    elif dist < 75:
+                        fil_col = "#092e54"
+                    else:
+                        fil_col = "#051a33"
+                    self.create_line(x1, y1, x2, y2, fill=fil_col, width=1)
+
+        # 3. Spawn New Synaptic Pulses (Action Potentials)
+        spawn_rate = 0.35 + self.audio_level * 0.9
+        if self.state in ("THINKING", "PLANNING", "SPEAKING"):
+            spawn_rate = 0.75
+
+        if connected_pairs and random.random() < spawn_rate:
+            pair = random.choice(connected_pairs)
+            i, j = pair[0], pair[1]
+            speed = random.uniform(0.04, 0.08)
+            pulse_col = "#00f0ff" if random.random() < 0.7 else "#8b5cf6"
+            self.synaptic_pulses.append([i, j, 0.0, speed, pulse_col])
+
+        # 4. Advance & Render Active Synaptic Pulses
+        alive_pulses = []
+        for pulse in self.synaptic_pulses:
+            i, j, t, spd, col = pulse
+            t += spd
+            if t >= 1.0:
+                # Arrival flash on destination node
+                if j < num_nodes:
+                    self.neural_nodes[j]["flash"] = 1.0
+                continue
+
+            alive_pulses.append([i, j, t, spd, col])
+            x1, y1 = node_coords[i]
+            x2, y2 = node_coords[j]
+            px = x1 + (x2 - x1) * t
+            py = y1 + (y2 - y1) * t
+
+            # Draw Bright Glowing Action Potential Packet
+            self.create_oval(px - 2, py - 2, px + 2, py + 2, fill="#ffffff", outline="")
+            # Small trailing spark
+            tail_t = max(0.0, t - 0.15)
+            tx = x1 + (x2 - x1) * tail_t
+            ty = y1 + (y2 - y1) * tail_t
+            self.create_line(tx, ty, px, py, fill=col, width=2)
+
+        self.synaptic_pulses = alive_pulses[:40] # cap max active pulses
+
+    # -------------------------------------------------------------
+    # 23. CIRCUIT BUS STREAMING DATA PACKETS
+    # -------------------------------------------------------------
+    def _update_and_draw_circuit_packets(self, cx, cy):
+        """Render data packets traveling along the main laser circuit bus lines into the Arc Reactor."""
+        traces = [
+            [(cx - 270, cy - 100), (cx - 240, cy - 40), (cx - 150, cy - 40)],
+            [(cx - 250, cy + 120), (cx - 220, cy + 30), (cx - 150, cy + 30)],
+            [(cx + 175, cy - 190), (cx + 120, cy - 190), (cx + 60, cy - 140)],
+            [(cx + 270, cy - 60), (cx + 220, cy - 20), (cx + 150, cy - 20)],
+            [(cx + 270, cy + 120), (cx + 240, cy + 50), (cx + 150, cy + 50)],
+            [(cx - 240, cy + 190), (cx - 190, cy + 190), (cx - 140, cy + 140)],
+        ]
+
+        for pkt in self.circuit_packets:
+            pkt["t"] += pkt["speed"]
+            if pkt["t"] >= 1.0:
+                pkt["t"] = 0.0
+
+            poly = traces[pkt["trace_idx"]]
+            # 2 segments per polyline
+            t_val = pkt["t"]
+            if t_val < 0.5:
+                # Segment 0 -> 1
+                seg_t = t_val * 2.0
+                p1, p2 = poly[0], poly[1]
+            else:
+                # Segment 1 -> 2
+                seg_t = (t_val - 0.5) * 2.0
+                p1, p2 = poly[1], poly[2]
+
+            curr_x = p1[0] + (p2[0] - p1[0]) * seg_t
+            curr_y = p1[1] + (p2[1] - p1[1]) * seg_t
+
+            # Draw capsule packet
+            self.create_oval(curr_x - 2.5, curr_y - 2.5, curr_x + 2.5, curr_y + 2.5, fill="#ffffff", outline=pkt["color"], width=1)
+
+    # -------------------------------------------------------------
+    # 24. HIGH-VOLTAGE PLASMA LIGHTNING DISCHARGES
+    # -------------------------------------------------------------
+    def _draw_plasma_lightning(self, cx, cy, r_iris, core_color):
+        """Draw authentic high-voltage electric plasma sparks between coils and central iris."""
+        # Determine number of lightning arcs based on audio & state
+        num_arcs = 1
+        if self.audio_level > 0.2:
+            num_arcs = 2
+        if self.state in ("THINKING", "PLANNING", "EXECUTING", "SPEAKING"):
+            num_arcs = 3
+
+        for a_i in range(num_arcs):
+            # Pick a coil angle
+            c_idx = (int(self.pulse * 4) + a_i * 4) % 12
+            c_ang = self.angle_coils + c_idx * (2 * math.pi / 12)
+
+            start_x = cx + 84 * math.cos(c_ang)
+            start_y = cy + 84 * math.sin(c_ang)
+
+            target_x = cx + r_iris * math.cos(c_ang + 0.15)
+            target_y = cy + r_iris * math.sin(c_ang + 0.15)
+
+            # Generate fractal jagged arc
+            coords = [start_x, start_y]
+            steps = 4
+            for s in range(1, steps):
+                f = s / steps
+                lx = start_x + (target_x - start_x) * f
+                ly = start_y + (target_y - start_y) * f
+                # Perpendicular displacement
+                nx = -(target_y - start_y)
+                ny = (target_x - start_x)
+                n_len = math.hypot(nx, ny) or 1.0
+                nx /= n_len
+                ny /= n_len
+                offset = (random.random() - 0.5) * 12
+                coords.extend([lx + nx * offset, ly + ny * offset])
+            coords.extend([target_x, target_y])
+
+            # Draw Cyan Lightning Halo & White Core Filament
+            self.create_line(coords, fill="#00f0ff", width=2)
+            self.create_line(coords, fill="#ffffff", width=1)
+
+    # -------------------------------------------------------------
+    # 25. TACTICAL RETICLE LOCK-ON SYSTEM
+    # -------------------------------------------------------------
+    def _draw_tactical_lock_reticle(self, cx, cy):
+        """Draw an active targeting lock-on bracket circling orbital nodes."""
+        # Lock onto node 'Cyber Engine' at angle 25 deg
+        lock_ang = math.radians(-25)
+        lx = cx + 188 * math.cos(lock_ang)
+        ly = cy + 188 * math.sin(lock_ang)
+
+        b_size = 14
+        rot = self.angle_radar * 0.8
+        # 4 rotating corner brackets
+        for c_i in range(4):
+            corner_ang = rot + c_i * (math.pi / 2)
+            px = lx + b_size * math.cos(corner_ang)
+            py = ly + b_size * math.sin(corner_ang)
+            self.create_line(px - 3, py, px + 3, py, fill="#00ffaa", width=1)
+            self.create_line(px, py - 3, px, py + 3, fill="#00ffaa", width=1)
+
+        # Digital Telemetry Readout
+        self.create_text(lx + 24, ly - 6, text="LOCK: SEC-04", font=("Consolas", 6, "bold"), fill="#00ffaa", anchor="w")
+        self.create_text(lx + 24, ly + 4, text="RNG: 14.8 KM // TRK: ACTIVE", font=("Consolas", 6), fill="#38bdf8", anchor="w")
+

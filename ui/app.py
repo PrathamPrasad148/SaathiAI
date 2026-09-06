@@ -60,8 +60,8 @@ class SaathiApp:
         # Center Content View Container
         self.center_viewport = tk.Frame(self.body_frame, bg=COLOR_BG)
 
-        # Right Task Observer Panel (Dedicated view in center viewport)
-        self.task_observer = TaskObserverPanel(self.center_viewport)
+        # Right Task Observer Panel
+        self.task_observer = TaskObserverPanel(self.body_frame)
 
         # Build Subviews
         self.views = {
@@ -85,14 +85,10 @@ class SaathiApp:
         }
         self.current_view_key = "core"
 
-        # Listen to permission changes to update TopTelemetryBar badge
-        if hasattr(self.permissions, "add_listener"):
-            self.permissions.add_listener(lambda authed: self.root.after(0, lambda: self.telemetry_bar.set_master_control_status(authed)))
-        self.telemetry_bar.set_master_control_status(getattr(self.permissions, "master_system_control", False))
-
-        # Pack Layout (Left Nav Rail, Full Panoramic Center Viewport)
+        # Pack Layout (Left Nav Rail, Center Viewport, Right Task Observer Panel)
         self.nav_rail = NavigationRail(self.body_frame, on_navigate=self._switch_view)
         self.nav_rail.pack(side="left", fill="y")
+        self.task_observer.pack(side="right", fill="y")
         self.center_viewport.pack(side="left", fill="both", expand=True)
 
         self.views["core"].pack(fill="both", expand=True)

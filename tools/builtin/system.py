@@ -8,32 +8,38 @@ from ..schemas import Tool, RiskLevel
 from automation.system import get_system_telemetry
 from automation.processes import list_running_processes
 from automation.windows import focus_window_by_title, minimize_all_windows
+from automation.app_launcher import launch_application, open_url_in_browser
 
 def get_system_tools(app_dir: Path) -> list[Tool]:
     def open_target_run(args: Dict[str, Any], ctx: Dict[str, Any]) -> str:
         target = args.get("target", "").strip()
         if not target:
             return "Error: target is required."
+
+        # 1. Local file path
         p = Path(target)
         if not p.is_absolute():
             p = (app_dir / p).resolve()
         if p.exists():
             if p.suffix.lower() in (".html", ".htm"):
-                webbrowser.open(p.as_uri())
+                open_url_in_browser(p.as_uri())
             else:
                 os.startfile(str(p))
             return f"Opened file '{p}'."
-        if target.startswith(("http://", "https://", "spotify:")):
-            webbrowser.open(target)
+
+        # 2. Web URL
+        if target.startswith(("http://", "https://", "spotify:", "ms-settings:")):
+            open_url_in_browser(target)
             return f"Opened URL '{target}'."
-        apps = {"notepad": "notepad.exe", "calc": "calc.exe", "calculator": "calc.exe", "explorer": "explorer.exe", "code": "code.cmd"}
-        app_cmd = apps.get(target.lower(), target)
-        try:
-            os.startfile(app_cmd)
-            return f"Launched '{app_cmd}'."
-        except OSError:
-            webbrowser.open("https://www.google.com/search?q=" + urllib.parse.quote_plus(target))
-            return f"Searched web for '{target}'."
+
+        # 3. Known / system application
+        ok, msg = launch_application(target)
+        if ok:
+            return msg
+
+        # 4. Web search fallback
+        open_url_in_browser("https://www.google.com/search?q=" + urllib.parse.quote_plus(target))
+        return f"Opened search for '{target}'."
 
     def sys_info_run(args: Dict[str, Any], ctx: Dict[str, Any]) -> str:
         info = get_system_telemetry()

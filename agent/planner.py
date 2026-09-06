@@ -16,6 +16,9 @@ from automation.hardware import (
     empty_recycle_bin, media_play_pause, media_next, media_prev
 )
 from automation.windows import minimize_all_windows
+from automation.app_launcher import launch_application, search_web_live
+from automation.keyboard import type_text, press_key, send_hotkey
+from automation.mouse import click_mouse, double_click, scroll_mouse, move_mouse
 
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
@@ -269,6 +272,89 @@ class AgentPlanner:
         if has_media_toggle:
             media_play_pause()
             return "Media playback toggled, Pratham."
+
+        # ── OS Action: Launch Applications (Instant Chrome, Notepad, Calc, Explorer, etc.) ──
+        # Matches: "open chrome", "launch chrome", "open youtube", "open notepad", "open calc", etc.
+        open_app_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(open|launch|start)\s+([a-zA-Z0-9\s._-]+)$", norm)
+        if open_app_match and not any(w in norm for w in ("website", "webpage", "portfolio", "file", "folder")):
+            target_app = open_app_match.group(2).strip()
+            if target_app not in ("the door", "the window", "up"):
+                ok, msg = launch_application(target_app)
+                if ok:
+                    return f"At your command, Pratham. {msg}"
+
+        # ── OS Action: Search Web / Google / YouTube ──
+        # Matches: "search something", "search quantum physics", "search coldplay on youtube", "google who is the president"
+        search_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:search|google|find)\s+(?:for\s+)?(.+)$", norm)
+        if search_match:
+            raw_q = search_match.group(1).strip()
+            engine = "youtube" if "youtube" in raw_q.lower() else "google"
+            clean_q = re.sub(r"\b(on|in)\s+(google|youtube|web|the web|internet)\b", "", raw_q, flags=re.I).strip()
+            ok, msg = search_web_live(clean_q or raw_q, engine=engine)
+            if ok:
+                return f"Right away, Pratham. {msg}"
+
+        youtube_match = re.search(r"^youtube\s+(.+)$", norm)
+        if youtube_match:
+            query = youtube_match.group(1).strip()
+            ok, msg = search_web_live(query, engine="youtube")
+            if ok:
+                return f"Right away, Pratham. {msg}"
+
+        # ── OS Action: Keyboard Typing & Key Pressing ──
+        type_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(type|write|input)\s+(.+)$", norm)
+        if type_match and not any(w in norm for w in ("code", "python", "script", "program", "essay", "letter", "email", "poem")):
+            text_to_type = type_match.group(2).strip()
+            type_text(text_to_type)
+            return f"Typed '{text_to_type[:40]}' into your active window, Pratham."
+
+        press_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(press|hit)\s+([a-zA-Z0-9+_\s]+)$", norm)
+        if press_match:
+            key_target = press_match.group(2).strip()
+            keys = [k.strip() for k in re.split(r"[\s+]+", key_target) if k.strip()]
+            if len(keys) > 1:
+                send_hotkey(*keys)
+                return f"Sent shortcut {'+'.join(keys)}, Pratham."
+            elif len(keys) == 1:
+                press_key(keys[0])
+                return f"Pressed {keys[0]}, Pratham."
+
+        # Common Shortcuts
+        if re.search(r"\b(copy that|copy this|copy text)\b", norm):
+            send_hotkey("ctrl", "c")
+            return "Copied to clipboard, Pratham."
+        if re.search(r"\b(paste that|paste this|paste text)\b", norm):
+            send_hotkey("ctrl", "v")
+            return "Pasted from clipboard, Pratham."
+        if re.search(r"\b(select all)\b", norm):
+            send_hotkey("ctrl", "a")
+            return "Selected all, Pratham."
+        if re.search(r"\b(save file|save this)\b", norm):
+            send_hotkey("ctrl", "s")
+            return "Saved, Pratham."
+        if re.search(r"\b(new tab)\b", norm):
+            send_hotkey("ctrl", "t")
+            return "Opened new browser tab, Pratham."
+        if re.search(r"\b(close tab)\b", norm):
+            send_hotkey("ctrl", "w")
+            return "Closed tab, Pratham."
+
+        # ── OS Action: Mouse Actions ──
+        if re.search(r"^(?:please\s+)?(?:can you\s+)?(left click|click here|click)$", norm):
+            click_mouse(button="left")
+            return "Clicked, Pratham."
+        if re.search(r"^(?:please\s+)?(?:can you\s+)?(right click)$", norm):
+            click_mouse(button="right")
+            return "Right-clicked, Pratham."
+        if re.search(r"^(?:please\s+)?(?:can you\s+)?(double click)$", norm):
+            double_click()
+            return "Double-clicked, Pratham."
+        if re.search(r"^(?:please\s+)?(?:can you\s+)?(scroll down|page down)$", norm):
+            scroll_mouse(-4)
+            return "Scrolled down, Pratham."
+        if re.search(r"^(?:please\s+)?(?:can you\s+)?(scroll up|page up)$", norm):
+            scroll_mouse(4)
+            return "Scrolled up, Pratham."
 
         # ── Intent Detection (all sub-millisecond regex) ──
         has_hello = bool(re.search(r"\b(hi|hello|hey|yo|namaste|pranam|hola|good morning|good evening|good afternoon|good night|howdy|sup)\b", norm))

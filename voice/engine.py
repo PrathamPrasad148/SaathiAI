@@ -130,7 +130,7 @@ class VoiceEngine:
                 if self.on_status_change:
                     self.on_status_change("TRANSCRIBING")
 
-                text = self.stt.transcribe(audio_data)
+                text = self.stt.transcribe(audio_data, language="en")
                 cleaned = text.strip()
                 if cleaned:
                     print(f"[VOICE HEARD] '{cleaned}'")

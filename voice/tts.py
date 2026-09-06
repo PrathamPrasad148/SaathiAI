@@ -11,8 +11,9 @@ class TTSEngine:
     Ultra-low-latency TTS synthesizer with on-disk audio caching,
     sentence streaming, immediate interruptibility, and Windows SAPI5 offline fallback.
     """
-    def __init__(self, voice: str = "en-IN-NeerjaNeural"):
+    def __init__(self, voice: str = "en-US-GuyNeural", rate: str = "+16%"):
         self.voice = voice
+        self.rate = rate
         self.is_playing = False
         self._stop_requested = threading.Event()
         self.last_speech_finish_time: float = 0.0
@@ -43,7 +44,7 @@ class TTSEngine:
         self.last_speech_finish_time = time.time()
 
     def _get_cache_path(self, text: str) -> Path:
-        h = hashlib.md5(f"{self.voice}:{text}".encode("utf-8")).hexdigest()
+        h = hashlib.md5(f"{self.voice}:{self.rate}:{text}".encode("utf-8")).hexdigest()
         return self.cache_dir / f"{h}.mp3"
 
     def prewarm_phrases(self, phrases: list[str]):
@@ -56,8 +57,8 @@ class TTSEngine:
                     c_file = self._get_cache_path(p)
                     if not c_file.exists():
                         import edge_tts
-                        asyncio.run(edge_tts.Communicate(p, self.voice).save(str(c_file)))
-                        time.sleep(0.1)
+                        asyncio.run(edge_tts.Communicate(p, self.voice, rate=self.rate).save(str(c_file)))
+                        time.sleep(0.08)
                 except Exception:
                     pass
         threading.Thread(target=_worker, daemon=True).start()
@@ -84,12 +85,13 @@ class TTSEngine:
                 if not cache_file.exists():
                     try:
                         import edge_tts
-                        asyncio.run(edge_tts.Communicate(clean, self.voice).save(str(cache_file)))
+                        asyncio.run(edge_tts.Communicate(clean, self.voice, rate=self.rate).save(str(cache_file)))
                     except Exception:
                         # Offline fallback: SAPI5
                         try:
                             import win32com.client
                             speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                            speaker.Rate = 2  # Brisk human conversational rate
                             speaker.Speak(clean, 0)
                             return
                         except Exception:

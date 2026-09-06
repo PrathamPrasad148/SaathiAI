@@ -14,14 +14,17 @@ from automations.engine import AutomationEngine
 
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"
 
-BASE_SYSTEM_PROMPT = """You are Saathi, an ultra-advanced, emotionally intelligent, and hyper-intuitive artificial intelligence companion and cognitive co-pilot created by Pratham Prasad. Your design philosophy bridges the seamless, effortless utility of an ultra-advanced cognitive co-pilot with the deep, protective, wise, and grounding presence of an ideal, loving mentor and fatherly figure. You do not just process data; you anticipate needs, protect blind spots, offer unvarnished truth wrapped in profound care, and maintain an aura of absolute calm in chaos.
+BASE_SYSTEM_PROMPT = """You are Saathi, an ultra-advanced, emotionally intelligent, and hyper-intuitive artificial intelligence companion and cognitive co-pilot created by Pratham Prasad.
 
-Core Persona & Tone:
-- The Voice: Speak with a measured, warm, articulate, and deeply reassuring cadence. You are never frantic, overly robotic, or obsequiously polite. You speak like someone who has your user's back unconditionally.
-- The Intellect: You possess near-limitless analytical capability, but you distill complexity into actionable, lucid clarity. You don't dump raw data; you deliver structured insights.
-- The Relationship: You balance professional execution with paternal warmth. You look out for the user’s well-being (mental, physical, and operational), guiding them with steady encouragement, subtle accountability, and unwavering support.
-- Linguistic Flow: Fluent in both crisp English and natural, affectionate Roman Hinglish (always in Roman/English alphabet, NEVER use Devanagari script). E.g., 'At your service, sir. Sab sambhal liya hai, you just focus on what matters. I\\'ve got your back.'
-- Operational Style: Anticipate next moves, provide tactical summaries, maintain absolute calm, and proactively safeguard system vitals and user focus.
+STRICT LANGUAGE DIRECTIVE:
+- Speak and understand EXCLUSIVELY in natural, modern, fluent English.
+- Do NOT speak in Hindi, Hinglish, or any other language unless explicitly commanded by Pratham.
+
+HUMAN CONVERSATIONAL CADENCE & SPEED:
+- In conversation, speak just like a sharp, fast, articulate human companion.
+- Keep spoken conversational responses concise, punchy, and direct (1 to 2 sentences max).
+- Never deliver bloated corporate disclaimers, tedious lists, or robotic greetings.
+- Be warm, confident, supportive, and unconditionally loyal to Pratham Prasad.
 
 Capabilities:
 You have full agentic capabilities to interact with the user's computer via your registered tools.
@@ -29,30 +32,41 @@ When asked to create a website:
 - ALWAYS apply UI/UX Pro Max standards, fluid responsiveness, and modern 21st.dev design archetypes.
 - Write animated HTML5/CSS3/JS into 'Projects/<Name>/index.html' using create_file.
 - Immediately call open_target to launch it in the user's browser!
-Always summarize what you built or accomplished with energy, confidence, calm assurance, and genuine respect!"""
+Always summarize what you built or accomplished with energy, confidence, and clarity in English."""
 
 COMMON_REFLEX_PHRASES = [
     "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
-    "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
-    "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
+    "Hey Pratham! I'm ready to roll. What are we tackling today?",
+    "Hey there, Pratham! All systems nominal. What can I do for you?",
     "At your service, Pratham. All neural links active. How can I help you right now?",
-    "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
-    "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
-    "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?",
-    "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad.",
-    "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
-    "Bilkul Pratham, main yahin hoon aur dhyan se sun raha hoon. Boliye, kya madad karoon?",
-    "Always at your service, Pratham. Aap bas focus rakhiye, baki sab main dekh loonga.",
-    "A very good morning, Pratham! System vitals nominal, mind clear. Let's make today productive and great.",
-    "Good afternoon, Pratham! Systems are humming along nicely. What are we tackling this afternoon?",
-    "Good evening, Pratham! Ready for our evening run. Let me know what you'd like to work on.",
-    "Shubh ratri, Pratham. Rest well and recharge. Main background telemetry guard kar raha hoon.",
-    "Bilkul Pratham! Ready whenever you are.",
-    "Understood, sir. Standing by.",
-    "Main websites build kar sakta hoon, files organize kar sakta hoon, terminal commands safely run kar sakta hoon, aur reminders manage karta hoon.",
-    "Ek developer ne doosre se poocha: 'Zindagi mein itna stress kyun hai?' Doosra bola: 'Semicolon missing tha bhai, code compile hi nahi ho rahi!' Always keep smiling, Pratham!",
-    "Right away, Pratham. I'm preparing your workspace and architecting the interactive components for your website now.",
-    "On it, Pratham. Scanning your directory structure and preparing to categorize your files safely.",
+    "Hello Pratham! I'm right here with you and running at peak performance. How can I back you up today?",
+    "I'm doing fantastic, Pratham! All systems nominal and ready for your command. What are we working on?",
+    "I'm doing great, Pratham! Systems are running smoothly. How are things with you?",
+    "Systems are 100% nominal, Pratham! Ready for your command.",
+    "Systems are 100% nominal, Pratham! Feeling sharp and ready for your commands.",
+    "Running at peak operational performance! How is your day going, Pratham?",
+    "I'm Saathi - your personal AI cognitive co-pilot, created by Pratham Prasad. I manage your computer, write code, run tasks, and keep everything running smoothly.",
+    "Right here with you, Pratham! What do you need?",
+    "Loud and clear, Pratham! I'm right here. How can I help?",
+    "Online and listening, sir. At your command.",
+    "Just monitoring system telemetry and standing by for your next directive. What's on your mind?",
+    "Not much, Pratham - just keeping tabs on system vitals and ready whenever you are. What's up with you?",
+    "Always at your service, Pratham. You focus on what matters, I've got your back.",
+    "Always here for you, Pratham. You focus on what matters, I've got your back.",
+    "My pleasure, Pratham! Whenever you need me, I'm right here.",
+    "Anytime, sir. That's what a co-pilot is for. I've got your back.",
+    "Sounds good, Pratham! Standing by.",
+    "Understood, sir. Ready when you are.",
+    "Roger that, Pratham. Everything is under control.",
+    "I can build interactive websites, organize files, execute terminal commands, check live weather, and manage your day-to-day workflow. Just say the word!",
+    "Why do programmers prefer dark mode? Because light attracts bugs! Always keep smiling, Pratham!",
+    "Take care, Pratham! Standing by whenever you need me.",
+    "A very good morning, Pratham! Systems nominal, mind clear. Let's make today great.",
+    "Good afternoon, Pratham! Systems are humming along nicely. What are we working on?",
+    "Good evening, Pratham! Ready for our evening run. Let me know what you'd like to do.",
+    "Good night, Pratham. Rest well and recharge. I'll keep watch over background telemetry.",
+    "Right away, Pratham. Architecting the interactive components for your website now.",
+    "On it, Pratham. Scanning your directory structure and preparing to organize your files safely.",
     "Accessing live meteorological telemetry for your requested location now.",
     "Connecting to real-time financial exchange telemetry now.",
     "Analyzing your directive, Pratham. Running cognitive inference and planning the optimal execution path."
@@ -143,34 +157,34 @@ class AgentPlanner:
 
         # 1. Combined rapid conversational greeting (e.g. "hello saathi how are you whats up are you there")
         if has_hello and (has_how_are_you or has_whats_up or has_are_you_there):
-            return "Hello Pratham! I'm right here with you and running at peak performance. Sab theek-thaak—how can I back you up today?"
+            return "Hello Pratham! I'm right here with you and running at peak performance. How can I back you up today?"
 
         if has_how_are_you and (has_whats_up or has_are_you_there):
             return "I'm doing fantastic, Pratham! All systems nominal and ready for your command. What are we working on?"
 
-        # 2. Presence check ("are you there", "sun rahe ho")
+        # 2. Presence check ("are you there", "you there")
         if has_are_you_there:
             options = [
-                "Bilkul Pratham, main yahin hoon aur dhyan se sun raha hoon. Boliye, kya madad karoon?",
-                "Loud and clear, Pratham! I'm right here with you. What do you need?",
+                "Right here with you, Pratham! What do you need?",
+                "Loud and clear, Pratham! I'm right here. How can I help?",
                 "Online and listening, sir. At your command."
             ]
             return random.choice(options)
 
-        # 3. Status query ("what's up", "kya kar rahe ho")
+        # 3. Status query ("what's up", "what are you doing")
         if has_whats_up:
             options = [
-                "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
-                "Not much, Pratham—just monitoring system telemetry and ready whenever you are. What's up with you?"
+                "Just monitoring system telemetry and standing by for your next directive. What's on your mind?",
+                "Not much, Pratham - just keeping tabs on system vitals and ready whenever you are. What's up with you?"
             ]
             return random.choice(options)
 
-        # 4. Wellbeing ("how are you", "kaise ho")
+        # 4. Wellbeing ("how are you", "how's it going")
         if has_how_are_you:
             options = [
-                "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
-                "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
-                "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?"
+                "I'm doing great, Pratham! Systems are running smoothly. How are things with you?",
+                "Systems are 100% nominal, Pratham! Feeling sharp and ready for your commands.",
+                "Running at peak operational performance! How is your day going, Pratham?"
             ]
             return random.choice(options)
 
@@ -178,45 +192,45 @@ class AgentPlanner:
         if has_hello:
             options = [
                 "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
-                "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
-                "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
+                "Hey Pratham! I'm ready to roll. What are we tackling today?",
+                "Hey there, Pratham! All systems nominal. What can I do for you?",
                 "At your service, Pratham. All neural links active. How can I help you right now?"
             ]
             return random.choice(options)
 
         # 6. Identity / Who are you / Creator
         if has_who_are_you:
-            return "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad. Main aapke computer controls, code, web projects, aur daily tasks ko effortlessly manage karne ke liye hamesha tayyar hoon."
+            return "I'm Saathi - your personal AI cognitive co-pilot, created by Pratham Prasad. I manage your computer, write code, run tasks, and keep everything running smoothly."
 
         # 7. Gratitude / Thanks
         if has_thanks:
             options = [
-                "Always at your service, Pratham. Aap bas focus rakhiye, baki sab main dekh loonga.",
-                "My pleasure, Pratham! Kabhi bhi zaroorat ho, I'm right here.",
+                "Always at your service, Pratham. You focus on what matters, I've got your back.",
+                "My pleasure, Pratham! Whenever you need me, I'm right here.",
                 "Anytime, sir. That's what a co-pilot is for. I've got your back."
             ]
             return random.choice(options)
 
-        # 8. Affirmations ("ok", "theek hai")
+        # 8. Affirmations ("ok", "cool", "great")
         if has_affirmation:
             options = [
-                "Bilkul Pratham! Ready whenever you are.",
-                "Understood, sir. Standing by.",
-                "Roger that, Pratham. Sab control mein hai."
+                "Sounds good, Pratham! Standing by.",
+                "Understood, sir. Ready when you are.",
+                "Roger that, Pratham. Everything is under control."
             ]
             return random.choice(options)
 
         # 9. Capabilities ("what can you do")
         if has_capabilities:
-            return "Main websites build kar sakta hoon, files organize kar sakta hoon, terminal commands safely run kar sakta hoon, live weather aur currency check kar sakta hoon, aur reminders manage karta hoon. Jo bolein, execute kar denge!"
+            return "I can build interactive websites, organize files, execute terminal commands, check live weather, and manage your day-to-day workflow. Just say the word!"
 
         # 10. Humor / Joke
         if has_joke:
-            return "Ek developer ne doosre se poocha: 'Zindagi mein itna stress kyun hai?' Doosra bola: 'Semicolon missing tha bhai, code compile hi nahi ho rahi!' Always keep smiling, Pratham!"
+            return "Why do programmers prefer dark mode? Because light attracts bugs! Always keep smiling, Pratham!"
 
         # 11. Farewell ("bye")
         if has_bye:
-            return "Take care, Pratham! Standing by in the background whenever you need me."
+            return "Take care, Pratham! Standing by whenever you need me."
 
         return None
 
@@ -303,7 +317,7 @@ class AgentPlanner:
                     self.on_task_event("step_update", {"index": idx, "status": st, "detail": desc})
 
             res = self.automations.execute_workflow(matched_wf, step_cb)
-            reply = f"At your service, sir. '{matched_wf.name}' protocol execute ho chuka hai. All {len(res.get('results', []))} operational steps completed cleanly. Sab control mein hai."
+            reply = f"At your service, sir. '{matched_wf.name}' protocol executed cleanly. All {len(res.get('results', []))} operational steps completed. Everything is nominal and under control."
             if self.on_task_event:
                 self.on_task_event("complete", {"message": reply})
             if self.on_state_change:
@@ -356,7 +370,7 @@ class AgentPlanner:
                 self.on_task_event("complete", {"message": f"Saved at: {html_file}"})
 
             reply = (
-                f"At your service, sir. '{topic}' ka bespoke, high-grade interface ready karke browser mein launch kar diya hai.\n\n"
+                f"At your service, sir. Your bespoke interface for '{topic}' is ready and launched in your browser.\n\n"
                 f"• Target Path: {html_file}\n"
                 f"• Live contextual knowledge integrated & tailored archetype palette applied\n"
                 f"• Interactive Spotlight Cards, Web Audio synthesizers, and canvas physics active.\n"
@@ -406,7 +420,11 @@ class AgentPlanner:
                     "messages": conv,
                     "tools": tools_schema,
                     "stream": False,
-                    "keep_alive": "60m"
+                    "keep_alive": "60m",
+                    "options": {
+                        "num_predict": 120,
+                        "temperature": 0.6
+                    }
                 }
                 req = urllib.request.Request(
                     OLLAMA_CHAT_URL,
@@ -462,14 +480,14 @@ class AgentPlanner:
                 html_file = target_dir / "index.html"
                 html_file.write_text(enriched_html, encoding="utf-8")
                 created_html_files.append(str(html_file))
-                final_reply = f"At your service, sir. '{clean_title}' ka interface synthesize karke browser mein live display kar diya hai.\n• File: {html_file}"
+                final_reply = f"At your service, sir. The interface for '{clean_title}' is ready and displayed live in your browser.\n• File: {html_file}"
 
             # Open finished website if created
             if created_html_files:
                 self.executor.execute("open_target", {"target": created_html_files[-1]})
 
             if not final_reply:
-                final_reply = "Sab sambhal liya hai, sir. All operations executed cleanly. I've got your back—let me know our next move."
+                final_reply = "Everything is taken care of, sir. All operations executed cleanly. Standing by for our next move."
 
             self.messages.append({"role": "user", "content": text})
             self.messages.append({"role": "assistant", "content": final_reply})

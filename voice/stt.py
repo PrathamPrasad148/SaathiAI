@@ -26,7 +26,7 @@ class STTEngine:
                         self._model = WhisperModel(self.model_size, device="cpu", compute_type="float32")
         return self._model
 
-    def transcribe(self, audio_data: np.ndarray, language: Optional[str] = None) -> str:
+    def transcribe(self, audio_data: np.ndarray, language: Optional[str] = "en") -> str:
         if len(audio_data) == 0:
             return ""
         try:

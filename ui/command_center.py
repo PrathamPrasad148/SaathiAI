@@ -146,20 +146,22 @@ class CommandCenterView(tk.Frame):
         txt = self.input_entry.get().strip()
         if txt:
             self.input_entry.delete(0, "end")
-            # Automatically show chat drawer when user transmits so they see response
-            if not self.chat_visible:
-                self.toggle_chat_drawer()
             self.on_send_command(txt)
 
     def _handle_hud_click(self, x: int, y: int):
         """Handle interactive clicks on HUD widgets."""
         w = self.visualizer.width
         h = self.visualizer.height
-        cx = w * 0.47
-        cy = h * 0.46
+        left_bound = 365
+        weather_x = max(w - 185, 960)
+        mid_right_x = max(weather_x - 175, 780)
+        avail_left = left_bound + 20
+        avail_right = mid_right_x - 30
+        cx = (avail_left + avail_right) / 2.0
+        cy = max(320, min(h * 0.46, h - 330))
 
         # Check click near Bottom Launchers (Games, Programs, Skydrive, Electronics)
-        if cx - 80 <= x <= cx + 60 and cy + 180 <= y <= cy + 250:
+        if cx - 80 <= x <= cx + 60 and cy + 180 <= y <= cy + 260:
             rel_y = y - (cy + 180)
             if rel_y < 18:
                 self.on_send_command("List installed games and launch gaming protocol")
@@ -171,9 +173,9 @@ class CommandCenterView(tk.Frame):
                 self.on_send_command("Check system hardware and CPU diagnostics")
 
         # Check click near Weather station (Far Right)
-        elif x >= w - 210 and y <= 350:
+        elif x >= weather_x - 15 and y <= 360:
             self.on_send_command("Give me a detailed weather report and atmospheric conditions")
 
-        # Check click near News Feed (Mid Right)
-        elif cx + 250 <= x <= w - 220 and cy - 140 <= y <= cy:
+        # Check click near News / Tactical Intel Feed (Mid Right)
+        elif mid_right_x - 30 <= x <= weather_x - 20 and cy - 160 <= y <= cy:
             self.on_send_command("Summarize today's latest tech news and active protocols")

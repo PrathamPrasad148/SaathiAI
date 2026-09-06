@@ -60,8 +60,8 @@ class SaathiApp:
         # Center Content View Container
         self.center_viewport = tk.Frame(self.body_frame, bg=COLOR_BG)
 
-        # Right Task Observer Panel
-        self.task_observer = TaskObserverPanel(self.body_frame)
+        # Right Task Observer Panel (Dedicated view in center viewport)
+        self.task_observer = TaskObserverPanel(self.center_viewport)
 
         # Build Subviews
         self.views = {
@@ -76,6 +76,7 @@ class SaathiApp:
                 on_send_command=self.handle_user_input,
                 on_toggle_voice=self.toggle_voice
             ),
+            "tasks": self.task_observer,
             "memory": MemoryView(self.center_viewport, self.memory),
             "automations": AutomationWorkflowsView(self.center_viewport, self.automations, on_run_workflow=self._run_workflow_direct),
             "projects": ProjectsGalleryView(self.center_viewport, self.projects_dir, on_create_site=self.handle_user_input),
@@ -89,10 +90,9 @@ class SaathiApp:
             self.permissions.add_listener(lambda authed: self.root.after(0, lambda: self.telemetry_bar.set_master_control_status(authed)))
         self.telemetry_bar.set_master_control_status(getattr(self.permissions, "master_system_control", False))
 
-        # Pack Layout (Left Nav, Center Viewport, Right Task Observer)
+        # Pack Layout (Left Nav Rail, Full Panoramic Center Viewport)
         self.nav_rail = NavigationRail(self.body_frame, on_navigate=self._switch_view)
         self.nav_rail.pack(side="left", fill="y")
-        self.task_observer.pack(side="right", fill="y")
         self.center_viewport.pack(side="left", fill="both", expand=True)
 
         self.views["core"].pack(fill="both", expand=True)
@@ -186,8 +186,6 @@ class SaathiApp:
         # 7. Agent final reply -> Chat Streams + Edge TTS
         def on_reply(reply):
             def _show():
-                if self.current_view_key == "core" and not cmd_center.chat_visible:
-                    cmd_center.toggle_chat_drawer()
                 self._append_to_chat_views("assistant", reply)
             self.root.after(0, _show)
             self.voice.tts.speak(
@@ -198,9 +196,6 @@ class SaathiApp:
         self.agent.on_reply_ready = on_reply
 
     def _switch_view(self, key: str):
-        if key == "tasks":
-            # Keep focus on task observer
-            return
         if key in self.views and key != self.current_view_key:
             self.views[self.current_view_key].pack_forget()
             self.views[key].pack(fill="both", expand=True)

@@ -81,3 +81,4 @@ def shutdown_workstation(delay_seconds: int = 15):
 def abort_shutdown():
     """Abort a scheduled shutdown or restart."""
     subprocess.run(["shutdown", "/a"], check=False)
+

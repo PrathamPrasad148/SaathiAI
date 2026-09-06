@@ -1,4 +1,6 @@
 """
+Saathi AI — Hardware Telemetry & GPU Diagnostics Subsystem
+Direct GPU VRAM, Temperature, Fan Speed, and Power Telemetry via NVML.
 Saathi AI — Hardware Telemetry & System Power/Audio Control Subsystem
 Combines NVML GPU Diagnostics with Windows System Volume, Media Keys, Power & Recycle Bin Controls.
 """
@@ -132,6 +134,7 @@ def get_gpu_telemetry() -> Dict[str, Any]:
         if count > 0:
             handle = pynvml.nvmlDeviceGetHandleByIndex(0)
             telemetry["available"] = True
+            
 
             # GPU Name
             name = pynvml.nvmlDeviceGetName(handle)

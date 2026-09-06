@@ -54,6 +54,7 @@ class AgentPlanner:
         self.on_state_change: Optional[Callable[[str, str], None]] = None
         self.on_task_event: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self.on_reply_ready: Optional[Callable[[str], None]] = None
+        self.on_commentary: Optional[Callable[[str], None]] = None
 
     def cancel(self):
         """Immediately cancel active agent task."""
@@ -72,11 +73,144 @@ class AgentPlanner:
         t = threading.Thread(target=self._execute_loop, args=(text,), daemon=True)
         t.start()
 
+    def _try_instant_chit_chat(self, text: str) -> Optional[str]:
+        """Sub-10ms Instant Reflex Engine for greetings, pleasantries, and general chit-chat."""
+        import random
+        t = re.sub(r"[^\w\s]", "", text.lower()).strip()
+        
+        # 1. Greetings: hello, hi, hey, namaste, etc.
+        if re.match(r"^(hi|hello|hey|heyy|heya|yo|sup|namaste|namaskar|pranam|hola|good day)(\s+(saathi|bhai|buddy|there|sir))?$", t):
+            options = [
+                "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
+                "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
+                "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
+                "At your service, Pratham. All neural links active. How can I help you right now?"
+            ]
+            return random.choice(options)
+            
+        # 2. How are you / Kaise ho
+        if re.match(r"^(how are you|kaise ho|kya haal hai|kya haal|sab theek|how do you do|hows it going|are you good)(\s+(saathi|bhai|sir))?$", t):
+            options = [
+                "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
+                "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
+                "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?"
+            ]
+            return random.choice(options)
+            
+        # 3. Identity / Who are you
+        if re.match(r"^(who are you|what is your name|tum kaun ho|aap kaun ho|apna naam batao|tell me about yourself)(\s+(saathi|bhai))?$", t):
+            return "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad. Main aapke computer controls, code, web projects, aur daily tasks ko effortlessly manage karne ke liye hamesha tayyar hoon."
+
+        # 4. What are you doing / Kya kar rahe ho
+        if re.match(r"^(what are you doing|kya kar rahe ho|busy ho kya|kya chal raha hai)(\s+(saathi|bhai))?$", t):
+            options = [
+                "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
+                "Standing by at full readiness, Pratham. Telemetry monitor ho rahi hai, ready whenever you are."
+            ]
+            return random.choice(options)
+
+        # 5. Presence check / Sun rahe ho / Are you there
+        if re.match(r"^(are you there|sun rahe ho|can you hear me|saathi|hey saathi|awake|ready)(\s+(saathi|bhai|sir))?$", t):
+            options = [
+                "Bilkul Pratham, main yahin hoon aur dhyan se sun raha hoon. Boliye, kya madad karoon?",
+                "Loud and clear, Pratham! I'm right here with you. What do you need?",
+                "Online and listening, sir. At your command."
+            ]
+            return random.choice(options)
+
+        # 6. Gratitude / Thank you
+        if re.match(r"^(thank you|thanks|shukriya|dhanyawaad|dhanyawad|great job|well done|good job|awesome)(\s+(saathi|bhai|sir))?$", t):
+            options = [
+                "Always at your service, Pratham. Aap bas focus rakhiye, baki sab main dekh loonga.",
+                "My pleasure, Pratham! Kabhi bhi zaroorat ho, I'm right here.",
+                "Anytime, sir. That's what a co-pilot is for. I've got your back."
+            ]
+            return random.choice(options)
+
+        # 7. Time of day greetings
+        if re.match(r"^(good morning)(\s+(saathi|bhai|sir))?$", t):
+            return "A very good morning, Pratham! System vitals nominal, mind clear. Let's make today productive and great."
+        if re.match(r"^(good afternoon)(\s+(saathi|bhai|sir))?$", t):
+            return "Good afternoon, Pratham! Systems are humming along nicely. What are we tackling this afternoon?"
+        if re.match(r"^(good evening)(\s+(saathi|bhai|sir))?$", t):
+            return "Good evening, Pratham! Ready for our evening run. Let me know what you'd like to work on."
+        if re.match(r"^(good night|shubh ratri)(\s+(saathi|bhai|sir))?$", t):
+            return "Shubh ratri, Pratham. Rest well and recharge. Main background telemetry guard kar raha hoon."
+
+        # 8. Farewell
+        if re.match(r"^(bye|goodbye|alvida|see you|catch you later)(\s+(saathi|bhai|sir))?$", t):
+            return "Take care, Pratham! Standing by in the background whenever you need me."
+
+        return None
+
+    def _get_progress_commentary(self, text: str) -> Optional[str]:
+        """Generate immediate verbal reassurance and explanation while long tasks execute."""
+        lowered = text.lower().strip()
+        
+        # 1. Website / App generation
+        if any(k in lowered for k in ("website", "web site", "webpage", "landing page", "portfolio")) and any(v in lowered for v in ("build", "create", "make", "design", "generate", "code", "banao")):
+            return "Right away, Pratham. I'm preparing your workspace and architecting the interactive components for your website now."
+
+        # 2. Downloads / Folder organization
+        if any(k in lowered for k in ("organize", "sort", "clean", "tidy")) and any(v in lowered for v in ("download", "downloads", "folder", "files", "desktop")):
+            return "On it, Pratham. Scanning your directory structure and preparing to categorize your files safely."
+
+        # 3. Weather / Climate
+        if any(k in lowered for k in ("weather", "temperature", "forecast", "barish", "rain", "mausam")):
+            return "Accessing live meteorological telemetry for your requested location now."
+
+        # 4. Currency / Finance
+        if any(k in lowered for k in ("currency", "exchange rate", "dollar to inr", "usd to inr", "rupee")):
+            return "Connecting to real-time financial exchange telemetry now."
+
+        # 5. Wikipedia / Research
+        if any(k in lowered for k in ("who was", "what is", "tell me about", "wikipedia", "history of", "explain")):
+            if len(lowered.split()) > 3:
+                return "Connecting to knowledge archives to compile an accurate briefing for you, Pratham."
+
+        # 6. Terminal commands
+        if any(k in lowered for k in ("run command", "terminal", "execute", "cmd", "powershell", "shell")):
+            return "Preparing terminal execution and verifying safety parameters."
+
+        # 7. Screenshot / Screen capture
+        if any(k in lowered for k in ("screenshot", "capture screen", "snapshot")):
+            return "Capturing display buffer to your project workspace now."
+
+        # 8. Reminders / Notes
+        if any(k in lowered for k in ("remind me", "reminder", "note:", "add note", "take a note")):
+            return "Logging that directive into your schedule ledger and neural memory now."
+
+        # 9. General coding / complex tasks
+        if any(k in lowered for k in ("code", "python", "script", "program", "function", "class", "debug", "file", "search")):
+            return "Analyzing your directive, Pratham. Running cognitive inference and planning the optimal execution path."
+
+        # Default commentary for substantial queries (> 5 words)
+        if len(lowered.split()) >= 6:
+            return "On it, Pratham. Processing your directive and calculating the best course of action."
+
+        return None
+
     def _execute_loop(self, text: str):
         model = self.pick_model(text)
         lowered = text.lower().strip()
 
-        # Check Automation Triggers First
+        # 1. Check Sub-10ms Instant Chit-Chat Reflex First!
+        instant_reply = self._try_instant_chit_chat(text)
+        if instant_reply:
+            self.messages.append({"role": "user", "content": text})
+            self.messages.append({"role": "assistant", "content": instant_reply})
+            if self.on_state_change:
+                self.on_state_change("COMPLETED", "Instant Reflex")
+            if self.on_reply_ready:
+                self.on_reply_ready(instant_reply)
+            return
+
+        # 2. Check & Announce Immediate Verbal Progress Commentary for Bigger Tasks
+        commentary = self._get_progress_commentary(text)
+        if commentary and self.on_commentary:
+            self.on_commentary(commentary)
+
+        # Check Automation Triggers
         matched_wf = self.automations.find_matching_workflow(text)
         if matched_wf:
             if self.on_state_change:

@@ -12,8 +12,12 @@ class TTSEngine:
         self.voice = voice
         self.is_playing = False
         self._stop_requested = threading.Event()
-        self._lock = threading.Lock()
+        self.last_speech_finish_time: float = 0.0
         self.on_amplitude_callback: Optional[Callable[[float], None]] = None
+
+    def is_speaking(self) -> bool:
+        """Returns True if TTS is actively playing or finished within cooldown period."""
+        return self.is_playing or (time.time() - self.last_speech_finish_time < 0.45)
 
     def stop(self):
         """Immediately interrupt and stop ongoing speech."""
@@ -25,6 +29,7 @@ class TTSEngine:
         except Exception:
             pass
         self.is_playing = False
+        self.last_speech_finish_time = time.time()
 
     def speak(self, text: str, on_start: Optional[Callable] = None, on_finish: Optional[Callable] = None) -> bool:
         self.stop()
@@ -70,6 +75,7 @@ class TTSEngine:
                 pass
             finally:
                 self.is_playing = False
+                self.last_speech_finish_time = time.time()
                 if on_finish:
                     on_finish()
 

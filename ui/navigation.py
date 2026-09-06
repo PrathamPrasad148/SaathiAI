@@ -16,6 +16,7 @@ class NavigationRail(tk.Frame):
 
         nav_items = [
             ("core", "⬡ COMMAND CENTER"),
+            ("chat", "💬 CHAT INTERFACE"),
             ("tasks", "◈ TASK OBSERVER"),
             ("projects", "🌐 PROJECTS & WEB"),
             ("automations", "⚡ AUTOMATIONS"),

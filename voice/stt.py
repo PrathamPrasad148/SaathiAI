@@ -17,12 +17,19 @@ class STTEngine:
                     self._model = WhisperModel(self.model_size, compute_type="int8")
         return self._model
 
-    def transcribe(self, audio_data: np.ndarray, language: str = "hi") -> str:
+    def transcribe(self, audio_data: np.ndarray, language: Optional[str] = None) -> str:
         if len(audio_data) == 0:
             return ""
         try:
             model = self._get_model()
-            segments, _ = model.transcribe(audio_data, language=language, vad_filter=True)
+            segments, _ = model.transcribe(
+                audio_data,
+                language=language,
+                beam_size=1,
+                best_of=1,
+                temperature=0.0,
+                vad_filter=True
+            )
             return " ".join(seg.text.strip() for seg in segments).strip()
         except Exception:
             return ""

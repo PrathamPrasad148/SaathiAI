@@ -1,17 +1,18 @@
 @echo off
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
-title Push SaathiAI to GitHub
+title Push Saathi AI to GitHub - Pratham Prasad
 
 set "REMOTE=https://github.com/PrathamPrasad148/SaathiAI.git"
 set "COMMIT_MESSAGE=%~1"
-if "%COMMIT_MESSAGE%"=="" set "COMMIT_MESSAGE=Update SaathiAI (%DATE% %TIME%)"
+if "%COMMIT_MESSAGE%"=="" set "COMMIT_MESSAGE=Update Saathi AI by Pratham Prasad (%DATE% %TIME%)"
 
 echo.
 echo ========================================================
-echo               Saathi AI - GitHub Publisher
+echo        Saathi AI - GitHub Publisher (Pratham Prasad)
 echo ========================================================
 echo Remote: %REMOTE%
+echo Commit: %COMMIT_MESSAGE%
 echo.
 
 :: 1. Check Git availability
@@ -28,17 +29,10 @@ if not exist ".git" (
     if errorlevel 1 goto FAILED
 )
 
-:: 3. Ensure Git identity is set
-git config user.name >nul 2>&1
-if errorlevel 1 (
-    echo [INFO] Configuring default Git username...
-    git config user.name "PrathamPrasad148"
-)
-git config user.email >nul 2>&1
-if errorlevel 1 (
-    echo [INFO] Configuring default Git email...
-    git config user.email "prathamprasad148@users.noreply.github.com"
-)
+:: 3. Configure Git author identity
+echo [INFO] Configuring Git credentials for Pratham Prasad...
+git config user.name "Pratham Prasad"
+git config user.email "prathamprasad148@users.noreply.github.com"
 
 :: 4. Ensure main branch
 git branch -M main
@@ -69,7 +63,7 @@ if errorlevel 1 (
     echo [INFO] Everything is already up to date locally.
 )
 
-:: 8. Push to GitHub
+:: 8. Push to GitHub with automatic conflict handling
 echo [INFO] Pushing everything to GitHub...
 git push -u origin main
 if errorlevel 1 (
@@ -87,7 +81,8 @@ if errorlevel 1 goto FAILED
 
 echo.
 echo ========================================================
-echo [SUCCESS] Everything has been pushed to GitHub!
+echo [SUCCESS] Saathi AI successfully pushed to GitHub!
+echo Author: Pratham Prasad
 echo URL: %REMOTE%
 echo ========================================================
 goto DONE
@@ -100,6 +95,4 @@ echo connection and GitHub repository permissions.
 echo ========================================================
 
 :DONE
-pause
 exit /b 0
-

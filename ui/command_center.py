@@ -10,9 +10,9 @@ from .chat_view import ChatStreamView
 
 class CommandCenterView(tk.Frame):
     """
-    Stark Expo 2010 Master Command Console.
+    Pratham Prasad Master Command Console.
     Unifies:
-    - Master Stark Expo 2010 Holographic HUD Engine (Panoramic Canvas)
+    - Master Saathi Holographic HUD Engine (Panoramic Canvas)
     - Interactive HUD Nodes (Clicking on Games, Programs, News, Weather triggers directives)
     - Collapsible Holographic HUD Chat Feed
     - Tactical Command Deck with Voice PTT and Emergency Abort
@@ -28,7 +28,7 @@ class CommandCenterView(tk.Frame):
         self.on_stop_task = on_stop_task
         self.chat_visible = False
 
-        # 1. Master Panoramic Stark Expo HUD Canvas
+        # 1. Master Panoramic Saathi HUD Canvas
         self.hud_container = tk.Frame(self, bg="#01040a")
         self.hud_container.pack(fill="both", expand=True)
 

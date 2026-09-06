@@ -14,11 +14,11 @@ from automation.system import get_system_telemetry
 
 class TopTelemetryBar(tk.Frame):
     """
-    Stark Industries Top Telemetry & Chronometer HUD.
+    Pratham Prasad Top Telemetry & Chronometer HUD.
     Includes:
     - 31-day horizontal calendar matrix with active day highlight
     - Grid telemetry coordinates & local network IP
-    - Stark Industries / Saathi OS 2.0 branding
+    - Pratham Prasad / Saathi OS 2.0 branding
     - System uptime counter & live precision chronometer
     - Sleek AI model selector
     """
@@ -41,7 +41,7 @@ class TopTelemetryBar(tk.Frame):
         left_frame = tk.Frame(self.main_row, bg=COLOR_PANEL)
         left_frame.pack(side="left")
 
-        tk.Label(left_frame, text="STARK INDUSTRIES", font=("Segoe UI", 9, "bold"), bg=COLOR_PANEL, fg="#38bdf8").pack(anchor="w")
+        tk.Label(left_frame, text="PRATHAM PRASAD", font=("Segoe UI", 9, "bold"), bg=COLOR_PANEL, fg="#38bdf8").pack(anchor="w")
         
         brand_row = tk.Frame(left_frame, bg=COLOR_PANEL)
         brand_row.pack(anchor="w")

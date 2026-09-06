@@ -17,17 +17,17 @@ from automation.system import get_system_telemetry
 
 class AICoreVisualizer(tk.Canvas):
     """
-    STARK EXPO 2010 // HYPER-ADVANCED IRON MAN JARVIS HOLOGRAPHIC COMMAND CENTER HUD
-    All English, ultra-dense, military-grade Stark Industries telemetry:
+    PRATHAM EXPO // HYPER-ADVANCED SAATHI HOLOGRAPHIC COMMAND CENTER HUD
+    All English, ultra-dense, military-grade Pratham Prasad telemetry:
     1. Top 30-Day Matrix Ribbon (01..30) with active day highlighted in glowing cyan
-    2. Grid Location: 'Stark Tower // New Delhi, India // Sector 07 // Secure'
+    2. Grid Location: 'Pratham Tower // New Delhi, India // Sector 07 // Secure'
     3. Media Player Header: Frequency oscilloscope & live acoustic stream ('Laichzeit // Edge TTS')
     4. Circular Chronometer Dial (02:40) with outer progress calibration arc
     5. Top-Left Giant Date Dial (SEPTEMBER 21 // THURSDAY // 01:06:39 // SECONDS CHRONOMETER)
     6. Upper-Left RAM (15%) & SWAP (49%) dual concentric telemetry gauge
     7. Multi-Core CPU Gauge (0.74 / 1.57 GHz) + 8-Core Thread Load Equalizer (C0..C7)
     8. Storage Volume Monitor (Total: 512 GB // Free: 184 GB // NVMe RAID 0)
-    9. Stark Expo 2010 Atom Hologram with 3 rotating 3D orbital electron rings
+    9. Pratham Expo Atom Hologram with 3 rotating 3D orbital electron rings
     10. Artificial Horizon & Flight Pitch Ladder (Pitch +20 to -20 with roll angle)
     11. Reactor Energy Meter (100% // Peak Output // Magnetic Containment 14.8 T)
     12. Trash Repository & System Uptime Telemetry (0 Objects // Uptime: 0d 4h 18m)
@@ -44,7 +44,7 @@ class AICoreVisualizer(tk.Canvas):
         - Real-time 48-channel audio spectrum equalizer with peak-hold bars
         - Floating hex memory address stream (0x7F // 0xA9 // ADDR_CORE // FLUX_OK)
         - Bottom launcher nodes: ● Games, ● Programs, ● Cloud Drive, ● Electronics
-        - STARK INDUSTRIES tactical forward-slash badge
+        - PRATHAM PRASAD tactical forward-slash badge
     16. 3D Rotating Holographic Gyroscope Wireframe Cube in right HUD preview frame
     17. Tactical Radar Scope with 360° sweeping line and 4 active pulsing target blips
     18. Real-Time Tactical Intel Stream (Kinopoisk, Defense Grid, Neural Sync, Satellite Patrol)
@@ -278,8 +278,8 @@ class AICoreVisualizer(tk.Canvas):
         # --- 7. MID-LEFT DISK STORAGE & NVMe MONITOR ---
         self._draw_storage_volume_monitor(125, 260)
 
-        # --- 8. STARK EXPO 2010 ATOM HOLOGRAM ---
-        self._draw_stark_expo_atom_hologram(275, 275)
+        # --- 8. PRATHAM EXPO ATOM HOLOGRAM ---
+        self._draw_pratham_expo_atom_hologram(275, 275)
 
         # --- 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER ---
         self._draw_pitch_horizon_ladder(275, 385)
@@ -299,7 +299,7 @@ class AICoreVisualizer(tk.Canvas):
         # --- 14. THE GRAND MASTER ARC REACTOR CORE ---
         self._draw_grand_arc_reactor(cx, cy, core_cyan, glow_blue, accent_red)
 
-        # --- 15. BOTTOM LAUNCHER NODES & STARK INDUSTRIES BADGE ---
+        # --- 15. BOTTOM LAUNCHER NODES & PRATHAM PRASAD BADGE ---
         self._draw_bottom_launchers(cx, cy + 185)
 
         # --- 16. MID-RIGHT 3D ROTATING GYROSCOPE CUBE & RADAR SCOPE ---
@@ -372,7 +372,7 @@ class AICoreVisualizer(tk.Canvas):
         # Grid Coordinates & Location
         self.create_text(
             w - 230, 26,
-            text="STARK TOWER // NEW DELHI // SECTOR 07 // GRID SECURE",
+            text="PRATHAM TOWER // NEW DELHI // SECTOR 07 // GRID SECURE",
             font=FONT_HUD_TINY,
             fill="#38bdf8",
             anchor="e"
@@ -501,9 +501,9 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x, y + 38, text=f"FREE SPACE: {free_gb} GB", font=FONT_HUD_TINY, fill="#00ffaa", anchor="w")
 
     # -------------------------------------------------------------
-    # 8. STARK EXPO 2010 ATOM HOLOGRAM
+    # 8. PRATHAM EXPO ATOM HOLOGRAM
     # -------------------------------------------------------------
-    def _draw_stark_expo_atom_hologram(self, x, y):
+    def _draw_pratham_expo_atom_hologram(self, x, y):
         rx = 48
         ry = 16
         for idx, base_angle in enumerate((0, math.pi / 3, 2 * math.pi / 3)):
@@ -527,9 +527,9 @@ class AICoreVisualizer(tk.Canvas):
             py_e = y + ex_e * math.sin(rot) + ey_e * math.cos(rot)
             self.create_oval(px_e - 2, py_e - 2, px_e + 2, py_e + 2, fill="#00f0ff", outline="")
 
-        self.create_text(x, y - 8, text="STARK", font=("Segoe UI", 9, "bold"), fill="#38bdf8")
-        self.create_text(x, y + 6, text="EXPO", font=("Segoe UI", 13, "bold"), fill="#ffffff")
-        self.create_text(x, y + 18, text="2010", font=("Segoe UI", 7, "bold"), fill="#00f0ff")
+        self.create_text(x, y - 8, text="PRATHAM", font=("Segoe UI", 9, "bold"), fill="#38bdf8")
+        self.create_text(x, y + 6, text="PRASAD", font=("Segoe UI", 12, "bold"), fill="#ffffff")
+        self.create_text(x, y + 18, text="AI LABS", font=("Segoe UI", 7, "bold"), fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER
@@ -615,7 +615,7 @@ class AICoreVisualizer(tk.Canvas):
     # 14. THE GRAND MASTER ARC REACTOR CORE
     # -------------------------------------------------------------
     def _draw_grand_arc_reactor(self, cx, cy, core_cyan, glow_blue, accent_red):
-        """Draw the hyper-intricate Stark Industries Arc Reactor assembly."""
+        """Draw the hyper-intricate Pratham Prasad Saathi Arc Reactor assembly."""
         # --- Ring 0: Outer Vernier Compass Calibration Ring (R = 175) ---
         r_compass = 172
         self.create_oval(cx - r_compass, cy - r_compass, cx + r_compass, cy + r_compass, outline="#0c3058", width=1)
@@ -760,7 +760,7 @@ class AICoreVisualizer(tk.Canvas):
             self.create_rectangle(bx, eq_base_y - wave_h, bx + bar_w, eq_base_y + wave_h, fill=core_cyan, outline="")
 
     # -------------------------------------------------------------
-    # 15. BOTTOM LAUNCHER NODES & STARK INDUSTRIES BADGE
+    # 15. BOTTOM LAUNCHER NODES & PRATHAM PRASAD BADGE
     # -------------------------------------------------------------
     def _draw_bottom_launchers(self, cx, base_y):
         launchers = ["Games", "Programs", "Cloud Drive", "Electronics"]
@@ -773,13 +773,13 @@ class AICoreVisualizer(tk.Canvas):
         self.create_rectangle(cx + 20, base_y + 8, cx + 42, base_y + 24, outline="#00f0ff", fill="#061a33")
         self.create_oval(cx + 28, base_y + 13, cx + 34, base_y + 19, fill="#00f0ff", outline="")
 
-        # STARK INDUSTRIES Tactical Slash Banner
+        # PRATHAM PRASAD Tactical Slash Banner
         banner_y = base_y + 72
         self.create_polygon(
-            cx - 130, banner_y + 8, cx - 118, banner_y - 8, cx + 118, banner_y - 8,
-            cx + 130, banner_y + 8, fill="", outline="#0e3a6c", width=1
+            cx - 140, banner_y + 8, cx - 128, banner_y - 8, cx + 128, banner_y - 8,
+            cx + 140, banner_y + 8, fill="", outline="#0e3a6c", width=1
         )
-        self.create_text(cx, banner_y, text="STARK INDUSTRIES", font=("Segoe UI", 11, "bold"), fill="#00f0ff")
+        self.create_text(cx, banner_y, text="PRATHAM PRASAD // SAATHI AI", font=("Segoe UI", 11, "bold"), fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 16. 3D ROTATING GYROSCOPE CUBE & RADAR SCOPE

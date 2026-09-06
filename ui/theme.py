@@ -1,4 +1,4 @@
-# --- Stark Industries / Jarvis Holographic HUD Tokens ---
+# --- Pratham Prasad / Saathi AI Holographic HUD Tokens ---
 COLOR_BG = "#02050e"             # Deep Cosmic Obsidian Space
 COLOR_PANEL = "#040b1a"          # Dark Glass Panel
 COLOR_CARD = "#071329"           # Elevated Card Surface

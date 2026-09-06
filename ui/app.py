@@ -16,7 +16,7 @@ from .settings_view import SettingsView
 
 class SaathiApp:
     """
-    Master Jarvis Desktop Operating System Shell for Saathi AI.
+    Master Pratham Prasad Desktop Operating System Shell for Saathi AI.
     Integrates Telemetry, Navigation, AI Visualizer, Real-Time Task Observer, and Modular Views.
     """
     def __init__(self,
@@ -37,7 +37,7 @@ class SaathiApp:
         self.automations = automation_engine
         self.permissions = permission_manager
 
-        self.root.title("STARK EXPO 2010 // IRON MAN JARVIS HOLOGRAPHIC HUD // SAATHI AI")
+        self.root.title("PRATHAM PRASAD // SAATHI AI — COGNITIVE OPERATING INTERFACE")
         self.root.geometry("1480x920")
         self.root.minsize(1120, 720)
         self.root.configure(bg=COLOR_BG)

@@ -1,6 +1,6 @@
 """
-Saathi AI ? Agentic Desktop Operating Interface
-Jarvis-like Intelligent Presence for Windows with Autonomous Computer Control,
+Saathi AI — Agentic Desktop Operating Interface
+Created by Pratham Prasad: Intelligent Presence for Windows with Autonomous Computer Control,
 Live AI Visualizer Core, Real-Time Task Observer, and Non-Blocking Voice Pipeline.
 """
 from __future__ import annotations

@@ -63,8 +63,8 @@ class VoiceEngine:
         try:
             import sounddevice as sd
             block_size = 1024
-            # 0.40s of silence after speech indicates utterance completion (snappy turnaround)
-            max_silence_after_speech = int(self.sample_rate / block_size * 0.40)
+            # 0.28s of silence after speech indicates utterance completion (snappy turnaround)
+            max_silence_after_speech = int(self.sample_rate / block_size * 0.28)
 
             with sd.InputStream(samplerate=self.sample_rate, channels=1, dtype="float32", blocksize=block_size) as stream:
                 speech_detected = False

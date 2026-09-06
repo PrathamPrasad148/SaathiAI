@@ -105,44 +105,51 @@ class AgentPlanner:
         t = threading.Thread(target=self._execute_loop, args=(text,), daemon=True)
         t.start()
 
+    def _normalize_conversational_text(self, text: str) -> str:
+        """Normalizes casual typing, typos, repeated characters, and phonetic speech variations."""
+        t = re.sub(r"[^\w\s]", " ", text.lower()).strip()
+        replacements = {
+            "helloo": "hello", "hellooo": "hello", "helo": "hello", "heyy": "hey", "heyyy": "hey",
+            "wharts": "whats", "wats": "whats", "wassup": "whats up", "sup": "whats up",
+            "areyou": "are you", "howare": "how are", "howareyou": "how are you",
+            "thwere": "there", "ther": "there", "u": "you", "r": "are", "ur": "your",
+            "kese": "kaise", "kaisey": "kaise", "kaiseho": "kaise ho",
+            "shukriyaa": "shukriya", "thanx": "thanks", "thx": "thanks"
+        }
+        words = [replacements.get(w, w) for w in t.split()]
+        joined = " ".join(words)
+        joined = re.sub(r"\bareyou\b", "are you", joined)
+        joined = re.sub(r"\bhowareyou\b", "how are you", joined)
+        joined = re.sub(r"\bwhatsup\b", "whats up", joined)
+        return joined
+
     def _try_instant_chit_chat(self, text: str) -> Optional[str]:
-        """Sub-10ms Instant Reflex Engine for greetings, pleasantries, affirmations, and general chit-chat."""
+        """Sub-5ms Instant Reflex Engine with multi-intent recognition for typos and conversational speech."""
         import random
-        t = re.sub(r"[^\w\s]", "", text.lower()).strip()
-        
-        # 1. Greetings: hello, hi, hey, namaste, etc.
-        if re.match(r"^(hi|hello|hey|heyy|heya|yo|sup|namaste|namaskar|pranam|hola|good day)(\s+(saathi|bhai|buddy|there|sir))?$", t):
-            options = [
-                "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
-                "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
-                "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
-                "At your service, Pratham. All neural links active. How can I help you right now?"
-            ]
-            return random.choice(options)
-            
-        # 2. How are you / Kaise ho
-        if re.match(r"^(how are you|kaise ho|kya haal hai|kya haal|sab theek|how do you do|hows it going|are you good)(\s+(saathi|bhai|sir))?$", t):
-            options = [
-                "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
-                "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
-                "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?"
-            ]
-            return random.choice(options)
-            
-        # 3. Identity / Who are you / Who created you
-        if re.match(r"^(who are you|what is your name|tum kaun ho|aap kaun ho|apna naam batao|tell me about yourself|who made you|who created you|tumhe kisne banaya)(\s+(saathi|bhai))?$", t):
-            return "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad. Main aapke computer controls, code, web projects, aur daily tasks ko effortlessly manage karne ke liye hamesha tayyar hoon."
+        norm = self._normalize_conversational_text(text)
+        if not norm:
+            return None
 
-        # 4. What are you doing / Kya kar rahe ho
-        if re.match(r"^(what are you doing|kya kar rahe ho|busy ho kya|kya chal raha hai)(\s+(saathi|bhai))?$", t):
-            options = [
-                "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
-                "Standing by at full readiness, Pratham. Telemetry monitor ho rahi hai, ready whenever you are."
-            ]
-            return random.choice(options)
+        has_hello = bool(re.search(r"\b(hi|hello|hey|yo|namaste|pranam|hola|good morning|good evening|good afternoon)\b", norm))
+        has_how_are_you = bool(re.search(r"\b(how are you|kaise ho|kya haal|sab theek|hows it going|how do you do|are you good|how are u)\b", norm))
+        has_whats_up = bool(re.search(r"\b(whats up|what are you doing|kya kar rahe ho|kya chal raha hai|whats going on)\b", norm))
+        has_are_you_there = bool(re.search(r"\b(are you there|you there|sun rahe ho|can you hear me|awake|ready)\b", norm))
+        has_who_are_you = bool(re.search(r"\b(who are you|what is your name|tum kaun ho|aap kaun ho|who made you|who created you|tumhe kisne banaya)\b", norm))
+        has_affirmation = bool(re.search(r"\b(ok|okay|theek hai|cool|nice|great|got it|understood)\b", norm))
+        has_thanks = bool(re.search(r"\b(thank you|thanks|shukriya|dhanyawad)\b", norm))
+        has_bye = bool(re.search(r"\b(bye|goodbye|alvida|see you)\b", norm))
+        has_joke = bool(re.search(r"\b(joke|make me laugh|koi joke)\b", norm))
+        has_capabilities = bool(re.search(r"\b(what can you do|kya kar sakte ho|features|help|madad|capabilities)\b", norm))
 
-        # 5. Presence check / Sun rahe ho / Are you there
-        if re.match(r"^(are you there|sun rahe ho|can you hear me|saathi|hey saathi|awake|ready)(\s+(saathi|bhai|sir))?$", t):
+        # 1. Combined rapid conversational greeting (e.g. "hello saathi how are you whats up are you there")
+        if has_hello and (has_how_are_you or has_whats_up or has_are_you_there):
+            return "Hello Pratham! I'm right here with you and running at peak performance. Sab theek-thaak—how can I back you up today?"
+
+        if has_how_are_you and (has_whats_up or has_are_you_there):
+            return "I'm doing fantastic, Pratham! All systems nominal and ready for your command. What are we working on?"
+
+        # 2. Presence check ("are you there", "sun rahe ho")
+        if has_are_you_there:
             options = [
                 "Bilkul Pratham, main yahin hoon aur dhyan se sun raha hoon. Boliye, kya madad karoon?",
                 "Loud and clear, Pratham! I'm right here with you. What do you need?",
@@ -150,8 +157,39 @@ class AgentPlanner:
             ]
             return random.choice(options)
 
-        # 6. Gratitude / Thank you
-        if re.match(r"^(thank you|thanks|shukriya|dhanyawaad|dhanyawad|great job|well done|good job|awesome)(\s+(saathi|bhai|sir))?$", t):
+        # 3. Status query ("what's up", "kya kar rahe ho")
+        if has_whats_up:
+            options = [
+                "Aapke system vitals aur background telemetry ko guard kar raha hoon, Pratham. Bas agle command ka intezar hai.",
+                "Not much, Pratham—just monitoring system telemetry and ready whenever you are. What's up with you?"
+            ]
+            return random.choice(options)
+
+        # 4. Wellbeing ("how are you", "kaise ho")
+        if has_how_are_you:
+            options = [
+                "Main bilkul behtareen hoon, Pratham. Aap suniye, kaisa chal raha hai sab? I've got your back.",
+                "Systems 100% nominal hain, Pratham! Bas aapke directives ka wait kar raha hoon. Sab kushal mangal?",
+                "Running at peak operational performance! Aapka din kaisa ja raha hai, Pratham?"
+            ]
+            return random.choice(options)
+
+        # 5. Single greeting ("hello", "hi", "hey")
+        if has_hello:
+            options = [
+                "Hello Pratham! Saathi at your service. Tell me, how can I back you up today?",
+                "Hey Pratham! Main bilkul ready hoon. Boliye, aaj kya plan hai?",
+                "Namaste Pratham! Sab systems nominal hain. Bataiye, kya execute karna hai?",
+                "At your service, Pratham. All neural links active. How can I help you right now?"
+            ]
+            return random.choice(options)
+
+        # 6. Identity / Who are you / Creator
+        if has_who_are_you:
+            return "Main Saathi hoon — aapka personal AI cognitive co-pilot, created by Pratham Prasad. Main aapke computer controls, code, web projects, aur daily tasks ko effortlessly manage karne ke liye hamesha tayyar hoon."
+
+        # 7. Gratitude / Thanks
+        if has_thanks:
             options = [
                 "Always at your service, Pratham. Aap bas focus rakhiye, baki sab main dekh loonga.",
                 "My pleasure, Pratham! Kabhi bhi zaroorat ho, I'm right here.",
@@ -159,8 +197,8 @@ class AgentPlanner:
             ]
             return random.choice(options)
 
-        # 7. Affirmations: ok, okay, theek hai, cool, great, understood
-        if re.match(r"^(ok|okay|theek hai|achha|cool|nice|great|got it|understood)(\s+(saathi|bhai|sir))?$", t):
+        # 8. Affirmations ("ok", "theek hai")
+        if has_affirmation:
             options = [
                 "Bilkul Pratham! Ready whenever you are.",
                 "Understood, sir. Standing by.",
@@ -168,26 +206,16 @@ class AgentPlanner:
             ]
             return random.choice(options)
 
-        # 8. Capabilities / What can you do
-        if re.match(r"^(what can you do|kya kar sakte ho|features|help|madad|capabilities)(\s+(saathi|bhai|sir))?$", t):
+        # 9. Capabilities ("what can you do")
+        if has_capabilities:
             return "Main websites build kar sakta hoon, files organize kar sakta hoon, terminal commands safely run kar sakta hoon, live weather aur currency check kar sakta hoon, aur reminders manage karta hoon. Jo bolein, execute kar denge!"
 
-        # 9. Humor / Joke
-        if re.match(r"^(tell me a joke|koi joke sunao|joke|make me laugh)(\s+(saathi|bhai|sir))?$", t):
+        # 10. Humor / Joke
+        if has_joke:
             return "Ek developer ne doosre se poocha: 'Zindagi mein itna stress kyun hai?' Doosra bola: 'Semicolon missing tha bhai, code compile hi nahi ho rahi!' Always keep smiling, Pratham!"
 
-        # 10. Time of day greetings
-        if re.match(r"^(good morning)(\s+(saathi|bhai|sir))?$", t):
-            return "A very good morning, Pratham! System vitals nominal, mind clear. Let's make today productive and great."
-        if re.match(r"^(good afternoon)(\s+(saathi|bhai|sir))?$", t):
-            return "Good afternoon, Pratham! Systems are humming along nicely. What are we tackling this afternoon?"
-        if re.match(r"^(good evening)(\s+(saathi|bhai|sir))?$", t):
-            return "Good evening, Pratham! Ready for our evening run. Let me know what you'd like to work on."
-        if re.match(r"^(good night|shubh ratri)(\s+(saathi|bhai|sir))?$", t):
-            return "Shubh ratri, Pratham. Rest well and recharge. Main background telemetry guard kar raha hoon."
-
-        # 11. Farewell
-        if re.match(r"^(bye|goodbye|alvida|see you|catch you later)(\s+(saathi|bhai|sir))?$", t):
+        # 11. Farewell ("bye")
+        if has_bye:
             return "Take care, Pratham! Standing by in the background whenever you need me."
 
         return None

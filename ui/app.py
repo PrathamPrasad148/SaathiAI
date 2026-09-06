@@ -37,9 +37,9 @@ class SaathiApp:
         self.automations = automation_engine
         self.permissions = permission_manager
 
-        self.root.title("STARK INDUSTRIES // SAATHI AI — MARK VII OPERATING INTERFACE")
-        self.root.geometry("1280x840")
-        self.root.minsize(1020, 700)
+        self.root.title("STARK EXPO 2010 // IRON MAN JARVIS HOLOGRAPHIC HUD // SAATHI AI")
+        self.root.geometry("1480x920")
+        self.root.minsize(1120, 720)
         self.root.configure(bg=COLOR_BG)
 
         # 1. Top Telemetry Bar
@@ -126,7 +126,11 @@ class SaathiApp:
 
         # Agent final reply -> Chat Stream + Edge TTS
         def on_reply(reply):
-            self.root.after(0, lambda: cmd_center.chat_view.append_message("assistant", reply))
+            def _show():
+                if not cmd_center.chat_visible:
+                    cmd_center.toggle_chat_drawer()
+                cmd_center.chat_view.append_message("assistant", reply)
+            self.root.after(0, _show)
             self.voice.tts.speak(
                 reply,
                 on_start=lambda: self.root.after(0, lambda: cmd_center.visualizer.set_state("SPEAKING")),

@@ -10,11 +10,11 @@ from .chat_view import ChatStreamView
 
 class CommandCenterView(tk.Frame):
     """
-    Stark Industries Master Command Center Console.
+    Stark Expo 2010 Master Command Console.
     Unifies:
-    - Master Mark VII Arc Reactor & Telemetry Visualizer Core
-    - Tactical Protocol Launchers (Websites, Workflows, Memory, System)
-    - High-Tech Chat Stream
+    - Master Stark Expo 2010 Holographic HUD Engine (Panoramic Canvas)
+    - Interactive HUD Nodes (Clicking on Games, Programs, News, Weather triggers directives)
+    - Collapsible Holographic HUD Chat Feed
     - Tactical Command Deck with Voice PTT and Emergency Abort
     """
     def __init__(self, parent,
@@ -22,72 +22,43 @@ class CommandCenterView(tk.Frame):
                  on_toggle_voice: Callable[[], None],
                  on_stop_task: Callable[[], None],
                  **kwargs):
-        super().__init__(parent, bg=COLOR_BG, **kwargs)
+        super().__init__(parent, bg="#01040a", **kwargs)
         self.on_send_command = on_send_command
         self.on_toggle_voice = on_toggle_voice
         self.on_stop_task = on_stop_task
+        self.chat_visible = False
 
-        # 1. Top Section: Panoramic Stark Arc Reactor HUD
-        self.core_frame = tk.Frame(self, bg=COLOR_BG, pady=2)
-        self.core_frame.pack(fill="x")
+        # 1. Master Panoramic Stark Expo HUD Canvas
+        self.hud_container = tk.Frame(self, bg="#01040a")
+        self.hud_container.pack(fill="both", expand=True)
 
-        self.visualizer = AICoreVisualizer(self.core_frame, width=860, height=265)
-        self.visualizer.pack(fill="x", expand=True, padx=6)
+        self.visualizer = AICoreVisualizer(
+            self.hud_container,
+            width=1380,
+            height=660,
+            on_node_click=self._handle_hud_click
+        )
+        self.visualizer.pack(fill="both", expand=True)
 
-        # 2. Tactical Protocol Ribbon (Direct Protocol Launchers like the image)
-        self.proto_ribbon = tk.Frame(self, bg=COLOR_PANEL, padx=8, pady=4, highlightthickness=1, highlightbackground=COLOR_BORDER)
-        self.proto_ribbon.pack(fill="x", padx=10, pady=(2, 6))
+        # 2. Collapsible Holographic HUD Chat Feed (Glass Terminal)
+        self.chat_frame = tk.Frame(self, bg="#040b1a", height=180, highlightthickness=1, highlightbackground="#0c2847")
+        self.chat_view = ChatStreamView(self.chat_frame)
+        self.chat_view.pack(fill="both", expand=True, padx=8, pady=4)
+        # By default, keep collapsed to display 100% pure Iron Man HUD, but readily toggleable
 
-        tk.Label(
-            self.proto_ribbon,
-            text="TACTICAL PROTOCOLS:",
-            font=FONT_HUD_TINY,
-            bg=COLOR_PANEL,
-            fg="#38bdf8"
-        ).pack(side="left", padx=(4, 10))
+        # 3. Bottom Tactical Directive Deck
+        self.deck = tk.Frame(self, bg="#040b1a", padx=12, pady=8, highlightthickness=1, highlightbackground="#0c2847")
+        self.deck.pack(fill="x", side="bottom")
 
-        protocols = [
-            ("🌐 GOD-MODE WEB", "Create a futuristic AI dashboard website"),
-            ("⚡ RUN WORKFLOW", "Run workflow Morning Routine"),
-            ("🧠 RECALL MEMORY", "What do you know about my preferences?"),
-            ("💻 SYS HEALTH", "Check system resources and running processes"),
-            ("🛡️ DIAGNOSTICS", "Run complete diagnostic check on all tools")
-        ]
-
-        for label, cmd in protocols:
-            b = tk.Button(
-                self.proto_ribbon,
-                text=label,
-                font=FONT_HUD_TINY,
-                bg="#08182f",
-                fg=COLOR_TEXT_MUTED,
-                activebackground="#0e345e",
-                activeforeground=COLOR_CYAN,
-                relief="flat",
-                padx=8,
-                pady=2,
-                cursor="hand2",
-                command=lambda c=cmd: self.on_send_command(c)
-            )
-            b.pack(side="left", padx=3)
-
-        # 3. Middle: Chat Stream View
-        self.chat_view = ChatStreamView(self)
-        self.chat_view.pack(fill="both", expand=True, padx=10, pady=(0, 6))
-
-        # 4. Bottom: Tactical Command Deck
-        deck = tk.Frame(self, bg=COLOR_PANEL, padx=12, pady=8, highlightthickness=1, highlightbackground=COLOR_BORDER)
-        deck.pack(fill="x", side="bottom", padx=10, pady=(0, 8))
-
-        # Acoustic Sensors / Voice Button
+        # Acoustic Voice Sensor Button
         self.btn_mic = tk.Button(
-            deck,
+            self.deck,
             text="🎙️ LISTEN",
             font=FONT_BOLD,
-            bg="#091c36",
+            bg="#081e3a",
             fg=COLOR_CYAN,
             activebackground=COLOR_CYAN,
-            activeforeground="#04060c",
+            activeforeground="#01040a",
             relief="flat",
             padx=14,
             pady=7,
@@ -96,29 +67,29 @@ class CommandCenterView(tk.Frame):
         )
         self.btn_mic.pack(side="left", padx=(0, 10))
 
-        # Tactical Input Entry
+        # Directive Input Entry
         self.input_entry = tk.Entry(
-            deck,
-            bg=COLOR_CARD,
+            self.deck,
+            bg="#061326",
             fg=COLOR_TEXT,
             insertbackground=COLOR_CYAN,
             font=("Segoe UI", 11),
             relief="flat",
             highlightthickness=1,
-            highlightbackground=COLOR_BORDER
+            highlightbackground="#0e3a6c"
         )
         self.input_entry.pack(side="left", fill="x", expand=True, ipady=7, padx=(0, 10))
         self.input_entry.bind("<Return>", lambda e: self._submit())
 
-        # Transmit / Send Directive Button
+        # Transmit Directive Button
         btn_send = tk.Button(
-            deck,
+            self.deck,
             text="TRANSMIT ❯",
             font=FONT_BOLD,
             bg=COLOR_CYAN,
-            fg="#02050e",
+            fg="#01040a",
             activebackground="#38bdf8",
-            activeforeground="#02050e",
+            activeforeground="#01040a",
             relief="flat",
             padx=16,
             pady=7,
@@ -127,9 +98,26 @@ class CommandCenterView(tk.Frame):
         )
         btn_send.pack(side="left", padx=(0, 8))
 
+        # Toggle HUD Chat Stream Button
+        self.btn_toggle_chat = tk.Button(
+            self.deck,
+            text="💬 HUD LOG",
+            font=FONT_HUD_LABEL,
+            bg="#082240",
+            fg="#38bdf8",
+            activebackground="#0e3a6c",
+            activeforeground="#00f0ff",
+            relief="flat",
+            padx=12,
+            pady=7,
+            cursor="hand2",
+            command=self.toggle_chat_drawer
+        )
+        self.btn_toggle_chat.pack(side="left", padx=(0, 8))
+
         # Emergency Abort Button
         btn_stop = tk.Button(
-            deck,
+            self.deck,
             text="🛑 ABORT",
             font=FONT_BOLD,
             bg="#2a0d14",
@@ -144,8 +132,48 @@ class CommandCenterView(tk.Frame):
         )
         btn_stop.pack(side="left")
 
+    def toggle_chat_drawer(self):
+        if self.chat_visible:
+            self.chat_frame.pack_forget()
+            self.chat_visible = False
+            self.btn_toggle_chat.configure(text="💬 HUD LOG", bg="#082240", fg="#38bdf8")
+        else:
+            self.chat_frame.pack(fill="x", side="bottom", before=self.deck)
+            self.chat_visible = True
+            self.btn_toggle_chat.configure(text="▲ HIDE LOG", bg="#00f0ff", fg="#01040a")
+
     def _submit(self):
         txt = self.input_entry.get().strip()
         if txt:
             self.input_entry.delete(0, "end")
+            # Automatically show chat drawer when user transmits so they see response
+            if not self.chat_visible:
+                self.toggle_chat_drawer()
             self.on_send_command(txt)
+
+    def _handle_hud_click(self, x: int, y: int):
+        """Handle interactive clicks on HUD widgets."""
+        w = self.visualizer.width
+        h = self.visualizer.height
+        cx = w * 0.47
+        cy = h * 0.46
+
+        # Check click near Bottom Launchers (Games, Programs, Skydrive, Electronics)
+        if cx - 80 <= x <= cx + 60 and cy + 180 <= y <= cy + 250:
+            rel_y = y - (cy + 180)
+            if rel_y < 18:
+                self.on_send_command("List installed games and launch gaming protocol")
+            elif rel_y < 36:
+                self.on_send_command("List open windows and running programs")
+            elif rel_y < 54:
+                self.on_send_command("Open Projects and documents folder")
+            else:
+                self.on_send_command("Check system hardware and CPU diagnostics")
+
+        # Check click near Weather station (Far Right)
+        elif x >= w - 210 and y <= 350:
+            self.on_send_command("Give me a detailed weather report and atmospheric conditions")
+
+        # Check click near News Feed (Mid Right)
+        elif cx + 250 <= x <= w - 220 and cy - 140 <= y <= cy:
+            self.on_send_command("Summarize today's latest tech news and active protocols")

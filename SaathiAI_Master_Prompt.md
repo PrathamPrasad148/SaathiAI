@@ -95,6 +95,8 @@ c:\SAATHIAI\
 │   ├── schemas.py              # Tool schema definitions & risk levels
 │   └── builtin\                # Builtin tool definitions (system, web, files, etc.)
 ├── skills\                     # Special Agentic Skill Blueprints
+│   ├── docx\                   # Word document (.docx/.dotx) creation, editing, & QA skill
+│   │   └── SKILL.md
 │   ├── pptx\                   # PowerPoint (.pptx/.potx) creation, editing, & QA skill
 │   │   └── SKILL.md
 │   ├── ui-ux-pro-max\          # Modern UI/UX Pro Max web component generation skill

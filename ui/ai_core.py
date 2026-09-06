@@ -121,6 +121,10 @@ class AICoreVisualizer(tk.Canvas):
         # Circuit Bus Streaming Packets
         self._init_circuit_packets()
 
+        # Quantum Particle Field & 4D Tesseract Core
+        self._init_quantum_particles()
+        self._init_tesseract()
+
         # Telemetry Background Thread
         self._running = True
         self._start_telemetry_thread()
@@ -267,7 +271,10 @@ class AICoreVisualizer(tk.Canvas):
         elif self.state == "ERROR":
             core_cyan = "#ef4444"
 
-        # --- 0. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
+        # --- 0. BACKGROUND QUANTUM PARTICLE FIELD ---
+        self._draw_quantum_particle_field(cx, cy, w, h)
+
+        # --- 0A. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
         self._draw_laser_circuit_bus(cx, cy, w, h, core_cyan)
 
         # --- 0B. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD ---
@@ -279,11 +286,17 @@ class AICoreVisualizer(tk.Canvas):
         # --- 0D. CIRCUIT BUS STREAMING DATA PACKETS ---
         self._update_and_draw_circuit_packets(cx, cy)
 
-        # --- 1. TACTICAL HUD HORIZON & TELEMETRY RETICLE (REPLACES DUPLICATE CALENDAR/CLOCK) ---
-        self._draw_hud_horizon_line(w, cx)
-
         # --- 0E. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS) ---
         self._draw_3d_holographic_threads(cx, cy)
+
+        # --- 0F. HYPERDIMENSIONAL 4D TESSERACT CORE MATRIX ---
+        self._draw_hyperdimensional_tesseract_core(cx, cy)
+
+        # --- 0G. SWEEPING HOLOGRAPHIC SCANLINES & HEX DATA STREAM ---
+        self._draw_tactical_holographic_scanlines(cx, cy, w, h)
+
+        # --- 1. TACTICAL HUD HORIZON & TELEMETRY RETICLE ---
+        self._draw_hud_horizon_line(w, cx)
 
         # --- 4. TOP-LEFT GIANT DATE DIAL ---
         self._draw_giant_date_dial(75, 75)
@@ -996,6 +1009,116 @@ class AICoreVisualizer(tk.Canvas):
                 "speed": random.uniform(0.015, 0.035),
                 "color": "#00f0ff" if i % 2 == 0 else "#ffffff"
             })
+
+    def _init_quantum_particles(self):
+        """Initialize ambient floating 3D quantum light particles."""
+        self.quantum_particles = []
+        for _ in range(40):
+            self.quantum_particles.append({
+                "x": random.uniform(-500, 500),
+                "y": random.uniform(-300, 300),
+                "z": random.uniform(50, 250),
+                "vx": random.uniform(-0.4, 0.4),
+                "vy": random.uniform(-0.4, 0.4),
+                "vz": random.uniform(-0.2, 0.2),
+                "color": random.choice(["#00f0ff", "#8b5cf6", "#00ffaa", "#38bdf8"]),
+                "size": random.uniform(1.2, 2.5)
+            })
+
+    def _init_tesseract(self):
+        """Initialize 4D Hypercube / Tesseract 16 vertices and 32 edges."""
+        self.tesseract_vertices = []
+        for x in (-1, 1):
+            for y in (-1, 1):
+                for z in (-1, 1):
+                    for w in (-1, 1):
+                        self.tesseract_vertices.append([x, y, z, w])
+
+        self.tesseract_edges = []
+        for i in range(16):
+            for j in range(i + 1, 16):
+                diffs = sum(1 for k in range(4) if self.tesseract_vertices[i][k] != self.tesseract_vertices[j][k])
+                if diffs == 1:
+                    self.tesseract_edges.append((i, j))
+        self.angle_4d_xw = 0.0
+        self.angle_4d_yz = 0.0
+
+    def _draw_quantum_particle_field(self, cx, cy, w, h):
+        """Render drifting floating 3D quantum ambient light dust field across the background."""
+        d = 200.0
+        for p in self.quantum_particles:
+            p["x"] += p["vx"]
+            p["y"] += p["vy"]
+            p["z"] += p["vz"]
+
+            if abs(p["x"]) > 550: p["vx"] *= -1
+            if abs(p["y"]) > 350: p["vy"] *= -1
+            if p["z"] < 30 or p["z"] > 280: p["vz"] *= -1
+
+            scale = d / (d + p["z"])
+            px = cx + p["x"] * scale
+            py = cy + p["y"] * scale
+
+            r = p["size"] * scale
+            self.create_oval(px - r, py - r, px + r, py + r, fill=p["color"], outline="")
+            if random.random() < 0.05:
+                self.create_oval(px - (r + 2), py - (r + 2), px + (r + 2), py + (r + 2), outline="#ffffff", width=1)
+
+    def _draw_hyperdimensional_tesseract_core(self, cx, cy):
+        """Render rotating 4D Tesseract hypercube matrix projected inside the central reactor core."""
+        self.angle_4d_xw = (self.angle_4d_xw + 0.025) % (2 * math.pi)
+        self.angle_4d_yz = (self.angle_4d_yz + 0.035) % (2 * math.pi)
+
+        cos_xw = math.cos(self.angle_4d_xw); sin_xw = math.sin(self.angle_4d_xw)
+        cos_yz = math.cos(self.angle_4d_yz); sin_yz = math.sin(self.angle_4d_yz)
+
+        nodes_2d = []
+        d4 = 3.5
+        d3 = 180.0
+        scale_size = 28 + self.audio_level * 18
+
+        for vx, vy, vz, vw in self.tesseract_vertices:
+            # 4D Rotation in X-W plane
+            x1 = vx * cos_xw - vw * sin_xw
+            w1 = vx * sin_xw + vw * cos_xw
+
+            # 4D Rotation in Y-Z plane
+            y1 = vy * cos_yz - vz * sin_yz
+            z1 = vy * sin_yz + vz * cos_yz
+
+            # 4D to 3D perspective projection
+            w_scale = 1.0 / (d4 - w1 * 0.4)
+            x3d = x1 * w_scale
+            y3d = y1 * w_scale
+            z3d = z1 * w_scale
+
+            # 3D to 2D perspective projection
+            z_scale = d3 / (d3 + z3d * 40.0)
+            px = cx + (x3d * scale_size) * z_scale
+            py = cy + (y3d * scale_size) * z_scale
+
+            nodes_2d.append((px, py, z3d))
+
+        # Render 32 Tesseract Edges with glowing depth colors
+        for i, j in self.tesseract_edges:
+            p1, p2 = nodes_2d[i], nodes_2d[j]
+            avg_z = (p1[2] + p2[2]) / 2.0
+            edge_col = "#ffffff" if avg_z < 0 else ("#00f0ff" if avg_z < 0.5 else "#062e54")
+            lw = 2 if avg_z < 0 else 1
+            self.create_line(p1[0], p1[1], p2[0], p2[1], fill=edge_col, width=lw)
+
+    def _draw_tactical_holographic_scanlines(self, cx, cy, w, h):
+        """Render sweeping holographic laser scanlines and cascading hex telemetry data streams."""
+        # Sweeping horizontal laser scanline
+        scan_y = (self.pulse * 140) % (h - 60) + 30
+        self.create_line(25, scan_y, w - 25, scan_y, fill="#041f3d", width=1, dash=(8, 12))
+
+        # Cascading Hex Addresses along central bus
+        hex_samples = ["0x7F4A", "0x8B1C", "ADDR_CORE", "FLUX_NOMINAL", "0x3E9D", "SYN_GRID_OK"]
+        for idx, sample in enumerate(hex_samples):
+            hy = cy - 120 + idx * 42
+            hx = cx + math.sin(self.pulse + idx) * 110
+            self.create_text(hx, hy, text=sample, font=("Consolas", 6), fill="#00a8ff" if idx % 2 == 0 else "#00ffaa")
 
     # -------------------------------------------------------------
     # 20B. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS)

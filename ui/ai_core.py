@@ -282,35 +282,38 @@ class AICoreVisualizer(tk.Canvas):
         # --- 1. TACTICAL HUD HORIZON & TELEMETRY RETICLE (REPLACES DUPLICATE CALENDAR/CLOCK) ---
         self._draw_hud_horizon_line(w, cx)
 
-        # --- 4. TOP-LEFT GIANT DATE & TIME DIAL ---
-        self._draw_giant_date_dial(105, 105)
+        # --- 0E. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS) ---
+        self._draw_3d_holographic_threads(cx, cy)
+
+        # --- 4. TOP-LEFT GIANT DATE DIAL ---
+        self._draw_giant_date_dial(75, 75)
 
         # --- 5. UPPER-LEFT RAM & SWAP CONCENTRIC GAUGE ---
-        self._draw_ram_swap_gauge(235, 60)
+        self._draw_ram_swap_gauge(195, 60)
 
         # --- 6. MID-LEFT CPU GAUGE & 8-CORE THREAD EQUALIZER ---
-        self._draw_cpu_and_multicore_cluster(195, 130)
+        self._draw_cpu_and_multicore_cluster(195, 145)
 
         # --- 7. MID-LEFT DISK STORAGE & NVMe MONITOR ---
-        self._draw_storage_volume_monitor(80, 230)
+        self._draw_storage_volume_monitor(20, 175)
 
-        # --- 8. PRATHAM EXPO ATOM HOLOGRAM ---
-        self._draw_pratham_expo_atom_hologram(195, 235)
-
-        # --- 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER ---
-        self._draw_pitch_horizon_ladder(195, 335)
+        # --- 8. QUANTUM NUCLEUS ATOM HOLOGRAM ---
+        self._draw_pratham_expo_atom_hologram(195, 255)
 
         # --- 10. REACTOR ENERGY GAUGE (100% // PEAK) ---
-        self._draw_reactor_energy_gauge(85, 340)
+        self._draw_reactor_energy_gauge(75, 270)
 
-        # --- 11. RECYCLE REPOSITORY & SYSTEM UPTIME TELEMETRY ---
-        self._draw_trash_uptime_telemetry(85, 430)
+        # --- 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER ---
+        self._draw_pitch_horizon_ladder(195, 345)
+
+        # --- 11. RECYCLE REPOSITORY & SYSTEM STABILITY TELEMETRY ---
+        self._draw_trash_uptime_telemetry(20, 365)
 
         # --- 12. LOWER-LEFT DUAL CONCENTRIC NETWORK METER (0.0k / 1.6k) ---
-        self._draw_dual_network_dial(200, 455)
+        self._draw_dual_network_dial(195, 435)
 
-        # --- 13. BOTTOM-LEFT WINDOWS CONTROLS & IP ADDRESS ---
-        self._draw_windows_system_controls(25, h - 30)
+        # --- 13. BOTTOM-LEFT WINDOWS CONTROLS & OS KERNEL STATUS ---
+        self._draw_windows_system_controls(20, h - 25)
 
         # --- 14. THE GRAND MASTER ARC REACTOR CORE ---
         self._draw_grand_arc_reactor(cx, cy, core_cyan, glow_blue, accent_red)
@@ -386,62 +389,61 @@ class AICoreVisualizer(tk.Canvas):
     # 4. TOP-LEFT GIANT DATE & TIME DIAL
     # -------------------------------------------------------------
     def _draw_giant_date_dial(self, x, y):
-        radius = 56
+        radius = 42
         self.create_oval(x - radius, y - radius, x + radius, y + radius, outline="#0c3058", width=1)
-        self.create_oval(x - (radius - 5), y - (radius - 5), x + (radius - 5), y + (radius - 5), outline="#00f0ff", width=2)
+        self.create_oval(x - (radius - 4), y - (radius - 4), x + (radius - 4), y + (radius - 4), outline="#00f0ff", width=2)
 
         # Outer segmented brackets
-        self.create_arc(x - (radius + 6), y - (radius + 6), x + (radius + 6), y + (radius + 6), start=110, extent=60, style="arc", outline="#00a8ff", width=2)
-        self.create_arc(x - (radius + 6), y - (radius + 6), x + (radius + 6), y + (radius + 6), start=290, extent=60, style="arc", outline="#00a8ff", width=2)
+        self.create_arc(x - (radius + 5), y - (radius + 5), x + (radius + 5), y + (radius + 5), start=110, extent=60, style="arc", outline="#00a8ff", width=2)
+        self.create_arc(x - (radius + 5), y - (radius + 5), x + (radius + 5), y + (radius + 5), start=290, extent=60, style="arc", outline="#00a8ff", width=2)
 
         now = datetime.datetime.now()
         month_str = now.strftime("%B").upper()
         day_num = f"{now.day:02d}"
         weekday_str = now.strftime("%A").upper()
-        sec_clock = now.strftime("%H : %M : %S")
 
-        self.create_text(x, y - 22, text=month_str, font=("Segoe UI", 9, "bold"), fill="#38bdf8")
-        self.create_text(x, y + 2, text=day_num, font=("Segoe UI", 26, "bold"), fill="#ffffff")
-        self.create_text(x, y + 26, text=weekday_str, font=FONT_HUD_TINY, fill="#00ffaa")
-        self.create_text(x, y + radius + 12, text="CALENDAR MATRIX", font=FONT_HUD_TINY, fill="#00f0ff")
+        self.create_text(x, y - 16, text=month_str, font=("Segoe UI", 8, "bold"), fill="#38bdf8")
+        self.create_text(x, y + 2, text=day_num, font=("Segoe UI", 20, "bold"), fill="#ffffff")
+        self.create_text(x, y + 20, text=weekday_str, font=FONT_HUD_TINY, fill="#00ffaa")
+        self.create_text(x, y + radius + 10, text="CALENDAR MATRIX", font=FONT_HUD_TINY, fill="#00f0ff")
 
     # -------------------------------------------------------------
     # 5. UPPER-LEFT RAM & SWAP CONCENTRIC GAUGE
     # -------------------------------------------------------------
     def _draw_ram_swap_gauge(self, x, y):
-        radius = 34
+        radius = 28
         self.create_oval(x - radius, y - radius, x + radius, y + radius, outline="#0a2544", width=1)
         # RAM progress arc
         self.create_arc(x - radius, y - radius, x + radius, y + radius, start=90, extent=-(self.ram_pct * 3.6), style="arc", outline="#00f0ff", width=4)
         # Inner SWAP arc
-        r_inner = radius - 8
+        r_inner = radius - 7
         self.create_oval(x - r_inner, y - r_inner, x + r_inner, y + r_inner, outline="#081b33", width=1)
         self.create_arc(x - r_inner, y - r_inner, x + r_inner, y + r_inner, start=180, extent=-176, style="arc", outline="#0088ff", width=2)
 
-        self.create_text(x, y - 7, text=f"RAM: {int(self.ram_pct)}%", font=("Segoe UI", 8, "bold"), fill="#ffffff")
-        self.create_text(x, y + 7, text="SWAP: 49%", font=("Segoe UI", 8), fill="#38bdf8")
+        self.create_text(x, y - 6, text=f"RAM: {int(self.ram_pct)}%", font=("Segoe UI", 7, "bold"), fill="#ffffff")
+        self.create_text(x, y + 6, text="SWAP: 49%", font=("Segoe UI", 7), fill="#38bdf8")
 
     # -------------------------------------------------------------
     # 6. MID-LEFT CPU GAUGE & 8-CORE THREAD EQUALIZER
     # -------------------------------------------------------------
     def _draw_cpu_and_multicore_cluster(self, x, y):
-        radius = 38
+        radius = 30
         self.create_oval(x - radius, y - radius, x + radius, y + radius, outline="#082240", width=1)
         cpu_ext = min(300.0, max(20.0, self.cpu_pct * 3.0))
-        self.create_arc(x - radius + 2, y - radius + 2, x + radius - 2, y + radius - 2, start=210, extent=-cpu_ext, style="arc", outline="#00f0ff", width=4)
+        self.create_arc(x - radius + 2, y - radius + 2, x + radius - 2, y + radius - 2, start=210, extent=-cpu_ext, style="arc", outline="#00f0ff", width=3)
 
-        self.create_text(x, y - 10, text="CPU CLOCK", font=FONT_HUD_TINY, fill="#38bdf8")
-        self.create_text(x, y + 2, text=f"{self.cpu_pct/100 * 3.2:.2f} GHz", font=("Segoe UI", 9, "bold"), fill="#ffffff")
-        self.create_text(x, y + 14, text=f"{int(self.cpu_pct)}% LOAD", font=FONT_HUD_TINY, fill="#00ffaa")
+        self.create_text(x, y - 8, text="CPU CLOCK", font=FONT_HUD_TINY, fill="#38bdf8")
+        self.create_text(x, y + 2, text=f"{self.cpu_pct/100 * 3.2:.2f} GHz", font=("Segoe UI", 8, "bold"), fill="#ffffff")
+        self.create_text(x, y + 12, text=f"{int(self.cpu_pct)}% LOAD", font=FONT_HUD_TINY, fill="#00ffaa")
 
         # 8-Core Thread Load Equalizer directly below
-        eq_x = x - 34
-        eq_y = y + radius + 12
+        eq_x = x - 28
+        eq_y = y + radius + 10
         for core_i in range(8):
-            ch = (self.core_loads[core_i] / 100.0) * 16
-            bx = eq_x + core_i * 9
-            self.create_rectangle(bx, eq_y - ch, bx + 6, eq_y, fill="#00f0ff" if core_i % 2 == 0 else "#0088ff", outline="")
-        self.create_text(x, eq_y + 10, text="CORES: C0 - C7 ACTIVE", font=("Consolas", 6), fill="#64748b")
+            ch = (self.core_loads[core_i] / 100.0) * 14
+            bx = eq_x + core_i * 7
+            self.create_rectangle(bx, eq_y - ch, bx + 5, eq_y, fill="#00f0ff" if core_i % 2 == 0 else "#0088ff", outline="")
+        self.create_text(x, eq_y + 8, text="CORES: C0 - C7", font=("Consolas", 6), fill="#64748b")
 
     # -------------------------------------------------------------
     # 7. MID-LEFT STORAGE VOLUME MONITOR
@@ -458,11 +460,11 @@ class AICoreVisualizer(tk.Canvas):
         self.create_text(x, y + 38, text=f"FREE SPACE: {free_gb} GB", font=FONT_HUD_TINY, fill="#00ffaa", anchor="w")
 
     # -------------------------------------------------------------
-    # 8. PRATHAM EXPO ATOM HOLOGRAM
+    # 8. QUANTUM NUCLEUS ATOM HOLOGRAM
     # -------------------------------------------------------------
     def _draw_pratham_expo_atom_hologram(self, x, y):
-        rx = 48
-        ry = 16
+        rx = 36
+        ry = 12
         for idx, base_angle in enumerate((0, math.pi / 3, 2 * math.pi / 3)):
             rot = base_angle + self.angle_orbit
             pts = []
@@ -484,9 +486,9 @@ class AICoreVisualizer(tk.Canvas):
             py_e = y + ex_e * math.sin(rot) + ey_e * math.cos(rot)
             self.create_oval(px_e - 2, py_e - 2, px_e + 2, py_e + 2, fill="#00f0ff", outline="")
 
-        self.create_text(x, y - 8, text="QUANTUM", font=("Segoe UI", 8, "bold"), fill="#38bdf8")
-        self.create_text(x, y + 5, text="NUCLEUS", font=("Segoe UI", 11, "bold"), fill="#ffffff")
-        self.create_text(x, y + 18, text="MARK VII CORE", font=("Segoe UI", 7, "bold"), fill="#00ffaa")
+        self.create_text(x, y - 6, text="QUANTUM", font=("Segoe UI", 7, "bold"), fill="#38bdf8")
+        self.create_text(x, y + 4, text="NUCLEUS", font=("Segoe UI", 10, "bold"), fill="#ffffff")
+        self.create_text(x, y + 15, text="MARK VII CORE", font=("Segoe UI", 6, "bold"), fill="#00ffaa")
 
     # -------------------------------------------------------------
     # 9. FLIGHT ATTITUDE / ARTIFICIAL HORIZON PITCH LADDER
@@ -509,41 +511,41 @@ class AICoreVisualizer(tk.Canvas):
         self.create_line(x + 8, y + 16 + ladder_offset, x + 18, y + 16 + ladder_offset, fill="#0088ff", width=1)
         self.create_text(x - 24, y + 16 + ladder_offset, text="-10", font=("Consolas", 6), fill="#38bdf8")
 
-        self.create_text(x, y + 30, text="ATTITUDE // PITCH 0.0°", font=("Consolas", 6), fill="#64748b")
+        self.create_text(x, y + 28, text="ATTITUDE // PITCH 0.0°", font=("Consolas", 6), fill="#64748b")
 
     # -------------------------------------------------------------
     # 10. REACTOR ENERGY GAUGE (100% // PEAK)
     # -------------------------------------------------------------
     def _draw_reactor_energy_gauge(self, x, y):
-        radius = 34
+        radius = 30
         self.create_oval(x - radius, y - radius, x + radius, y + radius, outline="#082240", width=1)
         self.create_arc(x - radius + 2, y - radius + 2, x + radius - 2, y + radius - 2, start=0, extent=360, style="arc", outline="#00f0ff", width=3)
         self.create_text(x, y - 6, text="REACTOR FLUX", font=FONT_HUD_TINY, fill="#38bdf8")
-        self.create_text(x, y + 6, text="100%", font=("Segoe UI", 9, "bold"), fill="#ffffff")
-        self.create_text(x, y + 18, text="PEAK OUTPUT", font=FONT_HUD_TINY, fill="#00ffaa")
+        self.create_text(x, y + 5, text="100%", font=("Segoe UI", 8, "bold"), fill="#ffffff")
+        self.create_text(x, y + 16, text="PEAK OUTPUT", font=FONT_HUD_TINY, fill="#00ffaa")
 
     # -------------------------------------------------------------
     # 11. RECYCLE REPOSITORY & SYSTEM STABILITY TELEMETRY
     # -------------------------------------------------------------
     def _draw_trash_uptime_telemetry(self, x, y):
         self.create_text(x, y, text="♺ TRASH REPOSITORY: 0 OBJECTS", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
-        self.create_text(x, y + 16, text="SYSTEM STABILITY: 99.9% // OK", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
+        self.create_text(x, y + 14, text="SYSTEM STABILITY: 99.9% // OK", font=FONT_HUD_TINY, fill="#64748b", anchor="w")
 
-        self.create_text(x, y + 32, text="COMMS: 0 PENDING PACKETS // SECURE", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
+        self.create_text(x, y + 28, text="COMMS: 0 PENDING PACKETS // SECURE", font=FONT_HUD_TINY, fill="#38bdf8", anchor="w")
         for i in range(3):
-            self.create_oval(x + i * 14, y + 46, x + i * 14 + 6, y + 46 + 6, fill="#00f0ff" if i == 0 else "#0a264a", outline="")
+            self.create_oval(x + i * 14, y + 40, x + i * 14 + 6, y + 40 + 6, fill="#00f0ff" if i == 0 else "#0a264a", outline="")
 
     # -------------------------------------------------------------
     # 12. LOWER-LEFT DUAL CONCENTRIC NETWORK METER (0.0k / 1.6k)
     # -------------------------------------------------------------
     def _draw_dual_network_dial(self, x, y):
-        r_out = 44
-        r_in = 30
-        self.create_arc(x - r_out, y - r_out, x + r_out, y + r_out, start=220, extent=-240, style="arc", outline="#00f0ff", width=5)
-        self.create_arc(x - r_in, y - r_in, x + r_in, y + r_in, start=200, extent=-200, style="arc", outline="#0088ff", width=4)
+        r_out = 36
+        r_in = 24
+        self.create_arc(x - r_out, y - r_out, x + r_out, y + r_out, start=220, extent=-240, style="arc", outline="#00f0ff", width=4)
+        self.create_arc(x - r_in, y - r_in, x + r_in, y + r_in, start=200, extent=-200, style="arc", outline="#0088ff", width=3)
 
-        self.create_text(x, y - 6, text="0.0k", font=FONT_HUD_TINY, fill="#ffffff")
-        self.create_text(x, y + 6, text="1.6k", font=FONT_HUD_TINY, fill="#00ffaa")
+        self.create_text(x, y - 5, text="0.0k", font=FONT_HUD_TINY, fill="#ffffff")
+        self.create_text(x, y + 5, text="1.6k", font=FONT_HUD_TINY, fill="#00ffaa")
 
     # -------------------------------------------------------------
     # 13. BOTTOM-LEFT WINDOWS CONTROLS & OS KERNEL STATUS
@@ -994,6 +996,66 @@ class AICoreVisualizer(tk.Canvas):
                 "speed": random.uniform(0.015, 0.035),
                 "color": "#00f0ff" if i % 2 == 0 else "#ffffff"
             })
+
+    # -------------------------------------------------------------
+    # 20B. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS)
+    # -------------------------------------------------------------
+    def _draw_3d_holographic_threads(self, cx, cy):
+        """Render multi-strand 3D helical ribbons and dynamic volumetric thread streams around the reactor core."""
+        num_strands = 4
+        points_per_strand = 28
+        d = 160 # perspective distance
+
+        for s_idx in range(num_strands):
+            strand_phase = self.pulse * 1.6 + s_idx * (math.pi / 2)
+            pts = []
+            cols = ["#00f0ff", "#8b5cf6", "#00ffaa", "#38bdf8"]
+            strand_col = cols[s_idx % len(cols)]
+
+            for i in range(points_per_strand):
+                t = i / points_per_strand
+                angle = t * math.pi * 3.5 + strand_phase
+                radius_3d = 150 + math.sin(t * math.pi + self.pulse) * 30
+
+                # 3D Helix coordinates
+                x3d = radius_3d * math.cos(angle)
+                y3d = (t - 0.5) * 260
+                z3d = radius_3d * math.sin(angle)
+
+                # 3D Rotation around X & Y
+                rx = self.angle_3d_x * 0.6
+                ry = self.angle_3d_y * 0.6
+
+                x1 = x3d * math.cos(ry) + z3d * math.sin(ry)
+                z1 = -x3d * math.sin(ry) + z3d * math.cos(ry)
+                y1 = y3d * math.cos(rx) - z1 * math.sin(rx)
+                z2 = y3d * math.sin(rx) + z1 * math.cos(rx)
+
+                scale = d / (d + z2 * 0.35)
+                px = cx + x1 * scale
+                py = cy + y1 * scale
+
+                pts.append((px, py, z2))
+
+            for i in range(len(pts) - 1):
+                p1, p2 = pts[i], pts[i + 1]
+                avg_z = (p1[2] + p2[2]) / 2.0
+
+                if avg_z < -40:
+                    l_col = "#ffffff"
+                    lw = 2
+                elif avg_z < 30:
+                    l_col = strand_col
+                    lw = 1
+                else:
+                    l_col = "#041a33"
+                    lw = 1
+
+                self.create_line(p1[0], p1[1], p2[0], p2[1], fill=l_col, width=lw)
+
+                # Pulse packets along 3D threads
+                if (i + int(self.pulse * 12)) % 7 == 0:
+                    self.create_oval(p1[0] - 2, p1[1] - 2, p1[0] + 2, p1[1] + 2, fill="#ffffff", outline=strand_col)
 
     # -------------------------------------------------------------
     # 21. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD

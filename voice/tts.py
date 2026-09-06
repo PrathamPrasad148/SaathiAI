@@ -87,15 +87,27 @@ class TTSEngine:
                         import edge_tts
                         asyncio.run(edge_tts.Communicate(clean, self.voice, rate=self.rate).save(str(cache_file)))
                     except Exception:
-                        # Offline fallback: SAPI5
+                        # Offline fallback: Windows native SAPI speech
                         try:
-                            import win32com.client
-                            speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                            import importlib
+                            win32com_client = importlib.import_module("win32com.client")
+                            speaker = win32com_client.Dispatch("SAPI.SpVoice")
                             speaker.Rate = 2  # Brisk human conversational rate
                             speaker.Speak(clean, 0)
                             return
                         except Exception:
-                            return
+                            # Secondary Windows native speech synthesizer via System.Speech
+                            try:
+                                import subprocess
+                                safe_text = clean.replace("'", "''").replace('"', '`"')
+                                ps_cmd = f"Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate = 2; $s.Speak('{safe_text}')"
+                                subprocess.Popen(
+                                    ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
+                                    creationflags=0x08000000  # CREATE_NO_WINDOW
+                                )
+                                return
+                            except Exception:
+                                return
 
                 if self._stop_requested.is_set():
                     self.is_playing = False

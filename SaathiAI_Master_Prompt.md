@@ -95,6 +95,8 @@ c:\SAATHIAI\
 │   ├── schemas.py              # Tool schema definitions & risk levels
 │   └── builtin\                # Builtin tool definitions (system, web, files, etc.)
 ├── skills\                     # Special Agentic Skill Blueprints
+│   ├── pdf\                    # PDF creation, extraction, OCR, merging & manipulation skill
+│   │   └── SKILL.md
 │   ├── docx\                   # Word document (.docx/.dotx) creation, editing, & QA skill
 │   │   └── SKILL.md
 │   ├── pptx\                   # PowerPoint (.pptx/.potx) creation, editing, & QA skill

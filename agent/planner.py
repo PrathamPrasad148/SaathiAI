@@ -765,7 +765,7 @@ class AgentPlanner:
                     "stream": False,
                     "keep_alive": "60m",
                     "options": {
-                        "num_predict": 60,
+                        "num_predict": 250,
                         "temperature": 0.5
                     }
                 }
@@ -800,20 +800,20 @@ class AgentPlanner:
 
         system_msg = BASE_SYSTEM_PROMPT + "\n\n" + self.memory.get_context_for_prompt()
         conv = [{"role": "system", "content": system_msg}]
-        for m in self.messages[-10:]:
+        for m in self.messages[-16:]:
             conv.append(m)
         conv.append({"role": "user", "content": text})
 
         tools_schema = self.registry.get_ollama_schemas()
 
-        # Dynamically set token budget based on task complexity
+        # Dynamically set token budget based on task complexity (Generous budgets prevent token truncation!)
         word_count = len(lowered.split())
         if word_count <= 15:
-            num_predict = 80
+            num_predict = 512
         elif word_count <= 30:
-            num_predict = 150
+            num_predict = 1024
         else:
-            num_predict = 300
+            num_predict = 2048
 
         final_reply = ""
         created_html_files = []

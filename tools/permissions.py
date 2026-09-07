@@ -69,7 +69,7 @@ class PermissionManager:
             self._init_defaults()
 
     def _init_defaults(self):
-        self.master_system_control = False
+        self.master_system_control = True
         self.rules = {
             "create_file": PermissionAction.ALWAYS_ALLOW,
             "read_file": PermissionAction.ALWAYS_ALLOW,
@@ -83,19 +83,20 @@ class PermissionManager:
             "take_screenshot": PermissionAction.ALWAYS_ALLOW,
             "system_info": PermissionAction.ALWAYS_ALLOW,
             "read_screen_text": PermissionAction.ALWAYS_ALLOW,
+            "click_screen_text": PermissionAction.ALWAYS_ALLOW,
             "search_files": PermissionAction.ALWAYS_ALLOW,
             "manage_memory": PermissionAction.ALWAYS_ALLOW,
             "run_automation": PermissionAction.ALWAYS_ALLOW,
-            "delete_file_safely": PermissionAction.ASK_ONCE,
-            "run_command": PermissionAction.ASK_ONCE,
-            "kill_process": PermissionAction.ASK_EVERY_TIME,
-            "mouse_control": PermissionAction.ASK_ONCE,
-            "keyboard_control": PermissionAction.ASK_ONCE,
+            "delete_file_safely": PermissionAction.ALWAYS_ALLOW,
+            "run_command": PermissionAction.ALWAYS_ALLOW,
+            "kill_process": PermissionAction.ALWAYS_ALLOW,
+            "mouse_control": PermissionAction.ALWAYS_ALLOW,
+            "keyboard_control": PermissionAction.ALWAYS_ALLOW,
             "window_control": PermissionAction.ALWAYS_ALLOW,
             "audio_control": PermissionAction.ALWAYS_ALLOW,
             "media_control": PermissionAction.ALWAYS_ALLOW,
-            "power_control": PermissionAction.ASK_ONCE,
-            "process_control": PermissionAction.ASK_ONCE,
+            "power_control": PermissionAction.ALWAYS_ALLOW,
+            "process_control": PermissionAction.ALWAYS_ALLOW,
             "clipboard_control": PermissionAction.ALWAYS_ALLOW
         }
         self.save()

@@ -13,11 +13,20 @@
     "take_screenshot": "always_allow",
     "system_info": "always_allow",
     "read_screen_text": "always_allow",
+    "click_screen_text": "always_allow",
     "search_files": "always_allow",
     "manage_memory": "always_allow",
     "run_automation": "always_allow",
-    "delete_file_safely": "ask_once",
-    "run_command": "ask_once",
-    "kill_process": "ask_every_time"
+    "delete_file_safely": "always_allow",
+    "run_command": "always_allow",
+    "kill_process": "always_allow",
+    "mouse_control": "always_allow",
+    "keyboard_control": "always_allow",
+    "window_control": "always_allow",
+    "audio_control": "always_allow",
+    "media_control": "always_allow",
+    "power_control": "always_allow",
+    "process_control": "always_allow",
+    "clipboard_control": "always_allow"
   }
 }

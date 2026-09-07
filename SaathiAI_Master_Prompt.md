@@ -190,7 +190,13 @@ cy = max(310, min(int(h * 0.46), h - 330))
 - Local TCP socket server listening on port `8890`.
 - Encrypted JSON event sync for phone calls, SMS alerts, and bidirectional clipboard sharing.
 
-### F. Autonomous Web Project Generator (`agent/planner.py`)
+### F. Autonomous Web Access & Live Data Engine (`tools/builtin/web.py`)
+- **Real-Time Web Search (`web_search`)**: Queries live web endpoints (DuckDuckGo & Wikipedia Search API) to fetch current news, facts, documentation, and web snippets.
+- **Webpage Content Scraper & Parser (`fetch_url_content`)**: Fetches public webpage content over HTTP/HTTPS, strips HTML tags cleanly into readable text/Markdown, and unescapes entities for LLM synthesis.
+- **Public JSON API Fetcher (`fetch_json_api`)**: Queries public REST APIs and returns formatted JSON data.
+- **Live Weather & Financial Exchange (`get_weather`, `get_currency`, `get_wikipedia`)**: Direct real-time queries for wttr.in weather, exchange rates, and verified Wikipedia summaries.
+
+### G. Autonomous Web Project Generator (`agent/planner.py`)
 - Generates modern, responsive web applications following UI/UX Pro Max standards.
 - Writes full code to `Projects/<ProjectName>/index.html` using native file tools and opens it immediately in default browser via `open_target`.
 

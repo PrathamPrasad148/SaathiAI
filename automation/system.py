@@ -30,3 +30,31 @@ def get_system_telemetry() -> Dict[str, Any]:
     except Exception:
         pass
     return info
+
+def set_autostart_on_boot(enable: bool = True) -> tuple[bool, str]:
+    """Register or unregister Saathi AI in Windows startup registry to launch on laptop boot."""
+    try:
+        import winreg
+        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        app_name = "SaathiAI"
+        vbs_path = r"C:\SAATHIAI\Start-Saathi-Silent.vbs"
+
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
+        if enable:
+            if not os.path.exists(vbs_path):
+                with open(vbs_path, "w", encoding="utf-8") as f:
+                    f.write('CreateObject("Wscript.Shell").Run """C:\\SAATHIAI\\Start-Saathi.bat""", 0, False\n')
+            cmd_val = f'wscript.exe "{vbs_path}"'
+            winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, cmd_val)
+            winreg.CloseKey(key)
+            return True, "Saathi AI registered to autolaunch on Windows boot."
+        else:
+            try:
+                winreg.DeleteValue(key, app_name)
+            except FileNotFoundError:
+                pass
+            winreg.CloseKey(key)
+            return True, "Saathi AI boot autolaunch disabled."
+    except Exception as e:
+        return False, str(e)
+

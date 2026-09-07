@@ -13,9 +13,12 @@ from memory.engine import MemoryEngine
 from automations.engine import AutomationEngine
 from automation.hardware import (
     toggle_volume_mute, volume_up, volume_down, lock_workstation,
-    empty_recycle_bin, media_play_pause, media_next, media_prev
+    empty_recycle_bin, media_play_pause, media_next, media_prev,
+    shutdown_workstation, restart_workstation
 )
-from automation.windows import minimize_all_windows
+from automation.windows import minimize_all_windows, close_window_by_title
+from automation.processes import kill_process_by_name
+from automation.vision import get_active_window_info, get_screen_dimensions
 from automation.app_launcher import launch_application, search_web_live
 from automation.keyboard import type_text, press_key, send_hotkey
 from automation.mouse import click_mouse, double_click, scroll_mouse, move_mouse
@@ -308,6 +311,36 @@ class AgentPlanner:
         if has_media_toggle:
             media_play_pause()
             return "Media playback toggled, Pratham."
+
+        # Power & System Control Reflexes (Shutdown / Restart)
+        has_shutdown = bool(re.search(r"\b(shutdown|turn off)( my)?( laptop| pc| computer)?\b", norm))
+        has_restart = bool(re.search(r"\b(restart|reboot)( my)?( laptop| pc| computer)?\b", norm))
+        
+        if has_shutdown:
+            shutdown_workstation(10)
+            return "Initiating computer shutdown in 10 seconds, Pratham. Have a good one!"
+        if has_restart:
+            restart_workstation(10)
+            return "Initiating computer restart in 10 seconds, Pratham."
+
+        # ── OS Action: Close Applications & Windows ──
+        # Matches: "close chrome", "close notepad", "close spotify", "close whatsapp", "close active window", "exit chrome", "kill chrome"
+        close_app_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(close|exit|terminate|kill|shut)\s+([a-zA-Z0-9\s._-]+)$", norm)
+        if close_app_match and not any(w in norm for w in ("website", "webpage", "the door", "down")):
+            target_app = close_app_match.group(2).strip()
+            if target_app in ("this", "window", "active window", "the window", "current window"):
+                win_info = get_active_window_info()
+                if win_info.get("title"):
+                    close_window_by_title(win_info["title"])
+                    return f"Closed active window '{win_info['title']}', Pratham."
+            else:
+                ok = close_window_by_title(target_app)
+                if not ok:
+                    count = kill_process_by_name(target_app)
+                    if count > 0:
+                        return f"Closed application '{target_app}', Pratham."
+                    return f"Attempted to close '{target_app}'. If it is running under another name, standing by."
+                return f"Closed application '{target_app}', Pratham."
 
         # ── OS Action: Launch Applications (Instant Chrome, Notepad, Calc, Explorer, etc.) ──
         # Matches: "open chrome", "launch chrome", "open youtube", "open notepad", "open calc", etc.
@@ -828,7 +861,15 @@ class AgentPlanner:
                 "steps": ["Analyze intent & context", "Plan tool actions", "Execute & observe", "Synthesize response"]
             })
 
-        system_msg = BASE_SYSTEM_PROMPT + "\n\n" + self.memory.get_context_for_prompt()
+        win_info = get_active_window_info()
+        w_scr, h_scr = get_screen_dimensions()
+        screen_perception = (
+            f"\n\nLIVE DESKTOP SCREEN PERCEPTION (ACTIVE REALSIGHT):\n"
+            f"• Active Foreground Application: '{win_info.get('title', 'Desktop')}'\n"
+            f"• Screen Resolution: {w_scr}x{h_scr}\n"
+            f"• Window Bounding Box: {win_info.get('rect')}\n"
+        )
+        system_msg = BASE_SYSTEM_PROMPT + screen_perception + "\n" + self.memory.get_context_for_prompt()
         conv = [{"role": "system", "content": system_msg}]
         for m in self.messages[-16:]:
             conv.append(m)

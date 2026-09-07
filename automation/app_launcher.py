@@ -1,9 +1,17 @@
+"""
+Saathi AI — Universal Windows Application Resolver & Launcher Subsystem
+Discovers and launches ANY Windows Desktop application, UWP AppX Store app (WhatsApp, Telegram,
+Discord, Spotify, Steam, Office, etc.), protocol handler, or Start Menu shortcut.
+"""
+
 import os
+import json
+import time
 import subprocess
 import urllib.parse
 import webbrowser
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List, Dict, Any
 
 CHROME_PATHS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
@@ -17,6 +25,33 @@ EDGE_PATHS = [
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
     os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe")
 ]
+
+# Known Protocol URI handlers for instant Windows launch
+KNOWN_PROTOCOLS = {
+    "whatsapp": "whatsapp:",
+    "whatsapp desktop": "whatsapp:",
+    "telegram": "tg:",
+    "discord": "discord:",
+    "spotify": "spotify:",
+    "netflix": "netflix:",
+    "steam": "steam:",
+    "zoom": "zoommtg:",
+    "teams": "msteams:",
+    "microsoft teams": "msteams:",
+    "settings": "ms-settings:",
+    "windows settings": "ms-settings:",
+    "store": "ms-windows-store:",
+    "microsoft store": "ms-windows-store:",
+    "clock": "ms-clock:",
+    "calculator": "calculator:",
+    "camera": "microsoft.windows.camera:",
+    "maps": "bingmaps:",
+    "photos": "ms-photos:",
+    "paint": "ms-paint:"
+}
+
+_start_apps_cache: Optional[List[Dict[str, str]]] = None
+_last_cache_time: float = 0.0
 
 def get_chrome_executable() -> Optional[str]:
     for p in CHROME_PATHS:
@@ -46,14 +81,80 @@ def open_url_in_browser(url: str, force_chrome: bool = True) -> bool:
     except Exception:
         return False
 
+def get_installed_windows_apps(force_refresh: bool = False) -> List[Dict[str, str]]:
+    """
+    Query Windows Get-StartApps to retrieve full list of installed Desktop & UWP apps.
+    Returns list of dicts: [{"Name": "WhatsApp", "AppID": "5319275A.WhatsAppDesktop..."}, ...]
+    """
+    global _start_apps_cache, _last_cache_time
+    if not force_refresh and _start_apps_cache and (time.time() - _last_cache_time < 300):
+        return _start_apps_cache
+
+    try:
+        cmd = ["powershell", "-NoProfile", "-Command", "Get-StartApps | ConvertTo-Json"]
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=8)
+        if res.returncode == 0 and res.stdout.strip():
+            data = json.loads(res.stdout)
+            if isinstance(data, dict):
+                data = [data]
+            _start_apps_cache = data
+            _last_cache_time = time.time()
+            return _start_apps_cache
+    except Exception:
+        pass
+
+    return _start_apps_cache or []
+
+def find_app_id_by_query(query: str) -> Optional[Tuple[str, str]]:
+    """
+    Find matching app in Windows Get-StartApps by query string.
+    Returns (App_Name, AppID) if found.
+    """
+    apps = get_installed_windows_apps()
+    if not apps:
+        return None
+
+    clean_q = query.lower().strip()
+
+    # 1. Exact Name Match
+    for app in apps:
+        name = app.get("Name", "").lower().strip()
+        if name == clean_q:
+            return (app.get("Name"), app.get("AppID"))
+
+    # 2. Substring Match
+    for app in apps:
+        name = app.get("Name", "").lower().strip()
+        if clean_q in name:
+            return (app.get("Name"), app.get("AppID"))
+
+    # 3. Token Match
+    tokens = [t for t in clean_q.split() if len(t) >= 3]
+    if tokens:
+        for app in apps:
+            name = app.get("Name", "").lower().strip()
+            if all(t in name for t in tokens):
+                return (app.get("Name"), app.get("AppID"))
+
+    return None
+
 def launch_application(app_name: str) -> Tuple[bool, str]:
     """
-    Deterministically launch or focus any Windows application.
-    Returns (success: bool, message: str).
+    Universal Windows Application Resolver & Launcher.
+    Launches standard executables, protocol URIs, and UWP Apps (WhatsApp, Discord, Spotify, etc.).
     """
     key = app_name.lower().strip()
 
-    # 1. Chrome
+    # 1. Check Known Protocol Handlers (Instant URI trigger)
+    if key in KNOWN_PROTOCOLS:
+        protocol = KNOWN_PROTOCOLS[key]
+        try:
+            os.startfile(protocol)
+            return True, f"Launched {app_name.capitalize()} via protocol '{protocol}'."
+        except Exception:
+            pass
+
+    # 2. Chrome Specific
     if any(k in key for k in ("chrome", "google chrome")):
         chrome_exe = get_chrome_executable()
         if chrome_exe:
@@ -63,28 +164,57 @@ def launch_application(app_name: str) -> Tuple[bool, str]:
             webbrowser.open("https://www.google.com")
             return True, "Opened browser to Google."
 
-    # 2. Edge
+    # 3. Edge Specific
     if any(k in key for k in ("edge", "microsoft edge")):
         edge_exe = get_edge_executable()
         if edge_exe:
             subprocess.Popen([edge_exe])
             return True, "Microsoft Edge launched."
-        else:
-            subprocess.Popen(["cmd", "/c", "start", "msedge"])
-            return True, "Microsoft Edge launched."
 
-    # 3. Notepad
-    if "notepad" in key:
-        subprocess.Popen(["notepad.exe"])
-        return True, "Notepad opened."
+    # 4. Search Windows StartApps (UWP & Installed Desktop Apps, e.g. WhatsApp, Discord, Spotify)
+    app_match = find_app_id_by_query(key)
+    if app_match:
+        found_name, app_id = app_match
+        try:
+            # Launch via explorer.exe shell:AppsFolder\AppID
+            subprocess.Popen(["explorer.exe", f"shell:AppsFolder\\{app_id}"])
+            return True, f"Launched '{found_name}' (AppID: {app_id})."
+        except Exception:
+            try:
+                os.startfile(f"shell:AppsFolder\\{app_id}")
+                return True, f"Launched '{found_name}' via shell folder."
+            except Exception:
+                pass
 
-    # 4. Calculator
-    if any(k in key for k in ("calc", "calculator")):
-        subprocess.Popen(["calc.exe"])
-        return True, "Calculator opened."
+    # 5. Common Executable Names
+    exec_map = {
+        "notepad": "notepad.exe",
+        "calculator": "calc.exe",
+        "calc": "calc.exe",
+        "cmd": "cmd.exe",
+        "command prompt": "cmd.exe",
+        "powershell": "powershell.exe",
+        "terminal": "wt.exe",
+        "task manager": "taskmgr.exe",
+        "taskmgr": "taskmgr.exe",
+        "control panel": "control.exe",
+        "vlc": "vlc.exe",
+        "word": "winword.exe",
+        "excel": "excel.exe",
+        "powerpoint": "powerpnt.exe",
+        "vscode": "code",
+        "vs code": "code"
+    }
 
-    # 5. File Explorer / This PC / Downloads
-    if any(k in key for k in ("explorer", "file explorer", "files", "folder", "my computer", "this pc")):
+    if key in exec_map:
+        try:
+            subprocess.Popen([exec_map[key]])
+            return True, f"Opened {key.capitalize()} ({exec_map[key]})."
+        except Exception:
+            pass
+
+    # 6. File Explorer special folders
+    if any(k in key for k in ("explorer", "file explorer", "my computer", "this pc")):
         if "download" in key:
             p = str(Path.home() / "Downloads")
             subprocess.Popen(["explorer.exe", p])
@@ -96,55 +226,7 @@ def launch_application(app_name: str) -> Tuple[bool, str]:
         subprocess.Popen(["explorer.exe"])
         return True, "File Explorer opened."
 
-    # 6. VS Code
-    if any(k in key for k in ("vs code", "vscode", "code")):
-        try:
-            subprocess.Popen(["code"])
-            return True, "Visual Studio Code launched."
-        except Exception:
-            try:
-                subprocess.Popen(["cmd", "/c", "code"])
-                return True, "Visual Studio Code launched."
-            except Exception:
-                pass
-
-    # 7. Terminal / PowerShell / Command Prompt
-    if any(k in key for k in ("powershell", "terminal", "cmd", "command prompt")):
-        if "cmd" in key or "command prompt" in key:
-            subprocess.Popen(["cmd.exe"])
-            return True, "Command Prompt opened."
-        subprocess.Popen(["powershell.exe"])
-        return True, "PowerShell opened."
-
-    # 8. Spotify
-    if "spotify" in key:
-        try:
-            os.startfile("spotify:")
-            return True, "Spotify launched."
-        except Exception:
-            open_url_in_browser("https://open.spotify.com")
-            return True, "Opened Spotify web player."
-
-    # 9. YouTube
-    if "youtube" in key:
-        open_url_in_browser("https://www.youtube.com")
-        return True, "YouTube opened in browser."
-
-    # 10. Task Manager
-    if any(k in key for k in ("taskmgr", "task manager", "task manager")):
-        subprocess.Popen(["taskmgr.exe"])
-        return True, "Task Manager opened."
-
-    # 11. Settings
-    if any(k in key for k in ("setting", "settings", "control panel")):
-        try:
-            os.startfile("ms-settings:")
-            return True, "Windows Settings opened."
-        except Exception:
-            subprocess.Popen(["control.exe"])
-            return True, "Control Panel opened."
-
-    # General fallback: try startfile or shell start
+    # 7. Fallback: try startfile or shell start
     try:
         os.startfile(app_name)
         return True, f"Launched '{app_name}'."
@@ -153,15 +235,22 @@ def launch_application(app_name: str) -> Tuple[bool, str]:
             subprocess.Popen(["cmd", "/c", "start", app_name])
             return True, f"Launched '{app_name}' via system shell."
         except Exception as err:
-            return False, f"Could not launch '{app_name}': {err}"
+            return False, f"Could not locate or launch '{app_name}': {err}"
+
+def list_installed_applications() -> str:
+    """Return JSON string of all installed Windows applications for Saathi awareness."""
+    apps = get_installed_windows_apps(force_refresh=True)
+    if not apps:
+        return "No installed applications found via StartApps query."
+    names = [a.get("Name") for a in apps if a.get("Name")]
+    return f"Total Installed Applications ({len(names)}):\n" + "\n".join(names[:100])
 
 def search_web_live(query: str, engine: str = "google") -> Tuple[bool, str]:
     """
-    Search the web or YouTube immediately and open the results live in Chrome/browser.
+    Search the web or YouTube immediately and open the results live in browser.
     """
     clean_q = query.strip()
     if not clean_q or clean_q.lower() in ("something", "anything", "stuff", "web"):
-        # Default interesting landing search or homepage
         url = "https://www.google.com"
         open_url_in_browser(url)
         return True, "Opened Google Search for you, Pratham."
@@ -169,7 +258,6 @@ def search_web_live(query: str, engine: str = "google") -> Tuple[bool, str]:
     encoded = urllib.parse.quote_plus(clean_q)
 
     if engine == "youtube" or "youtube" in query.lower():
-        # Strip youtube keywords from search terms
         clean_q = clean_q.replace("on youtube", "").replace("in youtube", "").replace("youtube", "").strip()
         encoded = urllib.parse.quote_plus(clean_q)
         url = f"https://www.youtube.com/results?search_query={encoded}"
@@ -179,4 +267,3 @@ def search_web_live(query: str, engine: str = "google") -> Tuple[bool, str]:
     url = f"https://www.google.com/search?q={encoded}"
     open_url_in_browser(url)
     return True, f"Searching Google for '{clean_q}' in browser."
-

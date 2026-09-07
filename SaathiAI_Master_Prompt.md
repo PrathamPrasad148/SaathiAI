@@ -200,6 +200,15 @@ cy = max(310, min(int(h * 0.46), h - 330))
 - Generates modern, responsive web applications following UI/UX Pro Max standards.
 - Writes full code to `Projects/<ProjectName>/index.html` using native file tools and opens it immediately in default browser via `open_target`.
 
+### H. Universal Windows App Resolver & Instant Internet Learning (`automation/app_launcher.py` & `agent/planner.py`)
+- **Get-StartApps Resolution**: Dynamically queries all 170+ installed Windows Apps (Win32, UWP AppX packages like WhatsApp, Spotify, Discord) via PowerShell `Get-StartApps`.
+- **Multi-Tier App Launcher (`launch_application`)**: Automatically resolves target app through 4 tiers:
+  1. Protocol URIs (`whatsapp:`, `tg:`, `spotify:`, `discord:`, `ms-settings:`)
+  2. UWP AppID via `explorer.exe shell:AppsFolder\<AppID>`
+  3. Win32 Executable Map (`chrome.exe`, `msedge.exe`, `notepad.exe`, `calc.exe`, etc.)
+  4. System Shell Fallback via `start` command.
+- **Instant Internet Learning Directive**: When requested to perform unknown or desktop-specific actions, Saathi instantaneously performs `web_search` or `fetch_url_content` to learn exact Windows hotkeys, CLI syntax, or UI sequences before executing.
+
 ---
 
 ## 6. Development & Deployment Guidelines

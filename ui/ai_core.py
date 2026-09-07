@@ -238,17 +238,18 @@ class AICoreVisualizer(tk.Canvas):
         cx = (avail_left + avail_right) / 2.0
         cy = max(310, min(int(h * 0.46), h - 330))
 
-        # Smooth audio level
-        self.audio_level += (self.target_audio_level - self.audio_level) * 0.35
+        # Smooth audio level with cubic easing for organic breathing
+        delta = self.target_audio_level - self.audio_level
+        self.audio_level += delta * abs(delta) * 2.5 + delta * 0.15
 
-        # Speed scaling per agent state
-        speed = 0.02
+        # Speed scaling per agent state (boosted for 4th Civ dynamism)
+        speed = 0.025
         if self.state in ("THINKING", "PLANNING"):
-            speed = 0.06
+            speed = 0.07
         elif self.state == "EXECUTING":
-            speed = 0.09
+            speed = 0.10
         elif self.state in ("LISTENING", "SPEAKING"):
-            speed = 0.035
+            speed = 0.04
 
         self.angle_outer = (self.angle_outer + speed) % (2 * math.pi)
         self.angle_inner = (self.angle_inner - speed * 1.5) % (2 * math.pi)
@@ -260,14 +261,16 @@ class AICoreVisualizer(tk.Canvas):
         self.angle_3d_y = (self.angle_3d_y + 0.045) % (2 * math.pi)
         self.pulse = (self.pulse + 0.05) % (2 * math.pi)
 
-        # Dynamic color styling
-        core_cyan = "#00f0ff"
+        # 4th Civilization Dynamic Color Theme
+        core_cyan = "#00f5ff"
         glow_blue = "#0088ff"
-        accent_red = "#ff3344"     # Distinct red accent arc segment
+        accent_red = "#ff3344"
         if self.state == "EXECUTING":
-            core_cyan = "#00ffaa"
+            core_cyan = "#00ffc8"      # Quantum Teal
         elif self.state in ("THINKING", "PLANNING"):
-            core_cyan = "#8b5cf6"
+            core_cyan = "#7b61ff"      # Astral Violet
+        elif self.state == "SPEAKING":
+            core_cyan = "#ff6b9d"      # Nebula Rose
         elif self.state == "ERROR":
             core_cyan = "#ef4444"
 
@@ -352,7 +355,7 @@ class AICoreVisualizer(tk.Canvas):
         # --- 19. FAR-RIGHT SATELLITE METEOROLOGICAL & MOON STATION ---
         self._draw_weather_moon_station(weather_x, 35, h)
 
-        self.after(33, self._render_frame)
+        self.after(22, self._render_frame)
 
     # -------------------------------------------------------------
     # 0. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK
@@ -582,7 +585,7 @@ class AICoreVisualizer(tk.Canvas):
     # 14. THE GRAND MASTER ARC REACTOR CORE
     # -------------------------------------------------------------
     def _draw_grand_arc_reactor(self, cx, cy, core_cyan, glow_blue, accent_red):
-        """Draw the hyper-intricate Pratham Prasad Saathi Arc Reactor assembly."""
+        """Draw the 4th Civilization Saathi Arc Reactor — sentient cosmic energy core."""
         # --- Ring 0: Outer Vernier Compass Calibration Ring (R = 175) ---
         r_compass = 172
         self.create_oval(cx - r_compass, cy - r_compass, cx + r_compass, cy + r_compass, outline="#0c3058", width=1)
@@ -597,7 +600,7 @@ class AICoreVisualizer(tk.Canvas):
             y1 = cy + (r_compass - t_len) * math.sin(rad)
             x2 = cx + r_compass * math.cos(rad)
             y2 = cy + r_compass * math.sin(rad)
-            self.create_line(x1, y1, x2, y2, fill="#00f0ff" if is_maj else "#082547", width=1)
+            self.create_line(x1, y1, x2, y2, fill="#00f5ff" if is_maj else "#082547", width=1)
 
             if is_maj and deg % 60 == 0:
                 tx = cx + (r_compass - 18) * math.cos(rad)
@@ -623,32 +626,54 @@ class AICoreVisualizer(tk.Canvas):
             dot_x = cx + r_compass * math.cos(ang)
             dot_y = cy + r_compass * math.sin(ang)
             self.create_line(dot_x, dot_y, lx, ly, fill="#0a325c", width=1)
-            self.create_oval(dot_x - 2, dot_y - 2, dot_x + 2, dot_y + 2, fill="#00f0ff", outline="")
+            self.create_oval(dot_x - 2, dot_y - 2, dot_x + 2, dot_y + 2, fill="#00f5ff", outline="")
             anchor_dir = "w" if math.cos(ang) >= 0 else "e"
             self.create_text(lx, ly, text=name, font=FONT_HUD_TINY, fill="#38bdf8", anchor=anchor_dir)
 
-        # --- Ring 1: Rotating Segmented Cyan Telemetry Arcs & THE RED ACCENT ARC ---
+        # --- Ring 1: 3 Sentient Energy Rings (4th Civilization) ---
         r_outer_arcs = 148
         num_segs = 6
         span = 0.26 * math.pi
+        # Inner Ring: Astral Violet — fast rotation
         for i in range(num_segs):
-            s_ang = self.angle_outer + i * (2 * math.pi / num_segs)
+            s_ang = self.angle_outer * 1.3 + i * (2 * math.pi / num_segs)
+            self.create_arc(
+                cx - (r_outer_arcs - 8), cy - (r_outer_arcs - 8), cx + (r_outer_arcs - 8), cy + (r_outer_arcs - 8),
+                start=math.degrees(s_ang), extent=math.degrees(span * 0.7),
+                style="arc", outline="#7b61ff", width=2
+            )
+        # Middle Ring: Quantum Teal — counter-rotating
+        for i in range(num_segs):
+            s_ang = -self.angle_outer * 0.9 + i * (2 * math.pi / num_segs)
             self.create_arc(
                 cx - r_outer_arcs, cy - r_outer_arcs, cx + r_outer_arcs, cy + r_outer_arcs,
                 start=math.degrees(s_ang), extent=math.degrees(span),
-                style="arc", outline=core_cyan, width=3
+                style="arc", outline="#00ffc8", width=3
+            )
+        # Outer Ring: Solar Gold — slow elegant rotation
+        for i in range(num_segs):
+            s_ang = self.angle_outer * 0.5 + i * (2 * math.pi / num_segs) + math.pi / 6
+            self.create_arc(
+                cx - (r_outer_arcs + 4), cy - (r_outer_arcs + 4), cx + (r_outer_arcs + 4), cy + (r_outer_arcs + 4),
+                start=math.degrees(s_ang), extent=math.degrees(span * 0.5),
+                style="arc", outline="#ffd700", width=1
             )
 
-        # THE ICONIC RED ACCENT ARC (Upper-Left Quadrant)
-        red_start = math.degrees(self.angle_outer + math.pi * 0.75)
-        self.create_arc(
-            cx - r_outer_arcs - 2, cy - r_outer_arcs - 2, cx + r_outer_arcs + 2, cy + r_outer_arcs + 2,
-            start=red_start, extent=48, style="arc", outline=accent_red, width=5
-        )
+        # Energy nodes traveling along rings
+        for ring_i, (ring_r, ring_col, ring_speed) in enumerate([
+            (r_outer_arcs - 8, "#7b61ff", 1.3),
+            (r_outer_arcs, "#00ffc8", -0.9),
+            (r_outer_arcs + 4, "#ffd700", 0.5)
+        ]):
+            for n in range(4):
+                node_ang = self.angle_outer * ring_speed + n * (math.pi / 2)
+                nx = cx + ring_r * math.cos(node_ang)
+                ny = cy + ring_r * math.sin(node_ang)
+                self.create_oval(nx - 3, ny - 3, nx + 3, ny + 3, fill=ring_col, outline="#ffffff")
 
-        # --- Ring 2: Dual-Layer Stator Turbine Gears (64 teeth + 32 outer cogs) ---
+        # --- Ring 2: Dual-Layer Stator Turbine Gears (96 teeth) ---
         r_stator = 124
-        teeth_count = 64
+        teeth_count = 96
         for t in range(teeth_count):
             t_rad = self.angle_inner + t * (2 * math.pi / teeth_count)
             t1_x = cx + (r_stator - 6) * math.cos(t_rad)
@@ -656,11 +681,12 @@ class AICoreVisualizer(tk.Canvas):
             t2_x = cx + (r_stator + 6) * math.cos(t_rad)
             t2_y = cy + (r_stator + 6) * math.sin(t_rad)
             is_accent = (t % 8 == 0)
-            self.create_line(t1_x, t1_y, t2_x, t2_y, fill="#00f0ff" if is_accent else "#0c3058", width=2 if is_accent else 1)
+            brightness = "#00f5ff" if is_accent else ("#0c3058" if t % 2 == 0 else "#082240")
+            self.create_line(t1_x, t1_y, t2_x, t2_y, fill=brightness, width=2 if is_accent else 1)
 
         self.create_oval(cx - r_stator, cy - r_stator, cx + r_stator, cy + r_stator, outline="#0a2a50", width=1, dash=(2, 4))
 
-        # --- Ring 3: 12 Magnetic Induction Coils with Corona Filaments ---
+        # --- Ring 3: 12 Plasma Lavender Energy Conduits with Micro-Lightning ---
         num_coils = 12
         r_c_in = 84
         r_c_out = 108
@@ -671,36 +697,78 @@ class AICoreVisualizer(tk.Canvas):
             c2_x = cx + r_c_out * math.cos(c_ang)
             c2_y = cy + r_c_out * math.sin(c_ang)
 
-            coil_col = COLOR_COPPER if math.sin(self.pulse * 2 + c) < 0 else core_cyan
+            # Pulsing plasma lavender energy conduits
+            pulse_bright = 0.5 + 0.5 * math.sin(self.pulse * 2.5 + c)
+            coil_col = "#c0a0ff" if pulse_bright > 0.5 else core_cyan
             self.create_line(c1_x, c1_y, c2_x, c2_y, fill=coil_col, width=4)
+
+            # Micro-lightning arcs between adjacent coils
+            if c % 2 == 0:
+                next_c = (c + 1) % num_coils
+                nc_ang = self.angle_coils + next_c * (2 * math.pi / num_coils)
+                nc_x = cx + (r_c_in + r_c_out) / 2 * math.cos(nc_ang)
+                nc_y = cy + (r_c_in + r_c_out) / 2 * math.sin(nc_ang)
+                mid_x = (c2_x + nc_x) / 2 + random.uniform(-4, 4)
+                mid_y = (c2_y + nc_y) / 2 + random.uniform(-4, 4)
+                self.create_line(c2_x, c2_y, mid_x, mid_y, nc_x, nc_y, fill="#c0a0ff", width=1, smooth=True)
 
             # Animated electrical flux arc toward center
             if c % 3 == 0:
                 f_mid_x = cx + (r_c_in - 14) * math.cos(c_ang + 0.1)
                 f_mid_y = cy + (r_c_in - 14) * math.sin(c_ang + 0.1)
-                self.create_line(c1_x, c1_y, f_mid_x, f_mid_y, fill="#00f0ff", width=1)
+                self.create_line(c1_x, c1_y, f_mid_x, f_mid_y, fill="#00f5ff", width=1)
 
         # --- Ring 4: Holographic Sweeping Radar Diagnostic Beam ---
         sweep_rad = self.angle_sweep
         self.create_line(cx, cy, cx + 162 * math.cos(sweep_rad), cy + 162 * math.sin(sweep_rad), fill=glow_blue, width=1)
         self.create_line(cx, cy, cx + 158 * math.cos(sweep_rad - 0.08), cy + 158 * math.sin(sweep_rad - 0.08), fill="#051c36", width=1)
 
-        # --- Ring 5: Multi-Depth Glowing Plasma Iris Core ---
-        r_iris = 42 + math.sin(self.pulse) * 4 + (self.audio_level * 24)
+        # --- Ring 5: 4th Civilization Breathing Plasma Iris Core ---
+        r_iris = 42 + math.sin(self.pulse) * 6 + (self.audio_level * 28)
 
-        # Outer containment ring
+        # Outer containment rings (pulsing double-ring glow)
+        self.create_oval(cx - (r_iris + 16), cy - (r_iris + 16), cx + (r_iris + 16), cy + (r_iris + 16), outline="#7b61ff", width=1)
         self.create_oval(cx - (r_iris + 14), cy - (r_iris + 14), cx + (r_iris + 14), cy + (r_iris + 14), outline="#00a8ff", width=1)
+
         # Deep reactor housing
         self.create_oval(cx - r_iris, cy - r_iris, cx + r_iris, cy + r_iris, fill="#041224", outline=core_cyan, width=2)
+
+        # Fibonacci spiral energy vortex arms inside the iris
+        for spiral in range(2):
+            spiral_pts = []
+            for t in range(24):
+                frac = t / 24.0
+                spiral_r = r_iris * 0.85 * frac
+                spiral_ang = frac * math.pi * 4 + self.pulse * 3 + spiral * math.pi
+                sx = cx + spiral_r * math.cos(spiral_ang)
+                sy = cy + spiral_r * math.sin(spiral_ang)
+                spiral_pts.extend([sx, sy])
+            if len(spiral_pts) >= 6:
+                self.create_line(spiral_pts, fill="#00ffc8" if spiral == 0 else "#7b61ff", width=1, smooth=True)
+
         # Concentric glowing plasma disc
         r_plasma = max(10, r_iris * 0.65)
         self.create_oval(cx - r_plasma, cy - r_plasma, cx + r_plasma, cy + r_plasma, fill=glow_blue, outline="")
         # Bright cyan lens
         r_lens = max(6, r_plasma * 0.55)
         self.create_oval(cx - r_lens, cy - r_lens, cx + r_lens, cy + r_lens, fill=core_cyan, outline="")
-        # White hot nucleus
+        # Pulsing star nucleus
         r_hot = max(3, r_lens * 0.45)
-        self.create_oval(cx - r_hot, cy - r_hot, cx + r_hot, cy + r_hot, fill="#ffffff", outline="")
+        star_brightness = 0.7 + 0.3 * math.sin(self.pulse * 1.8)
+        star_col = "#ffffff" if star_brightness > 0.85 else "#e0f7fa"
+        self.create_oval(cx - r_hot, cy - r_hot, cx + r_hot, cy + r_hot, fill=star_col, outline="")
+
+        # Radial light rays emanating from nucleus
+        num_rays = 8
+        for ray_i in range(num_rays):
+            ray_ang = ray_i * (2 * math.pi / num_rays) + self.pulse * 0.5
+            ray_inner = r_hot + 2
+            ray_outer = r_plasma * (0.6 + 0.4 * math.sin(self.pulse * 2 + ray_i))
+            rx1 = cx + ray_inner * math.cos(ray_ang)
+            ry1 = cy + ray_inner * math.sin(ray_ang)
+            rx2 = cx + ray_outer * math.cos(ray_ang)
+            ry2 = cy + ray_outer * math.sin(ray_ang)
+            self.create_line(rx1, ry1, rx2, ry2, fill="#ffffff", width=1)
 
         # Core crosshair reticles
         self.create_line(cx - (r_iris + 8), cy, cx - (r_iris - 4), cy, fill=core_cyan, width=1)
@@ -712,19 +780,21 @@ class AICoreVisualizer(tk.Canvas):
         hex_str = f"0x7F // 0xA9 // ADDR_CORE: 0x{int(self.pulse*100):02X} // FLUX_OK // T: {self.core_temp:.1f}C"
         self.create_text(cx, cy + r_compass + 10, text=hex_str, font=("Consolas", 6), fill="#38bdf8")
 
-        # 48-Channel Audio Spectrum Equalizer (Beneath core)
+        # 48-Channel Audio Spectrum Equalizer (4th Civ gradient colors)
         bars = 36
         bar_w = 4
         gap = 3
         total_w = bars * (bar_w + gap)
         start_x = cx - (total_w / 2)
         eq_base_y = cy + r_compass + 24
+        eq_colors = ["#7b61ff", "#00f5ff", "#00ffc8", "#ffd700", "#ff6b9d"]
 
         for b in range(bars):
             dist_norm = 1.0 - abs(b - (bars / 2)) / (bars / 2)
-            wave_h = 2 + (self.audio_level * 18 * dist_norm * math.sin(b * 0.5 + self.pulse * 3))
+            wave_h = 2 + (self.audio_level * 20 * dist_norm * math.sin(b * 0.5 + self.pulse * 3))
             bx = start_x + b * (bar_w + gap)
-            self.create_rectangle(bx, eq_base_y - wave_h, bx + bar_w, eq_base_y + wave_h, fill=core_cyan, outline="")
+            bar_col = eq_colors[b % len(eq_colors)]
+            self.create_rectangle(bx, eq_base_y - wave_h, bx + bar_w, eq_base_y + wave_h, fill=bar_col, outline="")
 
     # -------------------------------------------------------------
     # 15. BOTTOM LAUNCHER NODES & PRATHAM PRASAD BADGE
@@ -1011,9 +1081,10 @@ class AICoreVisualizer(tk.Canvas):
             })
 
     def _init_quantum_particles(self):
-        """Initialize ambient floating 3D quantum light particles."""
+        """Initialize 4th Civilization ambient floating 3D quantum light particles."""
         self.quantum_particles = []
-        for _ in range(40):
+        civ_particle_colors = ["#00f5ff", "#7b61ff", "#00ffc8", "#ffd700", "#ff6b9d", "#c0a0ff", "#38bdf8"]
+        for _ in range(60):
             self.quantum_particles.append({
                 "x": random.uniform(-500, 500),
                 "y": random.uniform(-300, 300),
@@ -1021,8 +1092,8 @@ class AICoreVisualizer(tk.Canvas):
                 "vx": random.uniform(-0.4, 0.4),
                 "vy": random.uniform(-0.4, 0.4),
                 "vz": random.uniform(-0.2, 0.2),
-                "color": random.choice(["#00f0ff", "#8b5cf6", "#00ffaa", "#38bdf8"]),
-                "size": random.uniform(1.2, 2.5)
+                "color": random.choice(civ_particle_colors),
+                "size": random.uniform(1.2, 2.8)
             })
 
     def _init_tesseract(self):
@@ -1044,8 +1115,9 @@ class AICoreVisualizer(tk.Canvas):
         self.angle_4d_yz = 0.0
 
     def _draw_quantum_particle_field(self, cx, cy, w, h):
-        """Render drifting floating 3D quantum ambient light dust field across the background."""
+        """Render 4th Civilization drifting 3D quantum particles with living mesh connections."""
         d = 200.0
+        projected = []
         for p in self.quantum_particles:
             p["x"] += p["vx"]
             p["y"] += p["vy"]
@@ -1059,10 +1131,22 @@ class AICoreVisualizer(tk.Canvas):
             px = cx + p["x"] * scale
             py = cy + p["y"] * scale
 
-            r = p["size"] * scale
+            # Pulsing brightness
+            r = p["size"] * scale * (0.8 + 0.2 * math.sin(self.pulse * 2 + p["x"] * 0.01))
             self.create_oval(px - r, py - r, px + r, py + r, fill=p["color"], outline="")
-            if random.random() < 0.05:
-                self.create_oval(px - (r + 2), py - (r + 2), px + (r + 2), py + (r + 2), outline="#ffffff", width=1)
+            if random.random() < 0.04:
+                self.create_oval(px - (r + 3), py - (r + 3), px + (r + 3), py + (r + 3), outline="#ffffff", width=1)
+
+            projected.append((px, py))
+
+        # Connection lines between nearby particles (living mesh)
+        for i in range(len(projected)):
+            for j in range(i + 1, min(i + 8, len(projected))):
+                dx = projected[i][0] - projected[j][0]
+                dy = projected[i][1] - projected[j][1]
+                dist_sq = dx * dx + dy * dy
+                if dist_sq < 3600:  # < 60px
+                    self.create_line(projected[i][0], projected[i][1], projected[j][0], projected[j][1], fill="#0c2847", width=1)
 
     def _draw_hyperdimensional_tesseract_core(self, cx, cy):
         """Render rotating 4D Tesseract hypercube matrix projected inside the central reactor core."""
@@ -1184,25 +1268,38 @@ class AICoreVisualizer(tk.Canvas):
     # 21. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD
     # -------------------------------------------------------------
     def _draw_honeycomb_shield(self, cx, cy):
-        """Draw concentric hexagonal forcefield matrix with expanding energy ripple."""
+        """Draw 4th Civilization hexagonal forcefield with ripple wave propagation."""
         radii = [190, 215, 240]
         pulse_scale = math.sin(self.pulse * 1.5) * 3
+        civ_colors = ["#00f5ff", "#7b61ff", "#00ffc8"]
 
         for idx, base_r in enumerate(radii):
-            r = base_r + pulse_scale
-            # 6 Hexagonal Vertices
+            r = base_r + pulse_scale * (1 if idx % 2 == 0 else -1)
+            # Ripple wave: rings pulse outward from center
+            ripple = math.sin(self.pulse * 2 - idx * 0.8) * 4
+            r += ripple
+
+            hex_col = civ_colors[idx % len(civ_colors)]
+
             pts = []
             for h_i in range(6):
                 ang = h_i * (math.pi / 3) + (self.pulse * 0.05 if idx % 2 == 0 else -self.pulse * 0.05)
                 px = cx + r * math.cos(ang)
                 py = cy + r * math.sin(ang)
                 pts.extend([px, py])
-                # Small corner junction diamond
-                self.create_oval(px - 1.5, py - 1.5, px + 1.5, py + 1.5, fill="#00f0ff", outline="")
+                # Corner junction diamonds
+                self.create_oval(px - 2, py - 2, px + 2, py + 2, fill=hex_col, outline="")
 
             # Close hexagon polygon
             pts.extend([pts[0], pts[1]])
-            self.create_line(pts, fill="#072242", width=1, dash=(4, 6))
+            self.create_line(pts, fill=hex_col, width=1, dash=(4, 6))
+
+            # Energy absorption flashes — random cells briefly flash white
+            if random.random() < 0.03:
+                flash_i = random.randint(0, 5)
+                fx = pts[flash_i * 2]
+                fy = pts[flash_i * 2 + 1]
+                self.create_oval(fx - 5, fy - 5, fx + 5, fy + 5, fill="#ffffff", outline="")
 
     # -------------------------------------------------------------
     # 22. DYNAMIC NEURAL SYNAPSE PLEXUS & ACTION POTENTIALS
@@ -1397,17 +1494,26 @@ class AICoreVisualizer(tk.Canvas):
     # 24. HIGH-VOLTAGE PLASMA LIGHTNING DISCHARGES
     # -------------------------------------------------------------
     def _draw_plasma_lightning(self, cx, cy, r_iris, core_color):
-        """Draw authentic high-voltage electric plasma sparks between coils and central iris."""
+        """Draw 4th Civilization high-voltage electric plasma sparks with branching filaments."""
+        # State-adaptive lightning colors
+        bolt_color = "#00f5ff"  # Default cyan
+        if self.state in ("THINKING", "PLANNING"):
+            bolt_color = "#7b61ff"  # Astral violet
+        elif self.state == "EXECUTING":
+            bolt_color = "#ffd700"  # Solar gold
+        elif self.state == "SPEAKING":
+            bolt_color = "#ff6b9d"  # Nebula rose
+
         # Determine number of lightning arcs based on audio & state
-        num_arcs = 1
-        if self.audio_level > 0.2:
-            num_arcs = 2
+        num_arcs = 2
+        if self.audio_level > 0.15:
+            num_arcs = 4
         if self.state in ("THINKING", "PLANNING", "EXECUTING", "SPEAKING"):
-            num_arcs = 3
+            num_arcs = 6
 
         for a_i in range(num_arcs):
             # Pick a coil angle
-            c_idx = (int(self.pulse * 4) + a_i * 4) % 12
+            c_idx = (int(self.pulse * 4) + a_i * 2) % 12
             c_ang = self.angle_coils + c_idx * (2 * math.pi / 12)
 
             start_x = cx + 84 * math.cos(c_ang)
@@ -1416,9 +1522,9 @@ class AICoreVisualizer(tk.Canvas):
             target_x = cx + r_iris * math.cos(c_ang + 0.15)
             target_y = cy + r_iris * math.sin(c_ang + 0.15)
 
-            # Generate fractal jagged arc
+            # Generate fractal jagged arc with more segments
             coords = [start_x, start_y]
-            steps = 4
+            steps = 6
             for s in range(1, steps):
                 f = s / steps
                 lx = start_x + (target_x - start_x) * f
@@ -1429,13 +1535,23 @@ class AICoreVisualizer(tk.Canvas):
                 n_len = math.hypot(nx, ny) or 1.0
                 nx /= n_len
                 ny /= n_len
-                offset = (random.random() - 0.5) * 12
+                offset = (random.random() - 0.5) * 16
                 coords.extend([lx + nx * offset, ly + ny * offset])
             coords.extend([target_x, target_y])
 
-            # Draw Cyan Lightning Halo & White Core Filament
-            self.create_line(coords, fill="#00f0ff", width=2)
+            # Draw colored Lightning Halo & White Core Filament
+            self.create_line(coords, fill=bolt_color, width=2)
             self.create_line(coords, fill="#ffffff", width=1)
+
+            # Branch filament (30% chance per bolt)
+            if random.random() < 0.3 and len(coords) >= 8:
+                branch_idx = random.randint(1, steps - 1) * 2
+                if branch_idx < len(coords):
+                    bx = coords[branch_idx]
+                    by = coords[branch_idx + 1]
+                    branch_end_x = bx + random.uniform(-18, 18)
+                    branch_end_y = by + random.uniform(-18, 18)
+                    self.create_line(bx, by, branch_end_x, branch_end_y, fill=bolt_color, width=1)
 
     # -------------------------------------------------------------
     # 25. TACTICAL RETICLE LOCK-ON SYSTEM

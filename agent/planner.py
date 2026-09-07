@@ -159,6 +159,25 @@ COMMON_REFLEX_PHRASES = [
     "Analyzing your directive, Pratham. Running cognitive inference and planning the optimal execution path."
 ]
 
+_ollama_models_cache: Optional[List[str]] = None
+_last_models_cache_time: float = 0.0
+
+def get_installed_ollama_models() -> List[str]:
+    """Retrieve list of locally installed Ollama models with a 5-minute cache."""
+    global _ollama_models_cache, _last_models_cache_time
+    if _ollama_models_cache is not None and (time.time() - _last_models_cache_time < 300):
+        return _ollama_models_cache
+    try:
+        req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            models = [m.get("name", "") for m in data.get("models", [])]
+            _ollama_models_cache = models
+            _last_models_cache_time = time.time()
+            return models
+    except Exception:
+        return []
+
 class AgentPlanner:
     def __init__(self,
                  tool_registry: ToolRegistry,
@@ -193,12 +212,23 @@ class AgentPlanner:
     def pick_model(self, text: str) -> str:
         if self.selected_model and self.selected_model != "Auto (Smart Agent)":
             return self.selected_model
+
+        installed = get_installed_ollama_models()
+        
+        # Priority 1: qwen2.5-coder:7b if installed
+        for coder_candidate in ("qwen2.5-coder:7b", "qwen2.5-coder:latest", "qwen2.5-coder"):
+            if coder_candidate in installed:
+                return coder_candidate
+
         lowered = text.lower().strip()
-        # Heavy coding and website creation routes to 7B
+        # Heavy coding and website creation routes to 7B or 14B candidate
         if any(k in lowered for k in ("website", "code", "python", "script", "program", "build", "generate", "portfolio")):
-            return "qwen2.5:7b"
-        # General queries route to ultra-fast 4B (2x higher tokens/sec on CPU)
-        return "qwen3:4b-instruct"
+            if "qwen2.5:7b" in installed:
+                return "qwen2.5:7b"
+            if "qwen3:14b" in installed:
+                return "qwen3:14b"
+
+        return "qwen3:4b-instruct" if "qwen3:4b-instruct" in installed else (installed[0] if installed else "qwen3:4b-instruct")
 
     def remove_thinking(self, text: str) -> str:
         return re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()

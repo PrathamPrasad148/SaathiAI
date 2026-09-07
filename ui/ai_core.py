@@ -277,25 +277,32 @@ class AICoreVisualizer(tk.Canvas):
         # --- 0. BACKGROUND QUANTUM PARTICLE FIELD ---
         self._draw_quantum_particle_field(cx, cy, w, h)
 
-        # --- 0A. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
+        # --- 0A. 7th-GEN HYPER-VOLUMETRIC TACHYON LIGHT PILLAR & LENSING ---
+        self._draw_hyper_volumetric_tachyon_beam(cx, cy, h, core_cyan)
+
+        # --- 0B. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
         self._draw_laser_circuit_bus(cx, cy, w, h, core_cyan)
 
-        # --- 0B. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD ---
+        # --- 0C. HOLOGRAPHIC HONEYCOMB FORCEFIELD SHIELD ---
         self._draw_honeycomb_shield(cx, cy)
 
-        # --- 0C. DYNAMIC NEURAL SYNAPSE PLEXUS & ACTION POTENTIALS ---
+        # --- 0D. DYNAMIC NEURAL SYNAPSE PLEXUS & ACTION POTENTIALS ---
         self._update_and_draw_neural_plexus(cx, cy, w, h, core_cyan)
 
-        # --- 0D. CIRCUIT BUS STREAMING DATA PACKETS ---
+        # --- 0E. CIRCUIT BUS STREAMING DATA PACKETS ---
         self._update_and_draw_circuit_packets(cx, cy)
 
-        # --- 0E. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS) ---
+        # --- 0F. DYNAMIC 3D HOLOGRAPHIC THREAD RIBBONS (TECHIE VISUALS) ---
         self._draw_3d_holographic_threads(cx, cy)
 
-        # --- 0F. HYPERDIMENSIONAL 4D TESSERACT CORE MATRIX ---
+        # --- 0G. HYPERDIMENSIONAL 4D TESSERACT CORE & 24-CELL POLYTOPE ---
         self._draw_hyperdimensional_tesseract_core(cx, cy)
+        self._draw_24cell_polytope(cx, cy)
 
-        # --- 0G. SWEEPING HOLOGRAPHIC SCANLINES & HEX DATA STREAM ---
+        # --- 0H. PROBABILITY BRANCHING FILAMENT GRAPHS ---
+        self._draw_probability_branching_filaments(cx, cy)
+
+        # --- 0I. SWEEPING HOLOGRAPHIC SCANLINES & HEX DATA STREAM ---
         self._draw_tactical_holographic_scanlines(cx, cy, w, h)
 
         # --- 1. TACTICAL HUD HORIZON & TELEMETRY RETICLE ---
@@ -1113,6 +1120,33 @@ class AICoreVisualizer(tk.Canvas):
                     self.tesseract_edges.append((i, j))
         self.angle_4d_xw = 0.0
         self.angle_4d_yz = 0.0
+        self._init_24cell()
+
+    def _init_24cell(self):
+        """Initialize 4D 24-Cell Polytope 24 vertices and 96 edges (7th-Gen AI Core)."""
+        self.polytope_vertices = []
+        # 8 axis vertices
+        for axis in range(4):
+            for sign in (-1, 1):
+                v = [0.0, 0.0, 0.0, 0.0]
+                v[axis] = sign * 2.0
+                self.polytope_vertices.append(v)
+        # 16 hypercube vertices
+        for x in (-1, 1):
+            for y in (-1, 1):
+                for z in (-1, 1):
+                    for w in (-1, 1):
+                        self.polytope_vertices.append([float(x), float(y), float(z), float(w)])
+
+        self.polytope_edges = []
+        num_v = len(self.polytope_vertices)
+        for i in range(num_v):
+            for j in range(i + 1, num_v):
+                dist_sq = sum((self.polytope_vertices[i][k] - self.polytope_vertices[j][k]) ** 2 for k in range(4))
+                if 3.8 <= dist_sq <= 4.2:  # distance = 2.0
+                    self.polytope_edges.append((i, j))
+        self.angle_24cell_xw = 0.0
+        self.angle_24cell_yz = 0.0
 
     def _draw_quantum_particle_field(self, cx, cy, w, h):
         """Render 4th Civilization drifting 3D quantum particles with living mesh connections."""
@@ -1190,6 +1224,95 @@ class AICoreVisualizer(tk.Canvas):
             edge_col = "#ffffff" if avg_z < 0 else ("#00f0ff" if avg_z < 0.5 else "#062e54")
             lw = 2 if avg_z < 0 else 1
             self.create_line(p1[0], p1[1], p2[0], p2[1], fill=edge_col, width=lw)
+
+    def _draw_hyper_volumetric_tachyon_beam(self, cx, cy, h, core_color):
+        """Render 7th-Generation Hyper-Volumetric Tachyon Light Pillar with Gravitational Lensing."""
+        # 1. Volumetric Hard-Light Tachyon Beam (vertical light pillar through reactor core)
+        self.create_line(cx, 0, cx, h, fill="#7b61ff", width=24)
+        self.create_line(cx, 0, cx, h, fill="#00f5ff", width=12)
+        self.create_line(cx, 0, cx, h, fill="#00ffc8", width=5)
+        self.create_line(cx, 0, cx, h, fill="#ffffff", width=2)
+
+        # 2. Gravitational Lensing Distortion Rings (warped space circles along beam)
+        lens_offsets = [-140, -70, 70, 140]
+        for idx, offset_y in enumerate(lens_offsets):
+            ly = cy + offset_y
+            rw = 32 + math.sin(self.pulse * 2 + idx) * 8 + (self.audio_level * 12)
+            rh = 8 + math.cos(self.pulse * 1.5 + idx) * 3
+            l_col = "#7b61ff" if idx % 2 == 0 else "#00ffc8"
+            self.create_oval(cx - rw, ly - rh, cx + rw, ly + rh, outline=l_col, width=1)
+            self.create_line(cx - rw - 4, ly, cx - rw + 4, ly, fill="#ffffff", width=1)
+            self.create_line(cx + rw - 4, ly, cx + rw + 4, ly, fill="#ffffff", width=1)
+
+        # 3. Dynamic Topological Glyphs (drifting up the tachyon beam)
+        glyphs = ["Ω", "Ψ", "∇", "Σ", "ℵ", "Φ"]
+        for g_i, symbol in enumerate(glyphs):
+            gy = (h - ((self.pulse * 80 + g_i * 90) % h))
+            gx = cx + math.sin(self.pulse * 2 + g_i) * 14
+            self.create_text(gx, gy, text=symbol, font=("Consolas", 8, "bold"), fill="#00ffc8")
+
+    def _draw_24cell_polytope(self, cx, cy):
+        """Render 7th-Generation rotating 4D 24-Cell Polytope wireframe matrix."""
+        self.angle_24cell_xw = (self.angle_24cell_xw + 0.03) % (2 * math.pi)
+        self.angle_24cell_yz = (self.angle_24cell_yz - 0.02) % (2 * math.pi)
+
+        cos_xw = math.cos(self.angle_24cell_xw); sin_xw = math.sin(self.angle_24cell_xw)
+        cos_yz = math.cos(self.angle_24cell_yz); sin_yz = math.sin(self.angle_24cell_yz)
+
+        nodes_2d = []
+        d4 = 4.0
+        d3 = 160.0
+        scale_size = 22 + self.audio_level * 14
+        offset_x = cx + 115
+        offset_y = cy - 20
+
+        for vx, vy, vz, vw in self.polytope_vertices:
+            x1 = vx * cos_xw - vw * sin_xw
+            w1 = vx * sin_xw + vw * cos_xw
+            y1 = vy * cos_yz - vz * sin_yz
+            z1 = vy * sin_yz + vz * cos_yz
+
+            w_scale = 1.0 / (d4 - w1 * 0.35)
+            x3d = x1 * w_scale
+            y3d = y1 * w_scale
+            z3d = z1 * w_scale
+
+            z_scale = d3 / (d3 + z3d * 35.0)
+            px = offset_x + (x3d * scale_size) * z_scale
+            py = offset_y + (y3d * scale_size) * z_scale
+
+            nodes_2d.append((px, py, z3d))
+
+        for i, j in self.polytope_edges:
+            if i < len(nodes_2d) and j < len(nodes_2d):
+                p1, p2 = nodes_2d[i], nodes_2d[j]
+                avg_z = (p1[2] + p2[2]) / 2.0
+                edge_col = "#ffffff" if avg_z < -0.2 else ("#7b61ff" if avg_z < 0.4 else "#00ffc8")
+                lw = 2 if avg_z < -0.2 else 1
+                self.create_line(p1[0], p1[1], p2[0], p2[1], fill=edge_col, width=lw)
+
+    def _draw_probability_branching_filaments(self, cx, cy):
+        """Render 7th-Generation Probability Branching Filament Graphs extending from Core."""
+        for side in (-1, 1):
+            start_x = cx + side * 155
+            start_y = cy
+            num_branches = 4
+
+            for b in range(num_branches):
+                b_ang = (b - 1.5) * 0.28 + math.sin(self.pulse + b) * 0.05
+                mid_x = start_x + side * 45 * math.cos(b_ang)
+                mid_y = start_y + 45 * math.sin(b_ang)
+                end_x = mid_x + side * 40 * math.cos(b_ang * 1.5)
+                end_y = mid_y + 35 * math.sin(b_ang * 1.5)
+
+                b_col = "#7b61ff" if b % 2 == 0 else "#00ffc8"
+                self.create_line(start_x, start_y, mid_x, mid_y, end_x, end_y, fill=b_col, width=1, smooth=True)
+                self.create_oval(end_x - 2, end_y - 2, end_x + 2, end_y + 2, fill="#ffffff", outline=b_col)
+
+                p_t = (self.pulse * 1.8 + b * 0.4) % 1.0
+                px = start_x + (end_x - start_x) * p_t
+                py = start_y + (end_y - start_y) * p_t
+                self.create_oval(px - 1.5, py - 1.5, px + 1.5, py + 1.5, fill="#ffffff", outline="")
 
     def _draw_tactical_holographic_scanlines(self, cx, cy, w, h):
         """Render sweeping holographic laser scanlines and cascading hex telemetry data streams."""

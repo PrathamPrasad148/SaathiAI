@@ -277,8 +277,8 @@ class AICoreVisualizer(tk.Canvas):
         # --- 0. BACKGROUND QUANTUM PARTICLE FIELD ---
         self._draw_quantum_particle_field(cx, cy, w, h)
 
-        # --- 0A. 7th-GEN HYPER-VOLUMETRIC TACHYON LIGHT PILLAR & LENSING ---
-        self._draw_hyper_volumetric_tachyon_beam(cx, cy, h, core_cyan)
+        # --- 0A. HOLOGRAPHIC COMPUTER ARCHITECTURE (SILICON DIE & LOGIC GATES) ---
+        self._draw_holographic_computer_architecture(cx, cy)
 
         # --- 0B. BACKGROUND HOLOGRAPHIC CIRCUIT NETWORK ---
         self._draw_laser_circuit_bus(cx, cy, w, h, core_cyan)
@@ -1225,31 +1225,66 @@ class AICoreVisualizer(tk.Canvas):
             lw = 2 if avg_z < 0 else 1
             self.create_line(p1[0], p1[1], p2[0], p2[1], fill=edge_col, width=lw)
 
-    def _draw_hyper_volumetric_tachyon_beam(self, cx, cy, h, core_color):
-        """Render 7th-Generation Hyper-Volumetric Tachyon Light Pillar with Gravitational Lensing."""
-        # 1. Volumetric Hard-Light Tachyon Beam (vertical light pillar through reactor core)
-        self.create_line(cx, 0, cx, h, fill="#7b61ff", width=24)
-        self.create_line(cx, 0, cx, h, fill="#00f5ff", width=12)
-        self.create_line(cx, 0, cx, h, fill="#00ffc8", width=5)
-        self.create_line(cx, 0, cx, h, fill="#ffffff", width=2)
+    def _draw_holographic_computer_architecture(self, cx, cy):
+        """Render floating 3D holographic silicon microchip die, hardware registers, and logic gate schematics."""
+        # 1. Floating Isometric Silicon Microchip Die (Upper Left Core Area)
+        chip_x = cx - 260
+        chip_y = cy - 140
+        chip_w = 90
+        chip_h = 50
 
-        # 2. Gravitational Lensing Distortion Rings (warped space circles along beam)
-        lens_offsets = [-140, -70, 70, 140]
-        for idx, offset_y in enumerate(lens_offsets):
-            ly = cy + offset_y
-            rw = 32 + math.sin(self.pulse * 2 + idx) * 8 + (self.audio_level * 12)
-            rh = 8 + math.cos(self.pulse * 1.5 + idx) * 3
-            l_col = "#7b61ff" if idx % 2 == 0 else "#00ffc8"
-            self.create_oval(cx - rw, ly - rh, cx + rw, ly + rh, outline=l_col, width=1)
-            self.create_line(cx - rw - 4, ly, cx - rw + 4, ly, fill="#ffffff", width=1)
-            self.create_line(cx + rw - 4, ly, cx + rw + 4, ly, fill="#ffffff", width=1)
+        # Substrate Glass Panel
+        self.create_polygon(
+            chip_x, chip_y,
+            chip_x + chip_w, chip_y - 15,
+            chip_x + chip_w + 30, chip_y + chip_h - 15,
+            chip_x + 30, chip_y + chip_h,
+            fill="#030c1d", outline="#7b61ff", width=1
+        )
+        # Inner Silicon Die Grid
+        for g in range(1, 4):
+            frac = g / 4.0
+            gx1 = chip_x + chip_w * frac
+            gy1 = chip_y - 15 * frac
+            gx2 = chip_x + 30 + chip_w * frac
+            gy2 = chip_y + chip_h - 15 * frac
+            self.create_line(gx1, gy1, gx2, gy2, fill="#0c2847", width=1)
 
-        # 3. Dynamic Topological Glyphs (drifting up the tachyon beam)
-        glyphs = ["Ω", "Ψ", "∇", "Σ", "ℵ", "Φ"]
-        for g_i, symbol in enumerate(glyphs):
-            gy = (h - ((self.pulse * 80 + g_i * 90) % h))
-            gx = cx + math.sin(self.pulse * 2 + g_i) * 14
-            self.create_text(gx, gy, text=symbol, font=("Consolas", 8, "bold"), fill="#00ffc8")
+        # Die Badge
+        self.create_text(chip_x + 35, chip_y + 16, text="SAATHI-NPU // 7nm", font=("Consolas", 6, "bold"), fill="#00ffc8")
+        self.create_text(chip_x + 35, chip_y + 26, text="4.8 GHz // 64-CORE", font=("Consolas", 6), fill="#38bdf8")
+
+        # 2. Logic Gate Schematics (AND & XOR gates)
+        gate_x = cx + 180
+        gate_y = cy - 140
+        # AND Gate Symbol
+        self.create_line(gate_x, gate_y - 10, gate_x + 15, gate_y - 10, fill="#00f5ff", width=1)
+        self.create_line(gate_x, gate_y + 10, gate_x + 15, gate_y + 10, fill="#00f5ff", width=1)
+        self.create_arc(gate_x + 5, gate_y - 14, gate_x + 32, gate_y + 14, start=-90, extent=180, style="arc", outline="#7b61ff", width=2)
+        self.create_line(gate_x + 5, gate_y - 14, gate_x + 5, gate_y + 14, fill="#7b61ff", width=2)
+        self.create_line(gate_x + 32, gate_y, gate_x + 48, gate_y, fill="#00ffc8", width=1)
+        self.create_text(gate_x + 55, gate_y, text="AND (A·B=1)", font=("Consolas", 6, "bold"), fill="#00ffc8", anchor="w")
+
+        # XOR Gate Symbol (slightly below)
+        gate2_y = gate_y + 35
+        self.create_arc(gate_x - 2, gate2_y - 12, gate_x + 12, gate2_y + 12, start=-90, extent=180, style="arc", outline="#38bdf8", width=1)
+        self.create_arc(gate_x + 3, gate2_y - 12, gate_x + 30, gate2_y + 12, start=-90, extent=180, style="arc", outline="#00f5ff", width=2)
+        self.create_line(gate_x + 30, gate2_y, gate_x + 48, gate2_y, fill="#ffd700", width=1)
+        self.create_text(gate_x + 55, gate2_y, text="XOR (A⊕B)", font=("Consolas", 6, "bold"), fill="#ffd700", anchor="w")
+
+        # 3. Hardware Registers Readout Window (Lower Right Core Area)
+        reg_x = cx + 180
+        reg_y = cy + 60
+        self.create_rectangle(reg_x, reg_y, reg_x + 120, reg_y + 50, fill="#020817", outline="#0c3058")
+        self.create_text(reg_x + 6, reg_y + 8, text="[HARDWARE REGISTERS]", font=("Consolas", 6, "bold"), fill="#7b61ff", anchor="w")
+        self.create_text(reg_x + 6, reg_y + 20, text=f"REG_AX: 0x{int(self.pulse*255):02X}4A", font=("Consolas", 6), fill="#00ffc8", anchor="w")
+        self.create_text(reg_x + 6, reg_y + 30, text=f"REG_PC: 0x00FF{int(self.pulse*100):02X}", font=("Consolas", 6), fill="#38bdf8", anchor="w")
+        self.create_text(reg_x + 6, reg_y + 40, text="L1_CACHE: 64KB // HIT:99.4%", font=("Consolas", 6), fill="#00ffaa", anchor="w")
+
+        # 4. Silicon Substrate Bus Lines (Parallel copper traces linking microchip to core)
+        for b_line in range(5):
+            ly = chip_y + 15 + b_line * 6
+            self.create_line(chip_x + 120, ly, cx - 148, ly, fill="#00f5ff" if b_line % 2 == 0 else "#7b61ff", width=1, dash=(3, 3))
 
     def _draw_24cell_polytope(self, cx, cy):
         """Render 7th-Generation rotating 4D 24-Cell Polytope wireframe matrix."""

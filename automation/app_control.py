@@ -109,3 +109,4 @@ def control_gui_application(app_name: str, action: str, target: str = "", text: 
         return f"Created new document in {app_name.capitalize()}."
 
     return f"Controlled {app_name.capitalize()} successfully."
+

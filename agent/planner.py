@@ -247,8 +247,15 @@ class AgentPlanner:
         t.start()
 
     def _normalize_conversational_text(self, text: str) -> str:
-        """Normalizes casual typing, typos, repeated characters, and phonetic speech variations."""
+        """Normalizes casual typing, typos, speech variations, and strips voice wake-words/salutations."""
         t = re.sub(r"[^\w\s]", " ", text.lower()).strip()
+        
+        # Strip leading wake words and voice salutations ("saathi", "hey saathi", "ok saathi", etc.)
+        t = re.sub(r"^(hey\s+|ok\s+|okay\s+|hi\s+|hello\s+)?(saathi|sathi)\s+", "", t).strip()
+        t = re.sub(r"^(please\s+|can you\s+|could you\s+|would you\s+|kindly\s+)", "", t).strip()
+        # Strip trailing filler noise
+        t = re.sub(r"\s+(for me|please|now|right now|thanks|thank you)$", "", t).strip()
+
         replacements = {
             "helloo": "hello", "hellooo": "hello", "helo": "hello", "heyy": "hey", "heyyy": "hey",
             "wharts": "whats", "wats": "whats", "wassup": "whats up", "sup": "whats up",
@@ -265,7 +272,7 @@ class AgentPlanner:
         return joined
 
     def _try_instant_chit_chat(self, text: str) -> Optional[str]:
-        """Sub-5ms Instant Reflex Engine — covers all basic human conversational patterns without LLM."""
+        """Sub-5ms Instant Reflex Engine — covers all basic human conversational patterns and voice application controls without LLM."""
         import random
         from datetime import datetime
         norm = self._normalize_conversational_text(text)
@@ -355,20 +362,19 @@ class AgentPlanner:
 
         # ── Multi-Step Messaging & GUI Automation Reflexes (WhatsApp, Telegram, Discord, Teams) ──
         # Combined full directive: "text Mom I will be late today", "whatsapp Mom I'm on my way", "send message to Dad saying hello"
-        full_msg_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:text|message|whatsapp|tell|send message to)\s+([a-zA-Z0-9\s]+?)\s+(?:saying|that|texting|to say)?\s+[\"']?(.+?)[\"']?$", norm)
+        full_msg_match = re.search(r"\b(text|message|whatsapp|tell|send message to)\s+([a-zA-Z0-9\s]+?)\s+(?:saying|that|texting|to say)?\s+[\"']?(.+?)[\"']?$", norm)
         if full_msg_match and not any(w in norm for w in ("website", "webpage", "email", "code", "file")):
-            target_contact = full_msg_match.group(1).strip()
-            msg_text = full_msg_match.group(2).strip()
+            target_contact = full_msg_match.group(2).strip()
+            msg_text = full_msg_match.group(3).strip()
 
             res = send_app_message("whatsapp", target_contact, msg_text)
             return f"At your command, Pratham. {res['message']}"
 
         # Step 2: "text Mom", "message Dad", "chat with Rahul", "open chat with Boss"
-        chat_contact_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
+        chat_contact_match = re.search(r"\b(text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
         if chat_contact_match and not any(w in norm for w in ("website", "webpage", "app", "application", "file", "folder")):
-            target_contact = chat_contact_match.group(1).strip()
+            target_contact = chat_contact_match.group(2).strip()
             if target_contact not in ("me", "this", "him", "her", "them"):
-                # Determine active app or default to WhatsApp
                 win_info = get_active_window_info()
                 active_title = win_info.get("title", "").lower()
                 target_app = "whatsapp"
@@ -381,9 +387,9 @@ class AgentPlanner:
                 return f"At your command, Pratham. {res['message']}"
 
         # Step 3: "send message I will be late today", "send I am on my way", "type I'll be there and send", "tell him I'm coming"
-        send_text_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
+        send_text_match = re.search(r"\b(send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
         if send_text_match and not any(w in norm for w in ("email", "file", "code")):
-            msg_to_send = send_text_match.group(1).strip()
+            msg_to_send = send_text_match.group(2).strip()
             type_text(msg_to_send)
             time.sleep(0.3)
             press_key("enter")
@@ -391,7 +397,7 @@ class AgentPlanner:
 
         # ── OS Action: Close Applications & Windows ──
         # Matches: "close chrome", "close notepad", "close spotify", "close whatsapp", "close active window", "exit chrome", "kill chrome"
-        close_app_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(close|exit|terminate|kill|shut)\s+([a-zA-Z0-9\s._-]+)$", norm)
+        close_app_match = re.search(r"\b(close|exit|terminate|kill|shut)\s+([a-zA-Z0-9\s._-]+)$", norm)
         if close_app_match and not any(w in norm for w in ("website", "webpage", "the door", "down")):
             target_app = close_app_match.group(2).strip()
             if target_app in ("this", "window", "active window", "the window", "current window"):
@@ -408,12 +414,12 @@ class AgentPlanner:
                     return f"Attempted to close '{target_app}'. If it is running under another name, standing by."
                 return f"Closed application '{target_app}', Pratham."
 
-        # ── OS Action: Launch Applications (Instant Chrome, Notepad, Calc, Explorer, etc.) ──
-        # Matches: "open chrome", "launch chrome", "open youtube", "open notepad", "open calc", etc.
-        open_app_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(open|launch|start)\s+([a-zA-Z0-9\s._-]+)$", norm)
-        if open_app_match and not any(w in norm for w in ("website", "webpage", "portfolio", "file", "folder")):
+        # ── OS Action: Launch Applications (Instant Voice Controls for Chrome, WhatsApp, Spotify, Notepad, etc.) ──
+        # Matches: "open chrome", "launch whatsapp", "open spotify", "start notepad", "open calc", "saathi open whatsapp", etc.
+        open_app_match = re.search(r"\b(open|launch|start|run)\s+([a-zA-Z0-9\s._-]+)$", norm)
+        if open_app_match and not any(w in norm for w in ("website", "webpage", "portfolio", "file", "folder", "door", "window")):
             target_app = open_app_match.group(2).strip()
-            if target_app not in ("the door", "the window", "up"):
+            if target_app not in ("the door", "the window", "up", "down"):
                 ok, msg = launch_application(target_app)
                 if ok:
                     return f"At your command, Pratham. {msg}"

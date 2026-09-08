@@ -41,19 +41,30 @@ class SaathiApp:
         self.permissions = permission_manager
 
         self.root.title("PRATHAM PRASAD // SAATHI AI — COGNITIVE OPERATING INTERFACE")
-        self.root.geometry("1480x920")
+        screen_w = self.root.winfo_screenwidth()
+        screen_h = self.root.winfo_screenheight()
+        self.root.geometry(f"{screen_w}x{screen_h}+0+0")
         self.root.minsize(1120, 720)
         self.root.configure(bg=COLOR_BG)
+        
+        self.is_fullscreen = True
         try:
-            self.root.state('zoomed')  # Full-screen maximized HUD launch mode
+            self.root.attributes('-fullscreen', True)
         except Exception:
-            pass
+            try:
+                self.root.state('zoomed')
+            except Exception:
+                pass
+
+        self.root.bind("<F11>", lambda e: self.toggle_fullscreen())
+        self.root.bind("<Escape>", lambda e: self.exit_fullscreen())
 
         # 1. Top Telemetry Bar
         self.telemetry_bar = TopTelemetryBar(
             self.root,
             on_model_change=self._on_model_select,
-            on_toggle_master_control=self._prompt_master_control_toggle
+            on_toggle_master_control=self._prompt_master_control_toggle,
+            on_toggle_fullscreen=self.toggle_fullscreen
         )
         self.telemetry_bar.pack(fill="x", side="top")
 
@@ -219,6 +230,10 @@ class SaathiApp:
         except Exception:
             pass
 
+        # Force borderless full-screen HUD mode across Windows WM
+        self.root.after(100, self.force_fullscreen)
+        self.root.after(300, self.force_fullscreen)
+
     def _switch_view(self, key: str):
         if key in self.views and key != self.current_view_key:
             self.views[self.current_view_key].pack_forget()
@@ -288,3 +303,35 @@ class SaathiApp:
 
     def _run_workflow_direct(self, wf):
         self.handle_user_input(f"Run workflow {wf.name}")
+
+    def toggle_fullscreen(self):
+        """Toggle between borderless full-screen HUD mode and maximized window mode."""
+        self.is_fullscreen = not getattr(self, 'is_fullscreen', False)
+        try:
+            self.root.attributes('-fullscreen', self.is_fullscreen)
+            if not self.is_fullscreen:
+                self.root.state('zoomed')
+        except Exception:
+            pass
+
+    def exit_fullscreen(self):
+        """Exit borderless full-screen mode to maximized window mode."""
+        self.is_fullscreen = False
+        try:
+            self.root.attributes('-fullscreen', False)
+            self.root.state('zoomed')
+        except Exception:
+            pass
+
+    def force_fullscreen(self):
+        """Enforce full-screen launch state across Windows display managers."""
+        try:
+            self.root.attributes('-fullscreen', True)
+            self.is_fullscreen = True
+            self.root.lift()
+            self.root.focus_force()
+        except Exception:
+            try:
+                self.root.state('zoomed')
+            except Exception:
+                pass

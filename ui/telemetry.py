@@ -22,10 +22,11 @@ class TopTelemetryBar(tk.Frame):
     - System uptime counter & live precision chronometer
     - Sleek AI model selector
     """
-    def __init__(self, parent, on_model_change: Optional[Callable[[str], None]] = None, on_toggle_master_control: Optional[Callable[[], None]] = None, **kwargs):
+    def __init__(self, parent, on_model_change: Optional[Callable[[str], None]] = None, on_toggle_master_control: Optional[Callable[[], None]] = None, on_toggle_fullscreen: Optional[Callable[[], None]] = None, **kwargs):
         super().__init__(parent, bg=COLOR_PANEL, highlightthickness=1, highlightbackground=COLOR_BORDER, **kwargs)
         self.on_model_change = on_model_change
         self.on_toggle_master_control = on_toggle_master_control
+        self.on_toggle_fullscreen = on_toggle_fullscreen
         self.start_time = time.time()
         self.local_ip = self._get_local_ip()
 
@@ -79,7 +80,7 @@ class TopTelemetryBar(tk.Frame):
         self.lbl_mic = tk.Label(status_strip, text="ACOUSTIC: READY", font=FONT_HUD_TINY, bg="#05192d", fg=COLOR_EMERALD, padx=6, pady=1)
         self.lbl_mic.pack(side="left", padx=8)
 
-        # Right: AI Model Selector & Clock
+        # Right: AI Model Selector, Fullscreen Button & Clock
         right_frame = tk.Frame(self.main_row, bg=COLOR_PANEL)
         right_frame.pack(side="right")
 
@@ -88,8 +89,24 @@ class TopTelemetryBar(tk.Frame):
         self.selected_model = tk.StringVar(value="Auto (Smart Agent)")
         models = ["Auto (Smart Agent)", "qwen2.5:7b", "qwen3:14b", "qwen3:4b-instruct"]
         self.combo_model = ttk.Combobox(right_frame, textvariable=self.selected_model, values=models, state="readonly", width=18)
-        self.combo_model.pack(side="left", padx=(0, 14))
+        self.combo_model.pack(side="left", padx=(0, 10))
         self.combo_model.bind("<<ComboboxSelected>>", self._handle_model_change)
+
+        if self.on_toggle_fullscreen:
+            self.btn_fs = tk.Button(
+                right_frame,
+                text="[ ⛶ FULLSCREEN ]",
+                font=FONT_HUD_TINY,
+                bg="#082545",
+                fg=COLOR_CYAN,
+                activebackground=COLOR_CYAN,
+                activeforeground="#000000",
+                bd=1,
+                relief="solid",
+                cursor="hand2",
+                command=self.on_toggle_fullscreen
+            )
+            self.btn_fs.pack(side="left", padx=(0, 10))
 
         self.lbl_date = tk.Label(right_frame, text="", font=FONT_HUD_TINY, bg=COLOR_PANEL, fg="#38bdf8")
         self.lbl_date.pack(side="left", padx=(0, 10))

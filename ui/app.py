@@ -44,6 +44,10 @@ class SaathiApp:
         self.root.geometry("1480x920")
         self.root.minsize(1120, 720)
         self.root.configure(bg=COLOR_BG)
+        try:
+            self.root.state('zoomed')  # Full-screen maximized HUD launch mode
+        except Exception:
+            pass
 
         # 1. Top Telemetry Bar
         self.telemetry_bar = TopTelemetryBar(

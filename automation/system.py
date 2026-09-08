@@ -32,25 +32,25 @@ def get_system_telemetry() -> Dict[str, Any]:
     return info
 
 def set_autostart_on_boot(enable: bool = True) -> tuple[bool, str]:
-    """Register or unregister Saathi AI in Windows startup registry to launch on laptop boot."""
+    """Register or unregister Saathi AI & Background Wake-Daemon in Windows startup registry."""
     try:
         import winreg
         key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
-        app_name = "SaathiAI"
-        vbs_path = r"C:\SAATHIAI\Start-Saathi-Silent.vbs"
+        daemon_name = "SaathiAIDaemon"
+        daemon_vbs = r"C:\SAATHIAI\Start-Saathi-Daemon.vbs"
 
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
         if enable:
-            if not os.path.exists(vbs_path):
-                with open(vbs_path, "w", encoding="utf-8") as f:
-                    f.write('CreateObject("Wscript.Shell").Run """C:\\SAATHIAI\\Start-Saathi.bat""", 0, False\n')
-            cmd_val = f'wscript.exe "{vbs_path}"'
-            winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, cmd_val)
+            if not os.path.exists(daemon_vbs):
+                with open(daemon_vbs, "w", encoding="utf-8") as f:
+                    f.write('CreateObject("Wscript.Shell").Run "py -3.12 C:\\SAATHIAI\\automation\\wake_daemon.py", 0, False\n')
+            cmd_val = f'wscript.exe "{daemon_vbs}"'
+            winreg.SetValueEx(key, daemon_name, 0, winreg.REG_SZ, cmd_val)
             winreg.CloseKey(key)
-            return True, "Saathi AI registered to autolaunch on Windows boot."
+            return True, "Saathi AI Background Wake-Daemon registered to autolaunch on Windows boot."
         else:
             try:
-                winreg.DeleteValue(key, app_name)
+                winreg.DeleteValue(key, daemon_name)
             except FileNotFoundError:
                 pass
             winreg.CloseKey(key)

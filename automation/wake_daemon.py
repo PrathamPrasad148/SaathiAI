@@ -21,7 +21,6 @@ def is_saathi_running() -> bool:
             cmdline = proc.info.get('cmdline') or []
             cmd_str = " ".join(cmdline).lower()
             if "main.py" in cmd_str:
-                # Exclude self if wake_daemon is running
                 if "wake_daemon" not in cmd_str:
                     return True
     except Exception:
@@ -61,42 +60,74 @@ def focus_saathi_window():
     except Exception:
         pass
 
-def run_wake_daemon():
-    """Main daemon loop — listens for 'Saathi' or 'Hey Saathi' using speech recognition."""
-    import speech_recognition as sr
+def on_wake_word_detected(spoken_text: str):
+    """Triggered when 'Saathi' or 'Hey Saathi' is heard."""
+    print(f"[WAKE DAEMON] Wake word detected: '{spoken_text}'")
+    if not is_saathi_running():
+        print("[WAKE DAEMON] Saathi AI not open. Launching full-screen HUD...")
+        launch_saathi_full_screen()
+    else:
+        print("[WAKE DAEMON] Saathi AI already open. Focusing HUD window...")
+        focus_saathi_window()
 
+def run_speech_recognition_loop():
+    """Engine 1: PyAudio / SpeechRecognition loop."""
+    import speech_recognition as sr
     r = sr.Recognizer()
     r.dynamic_energy_threshold = True
     r.energy_threshold = 300
 
-    print("[SAATHI WAKE DAEMON] Background listener active. Listening for 'Saathi'...")
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source, duration=0.8)
+        while True:
+            try:
+                audio = r.listen(source, timeout=3.0, phrase_time_limit=4.0)
+                try:
+                    text = r.recognize_google(audio).lower().strip()
+                    if any(w in text for w in ("saathi", "sathi", "sati", "hey saathi", "hi saathi")):
+                        on_wake_word_detected(text)
+                        time.sleep(3.0)  # Cooldown
+                except sr.UnknownValueError:
+                    pass
+                except sr.RequestError:
+                    time.sleep(1.0)
+            except Exception:
+                time.sleep(0.5)
 
-    while True:
-        try:
-            with sr.Microphone() as source:
-                r.adjust_for_ambient_noise(source, duration=0.8)
-                while True:
-                    try:
-                        audio = r.listen(source, timeout=3.0, phrase_time_limit=4.0)
-                        try:
-                            text = r.recognize_google(audio).lower().strip()
-                            if any(w in text for w in ("saathi", "sathi", "sati", "hey saathi", "hi saathi")):
-                                print(f"[SAATHI WAKE DAEMON] Spoken wake word detected: '{text}'")
-                                if not is_saathi_running():
-                                    print("[SAATHI WAKE DAEMON] Saathi AI not open. Launching full-screen HUD...")
-                                    launch_saathi_full_screen()
-                                else:
-                                    print("[SAATHI WAKE DAEMON] Saathi AI already open. Bringing HUD to foreground...")
-                                    focus_saathi_window()
-                                time.sleep(3.0)  # Cooldown after launch
-                        except sr.UnknownValueError:
-                            pass
-                        except sr.RequestError:
-                            time.sleep(1.0)
-                    except Exception:
-                        time.sleep(0.5)
-        except Exception:
+def run_sapi_loop():
+    """Engine 2: Native Windows SAPI COM Recognizer (Built-in to Windows)."""
+    try:
+        import win32com.client
+        recognizer = win32com.client.Dispatch("SAPI.SpSharedRecognizer")
+        context = recognizer.CreateRecoContext()
+        grammar = context.CreateGrammar()
+        grammar.DictationSetState(1)
+
+        print("[WAKE DAEMON] Native Windows SAPI Listener active. Listening for 'Saathi'...")
+
+        class ContextEvents:
+            def OnRecognition(self, StreamNumber, StreamPosition, RecognitionType, Result):
+                try:
+                    reco_result = win32com.client.Dispatch(Result)
+                    text = reco_result.PhraseInfo.GetText().lower().strip()
+                    if any(w in text for w in ("saathi", "sathi", "sati", "hey saathi")):
+                        on_wake_word_detected(text)
+                except Exception:
+                    pass
+
+        win32com.client.WithEvents(context, ContextEvents)
+
+        import pythoncom
+        while True:
+            pythoncom.PumpWaitingMessages()
+            time.sleep(0.1)
+    except Exception as e:
+        print(f"[WAKE DAEMON] SAPI fallback loop: {e}")
+        while True:
             time.sleep(2.0)
 
 if __name__ == "__main__":
-    run_wake_daemon()
+    try:
+        run_speech_recognition_loop()
+    except Exception:
+        run_sapi_loop()

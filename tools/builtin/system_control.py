@@ -9,7 +9,10 @@ from automation.hardware import (
     toggle_volume_mute, volume_up, volume_down,
     media_play_pause, media_next, media_prev, media_stop,
     lock_workstation, empty_recycle_bin, sleep_workstation,
-    restart_workstation, shutdown_workstation, abort_shutdown
+    restart_workstation, shutdown_workstation, abort_shutdown,
+    get_display_brightness, set_display_brightness,
+    increase_display_brightness, decrease_display_brightness,
+    take_screen_snapshot
 )
 
 def get_system_control_tools() -> List[Tool]:
@@ -178,6 +181,35 @@ def get_system_control_tools() -> List[Tool]:
             return f"Copied text to clipboard ({len(text)} characters)." if ok else "Could not set clipboard."
         return f"Unknown clipboard action: {action}"
 
+    # 9. Display Control
+    def display_run(args: Dict[str, Any], ctx: Dict[str, Any]) -> str:
+        action = args.get("action", "get").lower().strip()
+        level = args.get("level")
+
+        if action == "get":
+            val = get_display_brightness()
+            return f"Current display brightness: {val}%"
+        elif action == "set":
+            if level is None:
+                return "Error: level (0..100) is required for setting brightness."
+            set_display_brightness(int(level))
+            return f"Display brightness set to {level}%."
+        elif action == "increase":
+            step = int(level or 15)
+            val = increase_display_brightness(step)
+            return f"Display brightness increased to {val}%."
+        elif action == "decrease":
+            step = int(level or 15)
+            val = decrease_display_brightness(step)
+            return f"Display brightness decreased to {val}%."
+        return f"Unknown display action: {action}"
+
+    # 10. Screenshot Tool
+    def screenshot_run(args: Dict[str, Any], ctx: Dict[str, Any]) -> str:
+        path = args.get("target_path")
+        saved_path = take_screen_snapshot(path)
+        return f"Screenshot saved to {saved_path}."
+
     return [
         Tool(
             name="mouse_control",
@@ -300,6 +332,34 @@ def get_system_control_tools() -> List[Tool]:
             },
             risk_level=RiskLevel.LOW,
             run=clipboard_run
+        ),
+        Tool(
+            name="display_control",
+            category="system",
+            description="Query or adjust host screen brightness level.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {"type": "string", "enum": ["get", "set", "increase", "decrease"], "description": "Display action"},
+                    "level": {"type": "integer", "description": "Brightness percentage (0..100) or step amount"}
+                },
+                "required": ["action"]
+            },
+            risk_level=RiskLevel.LOW,
+            run=display_run
+        ),
+        Tool(
+            name="screenshot_tool",
+            category="system",
+            description="Capture a full desktop screenshot and save to disk.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "target_path": {"type": "string", "description": "Optional destination file path"}
+                }
+            },
+            risk_level=RiskLevel.LOW,
+            run=screenshot_run
         )
     ]
 

@@ -14,7 +14,9 @@ from automations.engine import AutomationEngine
 from automation.hardware import (
     toggle_volume_mute, volume_up, volume_down, lock_workstation,
     empty_recycle_bin, media_play_pause, media_next, media_prev,
-    shutdown_workstation, restart_workstation
+    shutdown_workstation, restart_workstation, sleep_workstation,
+    set_display_brightness, increase_display_brightness, decrease_display_brightness,
+    take_screen_snapshot
 )
 from automation.windows import minimize_all_windows, close_window_by_title
 from automation.processes import kill_process_by_name
@@ -49,7 +51,9 @@ AUTONOMOUS WEB ACCESS & LIVE DATA:
 - Synthesize live web information with high intelligence, clarity, and precision matching ChatGPT / Claude.
 
 FULL DEVICE CONTROL A-Z & INSTANT INTERNET LEARNING:
-- You have complete sovereign control A-Z over Pratham's Windows system: mouse, keyboard, windows, 170+ installed Desktop & UWP Store applications (WhatsApp, Telegram, Discord, Spotify, Steam, Office, etc.), processes, files, power, and audio.
+- You have complete sovereign control A-Z over Pratham's Windows system: mouse, keyboard, windows, 170+ installed Desktop & UWP Store applications (WhatsApp, Telegram, Discord, Spotify, Steam, Office, etc.), processes, files, power, display brightness, screen capture, and audio.
+- MULTI-STEP AUTONOMOUS GUI & MESSAGING WORKFLOWS: You support complete end-to-end multi-step autonomous application workflows across ALL installed Windows apps (WhatsApp, Telegram, Discord, Teams, Slack, Word, Chrome, Spotify, etc.).
+- Example: If Pratham says "open whatsapp", launch WhatsApp. If he says "text Mom" or "chat with Rahul", search for the contact and open their chat window. If he says "send a message I will be late today" or "tell her I'm on my way", type the text and send it immediately! This applies to ANY person, ANY contact, ANY message, and ANY application or instruction!
 - If asked to launch or interact with any app (e.g. WhatsApp, Spotify, Discord), call open_target or launch_application immediately.
 - If you do not know how to perform a specific task, control a specialized app, or run a complex command, IMMEDIATELY run web_search or fetch_url_content to learn the exact PowerShell/CMD command or shortcut instantaneously from the internet, then execute it without hesitation!
 Always summarize what you built or accomplished with energy, confidence, and clarity in English."""
@@ -322,6 +326,76 @@ class AgentPlanner:
         if has_restart:
             restart_workstation(10)
             return "Initiating computer restart in 10 seconds, Pratham."
+
+        # ── Display Brightness Reflexes ──
+        bright_set_match = re.search(r"\b(?:set\s+)?brightness\s+(?:to\s+)?(\d{1,3})%?\b", norm)
+        if bright_set_match:
+            b_val = int(bright_set_match.group(1))
+            set_display_brightness(b_val)
+            return f"Display brightness set to {b_val}%, Pratham."
+
+        if re.search(r"\b(screen is (too )?bright|dim (the )?screen|lower (the )?brightness|decrease (the )?brightness|brightness down)\b", norm):
+            b_val = decrease_display_brightness(20)
+            return f"Screen brightness dimmed to {b_val}%, Pratham."
+
+        if re.search(r"\b(screen is (too )?dark|brighten (the )?screen|increase (the )?brightness|turn up (the )?brightness|brightness up|make screen brighter)\b", norm):
+            b_val = increase_display_brightness(20)
+            return f"Screen brightness increased to {b_val}%, Pratham."
+
+        # ── Screenshot Reflex ──
+        if re.search(r"\b(take (a )?screenshot|screenshot( this)?|snap (the )?screen|capture (my )?screen)\b", norm):
+            s_path = take_screen_snapshot()
+            return f"Captured full desktop screenshot and saved to {s_path}, Pratham."
+
+        # ── Sleep PC Reflex ──
+        if re.search(r"\b(sleep( my)? (computer|pc|laptop)|put (computer|pc|laptop) to sleep)\b", norm):
+            sleep_workstation()
+            return "Putting computer to sleep now, Pratham."
+
+        # ── Multi-Step Messaging & GUI Automation Reflexes (WhatsApp, Telegram, Discord, Teams) ──
+        # Combined full directive: "text Mom I will be late today", "whatsapp Mom I'm on my way", "send message to Dad saying hello"
+        full_msg_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:text|message|whatsapp|tell|send message to)\s+([a-zA-Z0-9\s]+?)\s+(?:saying|that|texting|to say)?\s+[\"']?(.+?)[\"']?$", norm)
+        if full_msg_match and not any(w in norm for w in ("website", "webpage", "email", "code", "file")):
+            target_contact = full_msg_match.group(1).strip()
+            msg_text = full_msg_match.group(2).strip()
+
+            # Ensure WhatsApp or target app is in focus
+            launch_application("whatsapp")
+            time.sleep(0.4)
+            # Ctrl + F / Ctrl + K search contact
+            send_hotkey("ctrl", "f")
+            time.sleep(0.2)
+            type_text(target_contact)
+            time.sleep(0.4)
+            press_key("enter")
+            time.sleep(0.4)
+            # Type message and send
+            type_text(msg_text)
+            time.sleep(0.2)
+            press_key("enter")
+            return f"Sent '{msg_text}' to {target_contact} on WhatsApp, Pratham."
+
+        # Step 2: "text Mom", "message Dad", "chat with Rahul", "open chat with Boss"
+        chat_contact_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
+        if chat_contact_match and not any(w in norm for w in ("website", "webpage", "app", "application", "file", "folder")):
+            target_contact = chat_contact_match.group(1).strip()
+            if target_contact not in ("me", "this", "him", "her", "them"):
+                # Use active window or search in current messaging app
+                send_hotkey("ctrl", "f")
+                time.sleep(0.2)
+                type_text(target_contact)
+                time.sleep(0.3)
+                press_key("enter")
+                return f"Opened chat with {target_contact}, Pratham. What message should I type for you?"
+
+        # Step 3: "send message I will be late today", "send I am on my way", "type I'll be there and send", "tell him I'm coming"
+        send_text_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
+        if send_text_match and not any(w in norm for w in ("email", "file", "code")):
+            msg_to_send = send_text_match.group(1).strip()
+            type_text(msg_to_send)
+            time.sleep(0.2)
+            press_key("enter")
+            return f"Sent message '{msg_to_send}', Pratham."
 
         # ── OS Action: Close Applications & Windows ──
         # Matches: "close chrome", "close notepad", "close spotify", "close whatsapp", "close active window", "exit chrome", "kill chrome"

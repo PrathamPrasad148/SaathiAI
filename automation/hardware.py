@@ -91,6 +91,72 @@ def abort_shutdown():
     os.system("shutdown /a")
 
 # -------------------------------------------------------------
+# Display Brightness & Screenshot Controls
+# -------------------------------------------------------------
+_current_brightness_cache = 70
+
+def get_display_brightness() -> int:
+    """Query current display brightness level (0..100)."""
+    global _current_brightness_cache
+    try:
+        import subprocess
+        cmd = "powershell -Command \"(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightness).CurrentBrightness\""
+        res = subprocess.check_output(cmd, shell=True, text=True, timeout=3).strip()
+        if res.isdigit():
+            _current_brightness_cache = int(res)
+            return _current_brightness_cache
+    except Exception:
+        pass
+    return _current_brightness_cache
+
+def set_display_brightness(level: int) -> bool:
+    """Set display brightness to target percentage (0..100)."""
+    global _current_brightness_cache
+    level = max(0, min(100, int(level)))
+    _current_brightness_cache = level
+    try:
+        import subprocess
+        cmd = f"powershell -Command \"(Get-WmiObject -Namespace root/wmi -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, {level})\""
+        subprocess.run(cmd, shell=True, timeout=4)
+        return True
+    except Exception:
+        return False
+
+def increase_display_brightness(step: int = 15) -> int:
+    """Increase screen brightness by step percentage."""
+    cur = get_display_brightness()
+    new_val = min(100, cur + step)
+    set_display_brightness(new_val)
+    return new_val
+
+def decrease_display_brightness(step: int = 15) -> int:
+    """Decrease screen brightness by step percentage."""
+    cur = get_display_brightness()
+    new_val = max(0, cur - step)
+    set_display_brightness(new_val)
+    return new_val
+
+def take_screen_snapshot(target_path: str = None) -> str:
+    """Capture full screen image and save to disk."""
+    import datetime
+    if not target_path:
+        desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        target_path = os.path.join(desktop, f"Saathi_Screenshot_{ts}.png")
+    try:
+        import pyautogui
+        pyautogui.screenshot(target_path)
+        return target_path
+    except Exception:
+        try:
+            from PIL import ImageGrab
+            img = ImageGrab.grab()
+            img.save(target_path)
+            return target_path
+        except Exception as e:
+            return f"Error taking screenshot: {e}"
+
+# -------------------------------------------------------------
 # NVML GPU Telemetry Section
 # -------------------------------------------------------------
 _nvml_initialized = False

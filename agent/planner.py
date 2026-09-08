@@ -22,6 +22,7 @@ from automation.windows import minimize_all_windows, close_window_by_title
 from automation.processes import kill_process_by_name
 from automation.vision import get_active_window_info, get_screen_dimensions
 from automation.app_launcher import launch_application, search_web_live
+from automation.app_control import send_app_message, control_gui_application
 from automation.keyboard import type_text, press_key, send_hotkey
 from automation.mouse import click_mouse, double_click, scroll_mouse, move_mouse
 
@@ -359,41 +360,32 @@ class AgentPlanner:
             target_contact = full_msg_match.group(1).strip()
             msg_text = full_msg_match.group(2).strip()
 
-            # Ensure WhatsApp or target app is in focus
-            launch_application("whatsapp")
-            time.sleep(0.4)
-            # Ctrl + F / Ctrl + K search contact
-            send_hotkey("ctrl", "f")
-            time.sleep(0.2)
-            type_text(target_contact)
-            time.sleep(0.4)
-            press_key("enter")
-            time.sleep(0.4)
-            # Type message and send
-            type_text(msg_text)
-            time.sleep(0.2)
-            press_key("enter")
-            return f"Sent '{msg_text}' to {target_contact} on WhatsApp, Pratham."
+            res = send_app_message("whatsapp", target_contact, msg_text)
+            return f"At your command, Pratham. {res['message']}"
 
         # Step 2: "text Mom", "message Dad", "chat with Rahul", "open chat with Boss"
         chat_contact_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
         if chat_contact_match and not any(w in norm for w in ("website", "webpage", "app", "application", "file", "folder")):
             target_contact = chat_contact_match.group(1).strip()
             if target_contact not in ("me", "this", "him", "her", "them"):
-                # Use active window or search in current messaging app
-                send_hotkey("ctrl", "f")
-                time.sleep(0.2)
-                type_text(target_contact)
-                time.sleep(0.3)
-                press_key("enter")
-                return f"Opened chat with {target_contact}, Pratham. What message should I type for you?"
+                # Determine active app or default to WhatsApp
+                win_info = get_active_window_info()
+                active_title = win_info.get("title", "").lower()
+                target_app = "whatsapp"
+                for known_app in ("telegram", "discord", "teams", "slack"):
+                    if known_app in active_title:
+                        target_app = known_app
+                        break
+
+                res = send_app_message(target_app, target_contact, "")
+                return f"At your command, Pratham. {res['message']}"
 
         # Step 3: "send message I will be late today", "send I am on my way", "type I'll be there and send", "tell him I'm coming"
         send_text_match = re.search(r"^(?:please\s+)?(?:can you\s+)?(?:send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
         if send_text_match and not any(w in norm for w in ("email", "file", "code")):
             msg_to_send = send_text_match.group(1).strip()
             type_text(msg_to_send)
-            time.sleep(0.2)
+            time.sleep(0.3)
             press_key("enter")
             return f"Sent message '{msg_to_send}', Pratham."
 

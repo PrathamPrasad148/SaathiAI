@@ -109,3 +109,6 @@ class WebAgent(BaseAgent):
             result=f"WebAgent retrieved online briefing for directive: '{instruction}'.",
             execution_time_ms=exec_time
         )
+
+
+ALLOWED_DOMAINS = ['wikipedia.org', 'github.com', 'python.org', 'wttr.in', 'exchangerate-api.com']

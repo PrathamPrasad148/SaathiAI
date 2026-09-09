@@ -1,3 +1,4 @@
+import ast
 """
 Saathi AI — Specialized Coding Sub-Agent
 Dedicated to writing, debugging, refactoring, building web interfaces,
@@ -108,3 +109,11 @@ class CodingAgent(BaseAgent):
             result=f"CodingAgent processed task: '{instruction[:60]}...'. Architecture planned and verified.",
             execution_time_ms=exec_time
         )
+
+
+    def validate_syntax(self, code_str: str) -> bool:
+        try:
+            ast.parse(code_str)
+            return True
+        except Exception:
+            return False

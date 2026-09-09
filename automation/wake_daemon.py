@@ -180,6 +180,19 @@ if __name__ == "__main__":
     log_event("==================================================")
     log_event("SAATHI AI WAKE DAEMON INITIALIZING")
     log_event("==================================================")
+
+    # Launch Continuous Self-Advancement Loop whenever System is ON
+    try:
+        def launch_continuous_advancement():
+            python_exe = r"C:\Users\prasa\AppData\Local\Programs\Python\Python312\python.exe"
+            adv_script = r"C:\SAATHIAI\devloop\continuous_advancement.py"
+            subprocess.Popen([python_exe, adv_script], cwd=r"C:\SAATHIAI")
+            log_event("[WAKE DAEMON] Continuous Self-Advancement Service launched in background (100+ Agents).")
+
+        threading.Thread(target=launch_continuous_advancement, daemon=True).start()
+    except Exception as adv_e:
+        log_event(f"[WAKE DAEMON] Continuous advancement launch warning: {adv_e}")
+
     try:
         run_speech_recognition_loop()
     except Exception as top_e:

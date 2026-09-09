@@ -24,6 +24,9 @@ from .agents.automation_agent import AutomationAgent
 from .agents.memory_agent import MemoryAgent
 
 
+from .agent_factory import DynamicAgentFactory
+
+
 class SaathiOrchestrator:
     """Central Meta-Agent Orchestrator for Saathi AI Multi-Agent Architecture."""
 
@@ -32,8 +35,9 @@ class SaathiOrchestrator:
         self.bus = AgentMessageBus()
         self.shared_memory = SharedContextStore(memory_engine=memory_engine)
         self.sandbox = ExecutionSandbox(allowed_workspace_dir=self.projects_dir)
+        self.factory = DynamicAgentFactory()
 
-        # Initialize Specialized Sub-Agents
+        # Initialize Core Specialized Sub-Agents
         self.coding_agent = CodingAgent(projects_dir=self.projects_dir, sandbox=self.sandbox, executor=executor)
         self.web_agent = WebAgent(executor=executor)
         self.conversation_agent = ConversationAgent(voice_engine=voice_engine)
@@ -49,6 +53,8 @@ class SaathiOrchestrator:
             self.automation_agent,
             self.memory_agent
         ]
+        # Dynamically append 100+ specialized factory agents
+        self.registered_agents.extend(self.factory.get_all_agents())
 
     def classify_and_build_task_graph(self, instruction: str, parent_id: Optional[str] = None) -> List[AgentTask]:
         """Classify user intent and build a sequence of execution tasks (Task Graph)."""

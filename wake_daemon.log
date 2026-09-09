@@ -1,1 +1,7 @@
 [2026-09-09 11:02:01] [AUDIO RECOGNIZED]: 'hello'
+[2026-09-09 11:30:46] [AUDIO RECOGNIZED]: 'kisi ko pata nahin'
+[2026-09-09 11:32:16] [AUDIO RECOGNIZED]: 'hi sathi'
+[2026-09-09 11:32:16] [WAKE WORD MATCHED] Spoken phrase: 'hi sathi'
+[2026-09-09 11:32:16] [ACTION] Saathi AI not open. Launching full-screen HUD...
+[2026-09-09 11:32:16] [WAKE DAEMON] Executing Saathi AI full-screen launch...
+[2026-09-09 11:32:28] [AUDIO RECOGNIZED]: 'achcha mushkil lag'

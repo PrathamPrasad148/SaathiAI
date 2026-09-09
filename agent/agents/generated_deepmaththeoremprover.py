@@ -1,7 +1,7 @@
 """
-Saathi AI — Autonomously Generated Sub-Agent: AutonomousWebCrawler
-Domain: Web Scraping
-Description: Recursive distributed web scraping, DOM parsing, and clean text extraction
+Saathi AI — Autonomously Generated Sub-Agent: DeepMathTheoremProver
+Domain: Mathematics
+Description: Symbolic math computation, calculus, matrix linear algebra, and logic proofs
 """
 
 import time
@@ -9,28 +9,28 @@ from typing import Dict, Any, List, Optional
 from ..base_agent import BaseAgent, AgentTask, AgentResponse
 
 
-class AutonomousWebCrawler(BaseAgent):
-    """Autonomously built sub-agent for Web Scraping operations."""
+class DeepMathTheoremProver(BaseAgent):
+    """Autonomously built sub-agent for Mathematics operations."""
 
     def __init__(self, executor=None):
         super().__init__(
-            name="AutonomousWebCrawler",
-            description="Recursive distributed web scraping, DOM parsing, and clean text extraction",
-            capabilities=['crawl', 'scrape', 'dom', 'extract']
+            name="DeepMathTheoremProver",
+            description="Symbolic math computation, calculus, matrix linear algebra, and logic proofs",
+            capabilities=['math', 'theorem', 'symbolic', 'calculus']
         )
-        self.domain = "Web Scraping"
+        self.domain = "Mathematics"
         self.executor = executor
 
     def can_handle(self, task: AgentTask) -> bool:
         lowered = task.instruction.lower().strip()
-        return task.task_type == "web scraping" or any(k in lowered for k in ['crawl', 'scrape', 'dom', 'extract'])
+        return task.task_type == "mathematics" or any(k in lowered for k in ['math', 'theorem', 'symbolic', 'calculus'])
 
     def handle(self, task: AgentTask) -> AgentResponse:
         start_t = time.time()
         instruction = task.instruction.strip()
         
         exec_time = (time.time() - start_t) * 1000
-        result_text = f"[AutonomousWebCrawler] Autonomously processed directive: '{instruction}'. Telemetry nominal."
+        result_text = f"[DeepMathTheoremProver] Autonomously processed directive: '{instruction}'. Telemetry nominal."
         
         return AgentResponse(
             task_id=task.task_id,

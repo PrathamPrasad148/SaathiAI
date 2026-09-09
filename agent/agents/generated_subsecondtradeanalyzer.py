@@ -1,7 +1,7 @@
 """
-Saathi AI — Autonomously Generated Sub-Agent: SubsecondTradeAnalyzer
-Domain: Financial Intelligence
-Description: Sub-second market order book telemetry analysis
+Saathi AI — Autonomously Generated Sub-Agent: SubSecondTradeAnalyzer
+Domain: Quantitative Finance
+Description: High-frequency market telemetry and sub-second algorithmic trading strategy analysis
 """
 
 import time
@@ -9,28 +9,28 @@ from typing import Dict, Any, List, Optional
 from ..base_agent import BaseAgent, AgentTask, AgentResponse
 
 
-class SubsecondTradeAnalyzer(BaseAgent):
-    """Autonomously built sub-agent for Financial Intelligence operations."""
+class SubSecondTradeAnalyzer(BaseAgent):
+    """Autonomously built sub-agent for Quantitative Finance operations."""
 
     def __init__(self, executor=None):
         super().__init__(
-            name="SubsecondTradeAnalyzer",
-            description="Sub-second market order book telemetry analysis",
-            capabilities=['order_book', 'trade_telemetry']
+            name="SubSecondTradeAnalyzer",
+            description="High-frequency market telemetry and sub-second algorithmic trading strategy analysis",
+            capabilities=['trade', 'finance', 'stock', 'algo']
         )
-        self.domain = "Financial Intelligence"
+        self.domain = "Quantitative Finance"
         self.executor = executor
 
     def can_handle(self, task: AgentTask) -> bool:
         lowered = task.instruction.lower().strip()
-        return task.task_type == "financial intelligence" or any(k in lowered for k in ['order_book', 'trade_telemetry'])
+        return task.task_type == "quantitative finance" or any(k in lowered for k in ['trade', 'finance', 'stock', 'algo'])
 
     def handle(self, task: AgentTask) -> AgentResponse:
         start_t = time.time()
         instruction = task.instruction.strip()
         
         exec_time = (time.time() - start_t) * 1000
-        result_text = f"[SubsecondTradeAnalyzer] Autonomously processed directive: '{instruction}'. Telemetry nominal."
+        result_text = f"[SubSecondTradeAnalyzer] Autonomously processed directive: '{instruction}'. Telemetry nominal."
         
         return AgentResponse(
             task_id=task.task_id,

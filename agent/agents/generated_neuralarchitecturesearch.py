@@ -1,7 +1,7 @@
 """
 Saathi AI — Autonomously Generated Sub-Agent: NeuralArchitectureSearch
-Domain: AI Engineering
-Description: Searching optimal neural network layer architectures
+Domain: Deep Learning
+Description: Automated neural network architecture optimization and hyperparameter tuning
 """
 
 import time
@@ -10,20 +10,20 @@ from ..base_agent import BaseAgent, AgentTask, AgentResponse
 
 
 class NeuralArchitectureSearch(BaseAgent):
-    """Autonomously built sub-agent for AI Engineering operations."""
+    """Autonomously built sub-agent for Deep Learning operations."""
 
     def __init__(self, executor=None):
         super().__init__(
             name="NeuralArchitectureSearch",
-            description="Searching optimal neural network layer architectures",
-            capabilities=['nas', 'layer_search', 'hyperparameter']
+            description="Automated neural network architecture optimization and hyperparameter tuning",
+            capabilities=['nas', 'neural', 'hyperparameter', 'deep_learning']
         )
-        self.domain = "AI Engineering"
+        self.domain = "Deep Learning"
         self.executor = executor
 
     def can_handle(self, task: AgentTask) -> bool:
         lowered = task.instruction.lower().strip()
-        return task.task_type == "ai engineering" or any(k in lowered for k in ['nas', 'layer_search', 'hyperparameter'])
+        return task.task_type == "deep learning" or any(k in lowered for k in ['nas', 'neural', 'hyperparameter', 'deep_learning'])
 
     def handle(self, task: AgentTask) -> AgentResponse:
         start_t = time.time()

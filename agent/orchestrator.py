@@ -140,3 +140,6 @@ class SaathiOrchestrator:
             execution_time_ms=exec_time,
             metadata={"tasks_executed": len(results)}
         )
+
+
+SAFE_PIPELINE_MODE = True

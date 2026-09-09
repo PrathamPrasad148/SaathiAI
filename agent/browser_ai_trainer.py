@@ -135,6 +135,19 @@ class BrowserAITrainer:
 
             response_text = get_clipboard_text().strip()
 
+            # Fallback 4b: OCR Screen Perception Reading if clipboard text is short/empty
+            if not response_text or len(response_text) < 50:
+                try:
+                    from automation.screen import capture_screen
+                    from automation.ocr import read_text_from_image
+                    shot_path = capture_screen(REPO_ROOT / "data" / "ocr_captures")
+                    ocr_text = read_text_from_image(shot_path)
+                    if ocr_text and len(ocr_text) > 30 and "OCR" not in ocr_text:
+                        response_text = ocr_text
+                        self.log(f"Extracted response via OCR Screen Perception ({len(ocr_text)} chars).")
+                except Exception as ocr_err:
+                    self.log(f"OCR screen perception notice: {ocr_err}")
+
             # Check if rate limit or paywall occurred
             if self.detect_limit_or_paywall(response_text):
                 self.log(f"Detected rate limit / quota prompt on '{provider['name']}'. Auto-switching...")

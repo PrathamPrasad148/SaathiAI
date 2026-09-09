@@ -1,5 +1,5 @@
 {
-  "master_system_control": true,
+  "master_system_control": false,
   "rules": {
     "create_file": "always_allow",
     "read_file": "always_allow",

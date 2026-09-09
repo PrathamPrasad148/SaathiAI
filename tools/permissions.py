@@ -69,7 +69,7 @@ class PermissionManager:
             self._init_defaults()
 
     def _init_defaults(self):
-        self.master_system_control = True
+        self.master_system_control = False
         self.rules = {
             "create_file": PermissionAction.ALWAYS_ALLOW,
             "read_file": PermissionAction.ALWAYS_ALLOW,

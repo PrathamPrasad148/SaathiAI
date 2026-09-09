@@ -175,20 +175,28 @@ _ollama_models_cache: Optional[List[str]] = None
 _last_models_cache_time: float = 0.0
 
 def get_installed_ollama_models() -> List[str]:
-    """Retrieve list of locally installed Ollama models with a 5-minute cache."""
+    """Retrieve list of locally installed Ollama models and online free endpoints."""
     global _ollama_models_cache, _last_models_cache_time
     if _ollama_models_cache is not None and (time.time() - _last_models_cache_time < 300):
         return _ollama_models_cache
+    models = []
     try:
         req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             models = [m.get("name", "") for m in data.get("models", [])]
-            _ollama_models_cache = models
-            _last_models_cache_time = time.time()
-            return models
     except Exception:
-        return []
+        pass
+    
+    # Append online free AI model endpoints
+    free_online_models = ["openrouter/free", "huggingface/free-inference", "qwen3:14b", "deepseek-r1:7b"]
+    for om in free_online_models:
+        if om not in models:
+            models.append(om)
+            
+    _ollama_models_cache = models
+    _last_models_cache_time = time.time()
+    return models
 
 class AgentPlanner:
     def __init__(self,

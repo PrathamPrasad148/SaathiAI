@@ -4,6 +4,7 @@ Unit Tests for SaathiOrchestrator and Sub-Agent Architecture
 
 import unittest
 import sys
+import tempfile
 from pathlib import Path
 
 # Add project root to path
@@ -15,6 +16,10 @@ from agent.base_agent import AgentTask, AgentResponse
 from agent.sandbox import ExecutionSandbox
 from agent.bus import AgentMessageBus
 from agent.shared_memory import SharedContextStore
+from tools.builtin.files import get_file_tools
+from tools.permissions import PermissionManager
+from tools.schemas import RiskLevel
+from devloop.self_coder import SelfCodingEngine
 
 
 class TestSaathiOrchestrator(unittest.TestCase):
@@ -24,8 +29,8 @@ class TestSaathiOrchestrator(unittest.TestCase):
         self.orchestrator = SaathiOrchestrator(projects_dir=self.projects_dir)
 
     def test_orchestrator_initialization(self):
-        """Test that orchestrator initializes with 6 sub-agents."""
-        self.assertEqual(len(self.orchestrator.registered_agents), 6)
+        """Test that core agents and dynamic agents are registered."""
+        self.assertGreaterEqual(len(self.orchestrator.registered_agents), 6)
         agent_names = [a.name for a in self.orchestrator.registered_agents]
         self.assertIn("CodingAgent", agent_names)
         self.assertIn("WebAgent", agent_names)
@@ -70,6 +75,23 @@ class TestSaathiOrchestrator(unittest.TestCase):
 
         store.set_scratchpad_value("test_key", "test_val")
         self.assertEqual(store.get_scratchpad_value("test_key"), "test_val")
+
+    def test_permissions_default_to_restricted(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manager = PermissionManager(Path(temp_dir) / "permissions.json")
+            self.assertFalse(manager.master_system_control)
+            self.assertFalse(manager.check_permission("unknown_tool", RiskLevel.HIGH))
+
+    def test_file_tools_reject_paths_outside_workspace(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tools = {tool.name: tool for tool in get_file_tools(Path(temp_dir))}
+            result = tools["read_file"].run({"path": "../outside.txt"}, {})
+            self.assertIn("must stay inside workspace", result)
+
+    def test_self_coder_rejects_unsafe_candidate_paths(self):
+        engine = SelfCodingEngine(ROOT_DIR)
+        with self.assertRaises(ValueError):
+            engine._validate_candidate({"files": [{"path": "data/permissions.json", "content": "{}"}]})
 
 
 if __name__ == "__main__":

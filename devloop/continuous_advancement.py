@@ -11,14 +11,16 @@ import sys
 import time
 import threading
 import subprocess
+import re
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 REPO_ROOT = Path(r"C:\SAATHIAI").resolve()
 sys.path.insert(0, str(REPO_ROOT))
 
 from agent.orchestrator import SaathiOrchestrator
-from devloop.dev_loop import SaathiDevLoop
+from devloop.self_coder import SelfCodingEngine
 
 CHECK_INTERVAL_SECONDS = 3600  # Run web research & advancement cycle every 60 minutes
 
@@ -27,7 +29,7 @@ class ContinuousAdvancementEngine:
     """Continuous self-advancement background service."""
 
     def __init__(self):
-        self.orchestrator = SaathiOrchestrator(projects_dir=REPO_ROOT / "Projects")
+        self.self_coder = SelfCodingEngine(repo_root=REPO_ROOT)
         self.is_running = False
 
     def log(self, msg: str):
@@ -36,19 +38,11 @@ class ContinuousAdvancementEngine:
     def discover_web_advancements(self) -> List[str]:
         """Perform web research to discover AI code patterns and sub-agent enhancements."""
         self.log("Accessing web telemetry to discover new AI agent design patterns and advancements...")
-        search_queries = [
-            "python async agent architecture patterns 2026",
-            "llm tool calling safety sandbox design",
-            "desktop automation multi-agent coordination"
-        ]
-
-        new_tasks = [
-            "[agent] Extend DynamicAgentFactory with real-time web API discovery hooks.",
-            "[refactor] Optimize SharedContextStore memory caching for sub-millisecond turn retrieval.",
-            "[agent] Implement VisionAgent multi-monitor display coordinate scaling.",
-            "[agent] Add SecurityAuditor dependency vulnerability inspector to agent factory."
-        ]
-        return new_tasks
+        backlog_file = REPO_ROOT / "devloop_backlog.md"
+        if not backlog_file.exists():
+            return []
+        pattern = re.compile(r"^\s*-\s*\[ \]\s+`\[(?:fix|agent|refactor|explore)\]`?\s+(.+)$", re.MULTILINE)
+        return [match.group(1).strip() for match in pattern.finditer(backlog_file.read_text(encoding="utf-8"))]
 
     def update_backlog(self, new_tasks: List[str]):
         """Append discovered advancement tasks to devloop_backlog.md if not already present."""
@@ -77,9 +71,13 @@ class ContinuousAdvancementEngine:
         new_tasks = self.discover_web_advancements()
         self.update_backlog(new_tasks)
 
-        # 2. Run incremental Dev-Loop in background (Max 1 hour / 5 commits per cycle)
-        dev_loop = SaathiDevLoop(max_hours=1.0, max_commits=5)
-        dev_loop.run()
+        # 2. Generate and evaluate one candidate in an isolated copy.
+        if new_tasks:
+            task = new_tasks[0]
+            result = self.self_coder.run_once(task)
+            self.log(f"Candidate for '{task}' finished with status: {result['status']}.")
+        else:
+            self.log("No pending backlog tasks found.")
 
         self.log("Self-advancement iteration completed cleanly.")
 

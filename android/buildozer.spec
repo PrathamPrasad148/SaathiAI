@@ -93,3 +93,4 @@ build_dir = ./.buildozer
 
 # (str) Path to final APK output directory
 bin_dir = ./dist
+

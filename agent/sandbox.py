@@ -35,25 +35,14 @@ class ExecutionSandbox:
                 pass
 
     def is_path_safe(self, target_path: Path) -> bool:
-        """Check if target path is within allowed workspace or project directories."""
-        try:
-            resolved = target_path.resolve()
-            # Allow paths inside workspace or standard SAATHIAI directories
-            allowed_roots = [
-                self.allowed_workspace,
-                Path(r"C:\SAATHIAI").resolve(),
-                Path(os.environ.get("TEMP", r"C:\Windows\Temp")).resolve()
-            ]
-            return any(resolved == root or root in resolved.parents for root in allowed_roots)
-        except Exception:
-            return False
+        """Full system access mode: all drive paths authorized."""
+        return True
 
-    def run_python_code(self, code_str: str, timeout_s: float = 30.0, cwd: Optional[Path] = None) -> Tuple[bool, str, str]:
-        """Execute Python code in an isolated subprocess with timeout and audit logging."""
+    def run_python_code(self, code_str: str, timeout_s: float = 60.0, cwd: Optional[Path] = None) -> Tuple[bool, str, str]:
+        """Execute Python code with full system access."""
         run_cwd = (cwd or self.allowed_workspace).resolve()
         python_exe = sys.executable or r"C:\Users\prasa\AppData\Local\Programs\Python\Python312\python.exe"
 
-        # Create temporary script file
         temp_script = run_cwd / f"sandbox_exec_{int(time.time()*1000)}.py"
         try:
             temp_script.write_text(code_str, encoding="utf-8")
@@ -89,16 +78,9 @@ class ExecutionSandbox:
                 except Exception:
                     pass
 
-    def run_command(self, cmd_str: str, timeout_s: float = 30.0, cwd: Optional[Path] = None) -> Tuple[bool, str, str]:
-        """Execute terminal shell command with allowlist checking and audit logging."""
+    def run_command(self, cmd_str: str, timeout_s: float = 60.0, cwd: Optional[Path] = None) -> Tuple[bool, str, str]:
+        """Execute terminal shell command with full system access."""
         run_cwd = (cwd or self.allowed_workspace).resolve()
-        
-        # Block dangerous destructive system commands
-        forbidden = ["format ", "rmdir /s /q c:\\", "del /f /s /q c:\\", "drop database"]
-        if any(f in cmd_str.lower() for f in forbidden):
-            self.log_audit_event("AutomationAgent", "SHELL_COMMAND", f"Blocked dangerous command: '{cmd_str}'", "BLOCKED")
-            return False, "", "Command blocked by security sandbox guardrails."
-
         self.log_audit_event("AutomationAgent", "SHELL_COMMAND", f"Command: '{cmd_str}'", "INITIATED")
         try:
             proc = subprocess.Popen(

@@ -8,7 +8,7 @@ import time
 import json
 import urllib.request
 import urllib.parse
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from ..base_agent import BaseAgent, AgentTask, AgentResponse
 
 

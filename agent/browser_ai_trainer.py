@@ -83,22 +83,23 @@ class BrowserAITrainer:
         return new_provider
 
     def launch_browser_with_profile(self, url: str, browser: str = "chrome") -> bool:
-        """Launch Chrome or Edge executable with user data profile path for logged-in sessions."""
+        """Launch Chrome or Edge browser to open target web AI platform."""
         exe = get_chrome_executable() if browser == "chrome" else get_edge_executable()
-        profile_dir = get_chrome_user_data_dir() if browser == "chrome" else get_edge_user_data_dir()
 
         if exe and os.path.exists(exe):
             try:
-                cmd = [exe, f"--user-data-dir={profile_dir}", url]
-                subprocess.Popen(cmd)
-                self.log(f"Launched {browser.capitalize()} with user profile path: '{url}'")
-                time.sleep(2.5)
+                subprocess.Popen([exe, url])
+                self.log(f"Launched {browser.capitalize()} browser to: '{url}'")
+                time.sleep(2.0)
                 return True
             except Exception as e:
-                self.log(f"Failed to launch browser with profile: {e}")
+                self.log(f"Direct browser launch notice: {e}")
 
-        # Fallback to standard open_url_in_browser
-        return open_url_in_browser(url, force_chrome=(browser == "chrome"))
+        # Fallback to standard open_url_in_browser / webbrowser
+        res = open_url_in_browser(url, force_chrome=(browser == "chrome"))
+        self.log(f"Opened URL via system default browser: '{url}'")
+        time.sleep(2.0)
+        return res
 
     def detect_limit_or_paywall(self, text: str) -> bool:
         """Check if extracted page text contains rate limit or paywall notifications."""

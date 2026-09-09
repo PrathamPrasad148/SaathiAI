@@ -107,25 +107,41 @@ class BrowserAITrainer:
         return any(k in lowered for k in LIMIT_KEYWORDS)
 
     def query_web_ai_agent(self, prompt: str) -> Optional[str]:
-        """Attempt querying current web AI agent in browser."""
+        """Attempt querying current web AI agent in foreground browser."""
         provider = self.get_current_provider()
-        self.log(f"Querying web AI platform '{provider['name']}' at {provider['url']}...")
+        self.log(f"--- VISIBLE FOREGROUND TASK: Querying '{provider['name']}' ({provider['url']}) ---")
 
-        # 1. Launch browser to target AI platform
+        # 1. Open browser tab in foreground
         self.launch_browser_with_profile(provider['url'], provider['browser'])
-        time.sleep(2.0)
+        time.sleep(2.5)
 
-        # 2. Focus browser window
-        focus_window_by_title(provider['name'])
+        # 2. Bring active browser window directly to foreground
+        focused = (
+            focus_window_by_title(provider['name']) or
+            focus_window_by_title("Chrome") or
+            focus_window_by_title("Google Chrome") or
+            focus_window_by_title("Edge") or
+            focus_window_by_title("Microsoft Edge")
+        )
         time.sleep(0.5)
 
-        # 3. Paste prompt into active input field
+        # 3. Visually click text input field in active browser window
+        try:
+            import pyautogui
+            sw, sh = pyautogui.size()
+            # Click near center-bottom where web AI input boxes are located
+            pyautogui.click(sw // 2, int(sh * 0.82))
+            time.sleep(0.3)
+        except Exception:
+            pass
+
+        # 4. Paste prompt into active input field
         try:
             copy_to_clipboard(prompt)
             send_hotkey("ctrl", "v")
-            time.sleep(0.3)
+            time.sleep(0.4)
             press_key("enter")
-            self.log(f"Submitted directive to '{provider['name']}'. Waiting for completion...")
+            self.log(f"Submitted directive to '{provider['name']}'. Waiting for output generation...")
             time.sleep(8.0)  # Allow time for AI response generation
 
             # 4. Scrape response via Ctrl+A, Ctrl+C clipboard capture

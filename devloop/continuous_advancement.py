@@ -22,7 +22,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from devloop.self_coder import SelfCodingEngine
 
-CHECK_INTERVAL_SECONDS = 3600  # Run web research & advancement cycle every 60 minutes
+CHECK_INTERVAL_SECONDS = 120  # Run web AI research & advancement cycle every 2 minutes
 
 
 class ContinuousAdvancementEngine:

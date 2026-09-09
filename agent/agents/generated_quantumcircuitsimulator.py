@@ -1,7 +1,7 @@
 """
 Saathi AI — Autonomously Generated Sub-Agent: QuantumCircuitSimulator
-Domain: Physics & Quantum
-Description: Simulating 8-qubit quantum circuits and gate matrices
+Domain: Quantum Computing
+Description: Simulate quantum gates, qubits, and quantum state vectors
 """
 
 import time
@@ -10,20 +10,20 @@ from ..base_agent import BaseAgent, AgentTask, AgentResponse
 
 
 class QuantumCircuitSimulator(BaseAgent):
-    """Autonomously built sub-agent for Physics & Quantum operations."""
+    """Autonomously built sub-agent for Quantum Computing operations."""
 
     def __init__(self, executor=None):
         super().__init__(
             name="QuantumCircuitSimulator",
-            description="Simulating 8-qubit quantum circuits and gate matrices",
-            capabilities=['quantum', 'qubit', 'gate_matrix']
+            description="Simulate quantum gates, qubits, and quantum state vectors",
+            capabilities=['quantum', 'qubit', 'gate', 'circuit']
         )
-        self.domain = "Physics & Quantum"
+        self.domain = "Quantum Computing"
         self.executor = executor
 
     def can_handle(self, task: AgentTask) -> bool:
         lowered = task.instruction.lower().strip()
-        return task.task_type == "physics & quantum" or any(k in lowered for k in ['quantum', 'qubit', 'gate_matrix'])
+        return task.task_type == "quantum computing" or any(k in lowered for k in ['quantum', 'qubit', 'gate', 'circuit'])
 
     def handle(self, task: AgentTask) -> AgentResponse:
         start_t = time.time()

@@ -14,3 +14,4 @@ $Shortcut.Save()
 
 Write-Host "[SUCCESS] Installed Saathi AI Continuous Self-Advancement into Windows Startup folder:" -ForegroundColor Green
 Write-Host " -> $shortcutPath" -ForegroundColor Cyan
+

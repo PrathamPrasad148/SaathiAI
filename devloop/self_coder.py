@@ -103,7 +103,14 @@ class SelfCodingEngine:
             if start < 0 or end <= start:
                 raise ValueError("Model returned no JSON candidate object")
             candidate = json.loads(content[start:end + 1])
-        if not isinstance(candidate, dict) or not isinstance(candidate.get("files"), list):
+        if not isinstance(candidate, dict):
+            raise ValueError("Model returned an invalid candidate structure")
+        if isinstance(candidate.get("files"), dict):
+            candidate["files"] = [
+                {"path": path, "content": file_content}
+                for path, file_content in candidate["files"].items()
+            ]
+        if not isinstance(candidate.get("files"), list):
             raise ValueError("Model returned an invalid candidate structure")
         return candidate
 

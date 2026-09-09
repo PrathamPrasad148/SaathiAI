@@ -1,1 +1,3 @@
 {"task": "Extend CodingAgent with AST validation, code linting, and automated unit test execution harness.", "model": "qwen2.5-coder:7b", "status": "failed", "error": "Model returned an invalid candidate structure", "duration_s": 62.17}
+{"task": "Extend CodingAgent with AST validation, code linting, and automated unit test execution harness.", "model": "qwen2.5-coder:7b", "status": "failed", "error": "Model returned an invalid candidate structure", "duration_s": 66.94}
+{"task": "Extend CodingAgent with AST validation, code linting, and automated unit test execution harness.", "model": "qwen2.5-coder:7b", "status": "failed", "error": "Model returned an invalid candidate structure", "duration_s": 61.87}

@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import web_engine
 from .orchestrator import SaathiOrchestrator
+from .free_models_client import UniversalFreeAIClient
+from .self_agent_builder import SelfAgentBuilder
 from tools.registry import ToolRegistry
 from tools.executor import ToolExecutor
 from memory.engine import MemoryEngine
@@ -225,12 +227,14 @@ class AgentPlanner:
         self.on_reply_ready: Optional[Callable[[str], None]] = None
         self.on_commentary: Optional[Callable[[str], None]] = None
 
-        # Multi-Agent Architecture Orchestrator Core
+        # Multi-Agent Architecture Orchestrator Core & Free Web AI Client
+        self.free_ai_client = UniversalFreeAIClient()
         self.orchestrator = SaathiOrchestrator(
             projects_dir=self.projects_dir,
             memory_engine=self.memory,
             executor=self.executor
         )
+        self.agent_builder = SelfAgentBuilder(factory=self.orchestrator.factory)
 
         def on_bus_event(evt):
             etype = evt.get("event_type")

@@ -86,9 +86,9 @@ class TopTelemetryBar(tk.Frame):
 
         tk.Label(right_frame, text="CORE NEURAL LINK:", font=FONT_HUD_TINY, bg=COLOR_PANEL, fg=COLOR_TEXT_MUTED).pack(side="left", padx=(0, 6))
 
-        self.selected_model = tk.StringVar(value="Auto (Smart Agent)")
-        models = ["Auto (Smart Agent)", "qwen2.5:7b", "qwen3:14b", "qwen3:4b-instruct"]
-        self.combo_model = ttk.Combobox(right_frame, textvariable=self.selected_model, values=models, state="readonly", width=18)
+        self.selected_model = tk.StringVar(value="Auto (GPT-6 Astra)")
+        models = ["Auto (GPT-6 Astra)", "GPT-6 Astra (Neural)", "DeepSeek-R1 (Reasoning)", "qwen2.5:7b", "qwen3:14b", "qwen3:4b-instruct"]
+        self.combo_model = ttk.Combobox(right_frame, textvariable=self.selected_model, values=models, state="readonly", width=22)
         self.combo_model.pack(side="left", padx=(0, 10))
         self.combo_model.bind("<<ComboboxSelected>>", self._handle_model_change)
 

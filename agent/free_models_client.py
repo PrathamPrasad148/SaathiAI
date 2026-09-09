@@ -142,3 +142,4 @@ class UniversalFreeAIClient:
             return True, res, "OpenRouter-DeepSeekR1-Free"
 
         return False, "", "None"
+

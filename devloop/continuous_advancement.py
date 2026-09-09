@@ -12,6 +12,7 @@ import time
 import threading
 import subprocess
 import re
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import List
@@ -19,7 +20,6 @@ from typing import List
 REPO_ROOT = Path(r"C:\SAATHIAI").resolve()
 sys.path.insert(0, str(REPO_ROOT))
 
-from agent.orchestrator import SaathiOrchestrator
 from devloop.self_coder import SelfCodingEngine
 
 CHECK_INTERVAL_SECONDS = 3600  # Run web research & advancement cycle every 60 minutes
@@ -30,6 +30,7 @@ class ContinuousAdvancementEngine:
 
     def __init__(self):
         self.self_coder = SelfCodingEngine(repo_root=REPO_ROOT)
+        self.browser_trainer = None
         self.is_running = False
 
     def log(self, msg: str):
@@ -42,7 +43,21 @@ class ContinuousAdvancementEngine:
         if not backlog_file.exists():
             return []
         pattern = re.compile(r"^\s*-\s*\[ \]\s+`\[(?:fix|agent|refactor|explore)\]`?\s+(.+)$", re.MULTILINE)
-        return [match.group(1).strip() for match in pattern.finditer(backlog_file.read_text(encoding="utf-8"))]
+        tasks = [match.group(1).strip() for match in pattern.finditer(backlog_file.read_text(encoding="utf-8"))]
+        if not self.self_coder.trace_file.exists():
+            return tasks
+
+        traces = []
+        for line in self.self_coder.trace_file.read_text(encoding="utf-8", errors="replace").splitlines():
+            try:
+                traces.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        recent_failures = {
+            task: sum(1 for trace in traces[-20:] if trace.get("task") == task and trace.get("status") == "failed")
+            for task in tasks
+        }
+        return [task for task in tasks if recent_failures.get(task, 0) < 3]
 
     def update_backlog(self, new_tasks: List[str]):
         """Append discovered advancement tasks to devloop_backlog.md if not already present."""
@@ -67,11 +82,21 @@ class ContinuousAdvancementEngine:
         """Execute a single background self-advancement cycle."""
         self.log("Starting continuous self-advancement iteration...")
 
-        # 1. Discover web advancements & update backlog
+        # Optional browser training is explicit because it controls a logged-in browser session.
+        if os.environ.get("SAATHI_ENABLE_BROWSER_TRAINER", "0") == "1":
+            try:
+                from agent.browser_ai_trainer import BrowserAITrainer
+                self.browser_trainer = BrowserAITrainer()
+                built = self.browser_trainer.run_super_intelligence_expansion_cycle()
+                self.log(f"Browser AI Trainer scaffolded {len(built)} new sub-agents: {built}")
+            except Exception as e:
+                self.log(f"Browser AI Trainer cycle warning: {e}")
+
+        # 2. Discover web advancements & update backlog
         new_tasks = self.discover_web_advancements()
         self.update_backlog(new_tasks)
 
-        # 2. Generate and evaluate one candidate in an isolated copy.
+        # 3. Generate and evaluate one candidate in an isolated copy.
         if new_tasks:
             task = new_tasks[0]
             result = self.self_coder.run_once(task)

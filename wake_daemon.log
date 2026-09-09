@@ -482,3 +482,11 @@
 [2026-09-09 07:57:55] [AUDIO RECOGNIZED]: 'facebook mein kaise'
 [2026-09-09 07:58:22] [AUDIO RECOGNIZED]: '2 din mein type karo'
 [2026-09-09 07:59:01] [AUDIO RECOGNIZED]: 'restaurant page'
+[2026-09-09 08:36:19] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:22] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:28] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:31] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:33] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:38] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:41] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-09 08:36:44] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed

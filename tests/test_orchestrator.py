@@ -20,6 +20,7 @@ from tools.builtin.files import get_file_tools
 from tools.permissions import PermissionManager
 from tools.schemas import RiskLevel
 from devloop.self_coder import SelfCodingEngine
+from devloop.continuous_advancement import ContinuousAdvancementEngine
 
 
 class TestSaathiOrchestrator(unittest.TestCase):
@@ -92,6 +93,36 @@ class TestSaathiOrchestrator(unittest.TestCase):
         engine = SelfCodingEngine(ROOT_DIR)
         with self.assertRaises(ValueError):
             engine._validate_candidate({"files": [{"path": "data/permissions.json", "content": "{}"}]})
+
+    def test_self_coder_normalizes_model_change_aliases(self):
+        engine = SelfCodingEngine(ROOT_DIR)
+        candidate = engine._normalize_candidate({"changes": [{"file": "agent/example.py", "new_content": "print(1)"}]})
+        self.assertEqual(candidate["files"][0]["path"], "agent/example.py")
+        self.assertEqual(candidate["files"][0]["content"], "print(1)")
+
+    def test_self_coder_selects_task_owner(self):
+        engine = SelfCodingEngine(ROOT_DIR)
+        self.assertEqual(engine._target_file_for_task("Extend WebAgent with caching"), "agent/agents/web_agent.py")
+
+    def test_self_coder_rejects_unavailable_dependency(self):
+        engine = SelfCodingEngine(ROOT_DIR)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            candidate_root = Path(temp_dir)
+            target = candidate_root / "agent" / "agents" / "example.py"
+            target.parent.mkdir(parents=True)
+            target.write_text("import definitely_missing_saathi_package\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                engine._validate_dependencies(candidate_root, ["agent/agents/example.py"])
+
+    def test_advancement_skips_repeated_failures(self):
+        engine = ContinuousAdvancementEngine()
+        original = engine.self_coder.trace_file
+        try:
+            engine.self_coder.trace_file = ROOT_DIR / "data" / "self_learning.jsonl"
+            tasks = engine.discover_web_advancements()
+            self.assertNotIn("Extend CodingAgent with AST validation, code linting, and automated unit test execution harness.", tasks)
+        finally:
+            engine.self_coder.trace_file = original
 
 
 if __name__ == "__main__":

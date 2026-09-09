@@ -25,6 +25,7 @@ from .agents.memory_agent import MemoryAgent
 
 
 from .agent_factory import DynamicAgentFactory
+from .browser_ai_trainer import BrowserAITrainer
 
 
 class SaathiOrchestrator:
@@ -36,6 +37,7 @@ class SaathiOrchestrator:
         self.shared_memory = SharedContextStore(memory_engine=memory_engine)
         self.sandbox = ExecutionSandbox(allowed_workspace_dir=self.projects_dir)
         self.factory = DynamicAgentFactory()
+        self.browser_ai_trainer = BrowserAITrainer(factory=self.factory)
 
         # Initialize Core Specialized Sub-Agents
         self.coding_agent = CodingAgent(projects_dir=self.projects_dir, sandbox=self.sandbox, executor=executor)

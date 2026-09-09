@@ -68,3 +68,7 @@ class VisionAgent(BaseAgent):
             execution_time_ms=exec_time,
             metadata=win_info
         )
+
+
+    def select_region_of_interest(self, x: int, y: int, w: int, h: int) -> dict:
+        return {'roi': [x, y, w, h], 'status': 'selected'}

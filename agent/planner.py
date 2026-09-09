@@ -7,6 +7,7 @@ import urllib.error
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import web_engine
+from .orchestrator import SaathiOrchestrator
 from tools.registry import ToolRegistry
 from tools.executor import ToolExecutor
 from memory.engine import MemoryEngine
@@ -215,6 +216,21 @@ class AgentPlanner:
         self.on_task_event: Optional[Callable[[str, Dict[str, Any]], None]] = None
         self.on_reply_ready: Optional[Callable[[str], None]] = None
         self.on_commentary: Optional[Callable[[str], None]] = None
+
+        # Multi-Agent Architecture Orchestrator Core
+        self.orchestrator = SaathiOrchestrator(
+            projects_dir=self.projects_dir,
+            memory_engine=self.memory,
+            executor=self.executor
+        )
+
+        def on_bus_event(evt):
+            etype = evt.get("event_type")
+            payload = evt.get("payload", {})
+            if etype == "agent_executing" and self.on_state_change:
+                self.on_state_change("EXECUTING", f"[{payload.get('agent_name')}] Active")
+
+        self.orchestrator.bus.subscribe("*", on_bus_event)
 
     def cancel(self):
         """Immediately cancel active agent task."""

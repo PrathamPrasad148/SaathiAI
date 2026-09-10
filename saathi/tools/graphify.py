@@ -40,3 +40,4 @@ class GraphifyTool(BaseTool):
             "has_readme": readme_md.exists(),
             "has_pyproject": pyproject.exists()
         }
+

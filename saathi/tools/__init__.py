@@ -13,4 +13,6 @@ from .claw_code import ClawCodeTool
 from .ponytail import PonytailTool
 from .deepseek_harness import DeepSeekHarnessTool
 from .prev_jarvis import PrevJarvisTool
+from .graphify import GraphifyTool
+
 

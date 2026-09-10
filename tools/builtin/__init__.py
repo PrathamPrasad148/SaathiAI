@@ -12,7 +12,7 @@ from .memory import get_memory_tools
 def get_nextgen_tools() -> list[Tool]:
     from saathi.tools import (
         WebCmdTool, SelfEdifyTool, AcontextTool, ClawCodeTool,
-        PonytailTool, DeepSeekHarnessTool, PrevJarvisTool
+        PonytailTool, DeepSeekHarnessTool, PrevJarvisTool, GraphifyTool
     )
     return [
         Tool(
@@ -56,8 +56,15 @@ def get_nextgen_tools() -> list[Tool]:
             description="Interface with PrevJarvis legacy core, desktop UI capabilities, and Rust acceleration modules.",
             parameters={"type": "object", "properties": {"action": {"type": "string", "description": "Action ('status', 'inspect', 'list_modules')"}}, "required": ["action"]},
             risk_level=RiskLevel.MEDIUM, run=lambda action="status", **kwargs: PrevJarvisTool().execute(action=action, **kwargs)
+        ),
+        Tool(
+            name="graphify", category="knowledge",
+            description="Build, query, and traverse codebase and multi-modal knowledge graphs using AST tree-sitter.",
+            parameters={"type": "object", "properties": {"action": {"type": "string", "description": "Action ('status', 'build', 'query', 'inspect')"}}, "required": ["action"]},
+            risk_level=RiskLevel.MEDIUM, run=lambda action="status", **kwargs: GraphifyTool().execute(action=action, **kwargs)
         )
     ]
+
 
 def register_all_builtin_tools(registry: ToolRegistry, app_dir: Path, reminder_mgr, notes_file: Path, memory_engine, automation_engine):
     for t in get_file_tools(app_dir):

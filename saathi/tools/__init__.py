@@ -11,3 +11,4 @@ from .self_edify import SelfEdifyTool
 from .acontext import AcontextTool
 from .claw_code import ClawCodeTool
 from .ponytail import PonytailTool
+from .deepseek_harness import DeepSeekHarnessTool

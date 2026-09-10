@@ -397,69 +397,72 @@ class AgentPlanner:
             sleep_workstation()
             return "Putting computer to sleep now, Pratham."
 
-        # ── Multi-Step Messaging & GUI Automation Reflexes (WhatsApp, Telegram, Discord, Teams) ──
-        # Combined full directive: "text Mom I will be late today", "whatsapp Mom I'm on my way", "send message to Dad saying hello"
-        full_msg_match = re.search(r"\b(text|message|whatsapp|tell|send message to)\s+([a-zA-Z0-9\s]+?)\s+(?:saying|that|texting|to say)?\s+[\"']?(.+?)[\"']?$", norm)
-        if full_msg_match and not any(w in norm for w in ("website", "webpage", "email", "code", "file")):
-            target_contact = full_msg_match.group(2).strip()
-            msg_text = full_msg_match.group(3).strip()
+        # Check if the prompt is a complex multi-line or multi-word directive (should NOT trigger simple app launch or chat reflexes)
+        is_complex_directive = (
+            "\n" in text or len(text.split()) > 7 or
+            any(k in norm for k in ("protocol", "directive", "objective", "daemon", "subsystem", "learning", "knowledge", "research", "ingest", "selfedify", "ponytail", "claw", "deepseek", "prevjarvis", "code", "python", "script", "build", "analyze", "explain", "create", "architectures", "patterns", "optimizations"))
+        )
 
-            res = send_app_message("whatsapp", target_contact, msg_text)
-            return f"At your command, Pratham. {res['message']}"
-
-        # Step 2: "text Mom", "message Dad", "chat with Rahul", "open chat with Boss"
-        chat_contact_match = re.search(r"\b(text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
-        if chat_contact_match and not any(w in norm for w in ("website", "webpage", "app", "application", "file", "folder")):
-            target_contact = chat_contact_match.group(2).strip()
-            if target_contact not in ("me", "this", "him", "her", "them"):
-                win_info = get_active_window_info()
-                active_title = win_info.get("title", "").lower()
-                target_app = "whatsapp"
-                for known_app in ("telegram", "discord", "teams", "slack"):
-                    if known_app in active_title:
-                        target_app = known_app
-                        break
-
-                res = send_app_message(target_app, target_contact, "")
+        if not is_complex_directive:
+            # ── Multi-Step Messaging & GUI Automation Reflexes (WhatsApp, Telegram, Discord, Teams) ──
+            full_msg_match = re.search(r"\b(text|message|whatsapp|tell|send message to)\s+([a-zA-Z0-9\s]+?)\s+(?:saying|that|texting|to say)?\s+[\"']?(.+?)[\"']?$", norm)
+            if full_msg_match and not any(w in norm for w in ("website", "webpage", "email", "code", "file")):
+                target_contact = full_msg_match.group(2).strip()
+                msg_text = full_msg_match.group(3).strip()
+                res = send_app_message("whatsapp", target_contact, msg_text)
                 return f"At your command, Pratham. {res['message']}"
 
-        # Step 3: "send message I will be late today", "send I am on my way", "type I'll be there and send", "tell him I'm coming"
-        send_text_match = re.search(r"\b(send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
-        if send_text_match and not any(w in norm for w in ("email", "file", "code")):
-            msg_to_send = send_text_match.group(2).strip()
-            type_text(msg_to_send)
-            time.sleep(0.3)
-            press_key("enter")
-            return f"Sent message '{msg_to_send}', Pratham."
+            # Step 2: "text Mom", "message Dad", "chat with Rahul", "open chat with Boss"
+            chat_contact_match = re.search(r"\b(text|message|chat with|open chat with|contact)\s+([a-zA-Z0-9\s]+)$", norm)
+            if chat_contact_match and not any(w in norm for w in ("website", "webpage", "app", "application", "file", "folder")):
+                target_contact = chat_contact_match.group(2).strip()
+                if target_contact not in ("me", "this", "him", "her", "them"):
+                    win_info = get_active_window_info()
+                    active_title = win_info.get("title", "").lower()
+                    target_app = "whatsapp"
+                    for known_app in ("telegram", "discord", "teams", "slack"):
+                        if known_app in active_title:
+                            target_app = known_app
+                            break
+                    res = send_app_message(target_app, target_contact, "")
+                    return f"At your command, Pratham. {res['message']}"
 
-        # ── OS Action: Close Applications & Windows ──
-        # Matches: "close chrome", "close notepad", "close spotify", "close whatsapp", "close active window", "exit chrome", "kill chrome"
-        close_app_match = re.search(r"\b(close|exit|terminate|kill|shut)\s+([a-zA-Z0-9\s._-]+)$", norm)
-        if close_app_match and not any(w in norm for w in ("website", "webpage", "the door", "down")):
-            target_app = close_app_match.group(2).strip()
-            if target_app in ("this", "window", "active window", "the window", "current window"):
-                win_info = get_active_window_info()
-                if win_info.get("title"):
-                    close_window_by_title(win_info["title"])
-                    return f"Closed active window '{win_info['title']}', Pratham."
-            else:
-                ok = close_window_by_title(target_app)
-                if not ok:
-                    count = kill_process_by_name(target_app)
-                    if count > 0:
-                        return f"Closed application '{target_app}', Pratham."
-                    return f"Attempted to close '{target_app}'. If it is running under another name, standing by."
-                return f"Closed application '{target_app}', Pratham."
+            # Step 3: "send message I will be late today", "send I am on my way", "type I'll be there and send", "tell him I'm coming"
+            send_text_match = re.search(r"\b(send message|send text|send|type and send|tell him|tell her|tell them)\s+[\"']?(.+?)[\"']?$", norm)
+            if send_text_match and not any(w in norm for w in ("email", "file", "code")):
+                msg_to_send = send_text_match.group(2).strip()
+                type_text(msg_to_send)
+                time.sleep(0.3)
+                press_key("enter")
+                return f"Sent message '{msg_to_send}', Pratham."
 
-        # ── OS Action: Launch Applications (Instant Voice Controls for Chrome, WhatsApp, Spotify, Notepad, etc.) ──
-        # Matches: "open chrome", "launch whatsapp", "open spotify", "start notepad", "open calc", "saathi open whatsapp", etc.
-        open_app_match = re.search(r"\b(open|launch|start|run)\s+([a-zA-Z0-9\s._-]+)$", norm)
-        if open_app_match and not any(w in norm for w in ("website", "webpage", "portfolio", "file", "folder", "door", "window")):
-            target_app = open_app_match.group(2).strip()
-            if target_app not in ("the door", "the window", "up", "down"):
-                ok, msg = launch_application(target_app)
-                if ok:
-                    return f"At your command, Pratham. {msg}"
+            # ── OS Action: Close Applications & Windows ──
+            close_app_match = re.search(r"\b(close|exit|terminate|kill|shut)\s+([a-zA-Z0-9\s._-]+)$", norm)
+            if close_app_match and not any(w in norm for w in ("website", "webpage", "the door", "down")):
+                target_app = close_app_match.group(2).strip()
+                if target_app in ("this", "window", "active window", "the window", "current window"):
+                    win_info = get_active_window_info()
+                    if win_info.get("title"):
+                        close_window_by_title(win_info["title"])
+                        return f"Closed active window '{win_info['title']}', Pratham."
+                else:
+                    ok = close_window_by_title(target_app)
+                    if not ok:
+                        count = kill_process_by_name(target_app)
+                        if count > 0:
+                            return f"Closed application '{target_app}', Pratham."
+                        return f"Attempted to close '{target_app}'. If it is running under another name, standing by."
+                    return f"Closed application '{target_app}', Pratham."
+
+            # ── OS Action: Launch Applications (Instant Voice Controls for Chrome, WhatsApp, Spotify, Notepad, etc.) ──
+            open_app_match = re.search(r"\b(open|launch|start|run)\s+([a-zA-Z0-9\s._-]+)$", norm)
+            if open_app_match and not any(w in norm for w in ("website", "webpage", "portfolio", "file", "folder", "door", "window")):
+                target_app = open_app_match.group(2).strip()
+                if target_app not in ("the door", "the window", "up", "down"):
+                    ok, msg = launch_application(target_app)
+                    if ok:
+                        return f"At your command, Pratham. {msg}"
+
 
         # ── OS Action: Search Web / Google / YouTube ──
         # Matches: "search something", "search quantum physics", "search coldplay on youtube", "google who is the president"

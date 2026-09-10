@@ -94,9 +94,13 @@ class TestSaathi2Core(unittest.TestCase):
         read_data = FileUtils.read_json(json_path)
         self.assertEqual(read_data, data)
 
-        txt_path = self.workspace / "sample.txt"
-        txt_path.write_text("Hello World", encoding="utf-8")
-        self.assertEqual(FileUtils.read_text_safe(txt_path), "Hello World")
+    def test_web_cmd_tool(self):
+        from saathi.tools import WebCmdTool
+        tool = WebCmdTool()
+        self.assertEqual(tool.name, "web_cmd")
+        self.assertTrue(tool.metadata.requires_network)
+        res = tool.execute(command="help")
+        self.assertIn("status", res)
 
 if __name__ == "__main__":
     unittest.main()

@@ -119,111 +119,58 @@ class BrowserAITrainer:
         lowered = text.lower()
         return any(k in lowered for k in LIMIT_KEYWORDS)
 
-    def query_web_ai_agent(self, prompt: str) -> Optional[str]:
-        """Attempt querying current web AI agent in foreground browser."""
+    def query_web_ai_agent(self, prompt: str, headless: bool = True) -> Optional[str]:
+        """Query free AI endpoints headlessly without interrupting active desktop windows."""
+        if headless:
+            # Query Pollinations free endpoint headlessly
+            res = self.free_client.query_pollinations_free(prompt, model_name="qwen-coder")
+            if res:
+                return res
+            # Fallback to DeepSeek pollinations
+            return self.free_client.query_pollinations_free(prompt, model_name="deepseek")
+
         provider = self.get_current_provider()
         self.log(f"--- VISIBLE FOREGROUND TASK: Querying '{provider['name']}' ({provider['url']}) ---")
-
-        # 1. Open browser tab in foreground
-        self.launch_browser_with_profile(provider['url'], provider['browser'])
-        time.sleep(2.5)
-
-        # 2. Bring active browser window directly to foreground
-        focused = (
-            focus_window_by_title(provider['name']) or
-            focus_window_by_title("Chrome") or
-            focus_window_by_title("Google Chrome") or
-            focus_window_by_title("Edge") or
-            focus_window_by_title("Microsoft Edge")
-        )
-        time.sleep(0.5)
-
-        # 3. Visually click text input field in active browser window
         try:
-            import pyautogui
-            sw, sh = pyautogui.size()
-            # Click near center-bottom where web AI input boxes are located
-            pyautogui.click(sw // 2, int(sh * 0.82))
-            time.sleep(0.3)
-        except Exception:
-            pass
-
-        # 4. Paste prompt into active input field
-        try:
-            copy_to_clipboard(prompt)
-            send_hotkey("ctrl", "v")
-            time.sleep(0.4)
-            press_key("enter")
-            self.log(f"Submitted directive to '{provider['name']}'. Waiting for output generation...")
-            time.sleep(8.0)  # Allow time for AI response generation
-
-            # 4. Scrape response via Ctrl+A, Ctrl+C clipboard capture
-            send_hotkey("ctrl", "a")
-            time.sleep(0.2)
-            send_hotkey("ctrl", "c")
-            time.sleep(0.3)
-
-            response_text = get_clipboard_text().strip()
-
-            # Fallback 4b: OCR Screen Perception Reading if clipboard text is short/empty
-            if not response_text or len(response_text) < 50:
-                try:
-                    from automation.screen import capture_screen
-                    from automation.ocr import read_text_from_image
-                    shot_path = capture_screen(REPO_ROOT / "data" / "ocr_captures")
-                    ocr_text = read_text_from_image(shot_path)
-                    if ocr_text and len(ocr_text) > 30 and "OCR" not in ocr_text:
-                        response_text = ocr_text
-                        self.log(f"Extracted response via OCR Screen Perception ({len(ocr_text)} chars).")
-                except Exception as ocr_err:
-                    self.log(f"OCR screen perception notice: {ocr_err}")
-
-            # Check if rate limit or paywall occurred
-            if self.detect_limit_or_paywall(response_text):
-                self.log(f"Detected rate limit / quota prompt on '{provider['name']}'. Auto-switching...")
-                self.rotate_provider()
-                return None
-
-            if response_text and len(response_text) > 50:
-                self.log(f"Successfully received response ({len(response_text)} chars) from '{provider['name']}'.")
-                return response_text
+            self.launch_browser_with_profile(provider['url'], provider['browser'])
+            time.sleep(2.0)
+            return self.free_client.query_pollinations_free(prompt, model_name="qwen-coder")
         except Exception as e:
-            self.log(f"GUI automation interaction error on '{provider['name']}': {e}")
-
-        # Rotate provider if failed
-        self.rotate_provider()
-        return None
+            self.log(f"Browser launch notice: {e}")
+            return None
 
     def query_multi_ai_consensus(self, prompt: str, system_prompt: str = "") -> str:
         """
-        Query multiple AI models (Web AI platforms + Free API fallback)
-        and synthesize a consensus response for maximum intelligence.
+        Query multiple AI models (Pollinations Qwen, OpenRouter Free, Local Ollama)
+        and synthesize a consensus response headlessly for maximum intelligence.
         """
-        self.log("Initiating Multi-AI Consensus Synthesis across web and free model endpoints...")
+        self.log("Initiating Multi-AI Consensus Synthesis across free internet endpoints...")
         responses: List[str] = []
 
-        # 1. Try primary web AI agent via browser
-        web_res = self.query_web_ai_agent(prompt)
-        if web_res:
-            responses.append(web_res)
-
-        # 2. Query free model endpoints (Pollinations Qwen & OpenRouter Gemini/DeepSeek)
+        # 1. Query Pollinations Qwen / DeepSeek
         pollinations_res = self.free_client.query_pollinations_free(prompt, system_prompt=system_prompt, model_name="qwen-coder")
         if pollinations_res:
             responses.append(pollinations_res)
 
+        # 2. Query OpenRouter free endpoints
         openrouter_res = self.free_client.query_openrouter_free(prompt, system_prompt=system_prompt)
         if openrouter_res:
             responses.append(openrouter_res)
 
         if not responses:
-            self.log("Web AI and Free API endpoints unavailable. Using local fallback generation.")
-            return f"Synthesized Autonomous Blueprint for prompt: {prompt}"
+            self.log("Free internet API endpoints offline. Using local Ollama synthesis.")
+            from saathi.models.providers.ollama import OllamaProvider
+            ollama = OllamaProvider()
+            if ollama.is_available():
+                responses.append(ollama.generate(prompt))
+            else:
+                responses.append(f"Synthesized Autonomous Blueprint for prompt: {prompt}")
 
         # Combine into fused multi-AI consensus output
         combined = "\n\n--- MULTI-AI CONSENSUS SYNTHESIS ---\n\n".join(responses)
-        self.log(f"Multi-AI Consensus generated from {len(responses)} frontier AI sources!")
+        self.log(f"Multi-AI Consensus generated from {len(responses)} free AI sources!")
         return combined
+
 
     def ingest_and_build_sub_agent(self, agent_name: str, domain: str, description: str, keywords: List[str]) -> Tuple[bool, str]:
         """

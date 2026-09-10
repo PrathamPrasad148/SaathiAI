@@ -27,3 +27,7 @@
 [2026-09-10 16:10:32] [AUDIO RECOGNIZED]: 'hello'
 [2026-09-10 16:10:34] [AUDIO RECOGNIZED]: 'hey brother'
 [2026-09-10 16:10:55] [AUDIO RECOGNIZED]: 'open chat gpt in chrome'
+[2026-09-10 16:30:26] [AUDIO RECOGNIZED]: 'hi sathi'
+[2026-09-10 16:30:26] [WAKE WORD MATCHED] Spoken phrase: 'hi sathi'
+[2026-09-10 16:30:26] [ACTION] Saathi AI not open. Launching full-screen HUD...
+[2026-09-10 16:30:26] [WAKE DAEMON] Executing Saathi AI full-screen launch...

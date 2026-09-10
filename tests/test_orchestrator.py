@@ -5,7 +5,9 @@ Unit Tests for SaathiOrchestrator and Sub-Agent Architecture
 import unittest
 import sys
 import tempfile
+import json
 from pathlib import Path
+
 
 # Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -117,12 +119,20 @@ class TestSaathiOrchestrator(unittest.TestCase):
     def test_advancement_skips_repeated_failures(self):
         engine = ContinuousAdvancementEngine()
         original = engine.self_coder.trace_file
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".jsonl") as tmp:
+            tmp_path = Path(tmp.name)
+            failed_task = "Extend CodingAgent with AST validation, code linting, and automated unit test execution harness."
+            for _ in range(3):
+                tmp.write(json.dumps({"task": failed_task, "status": "failed"}) + "\n")
         try:
-            engine.self_coder.trace_file = ROOT_DIR / "data" / "self_learning.jsonl"
+            engine.self_coder.trace_file = tmp_path
             tasks = engine.discover_web_advancements()
-            self.assertNotIn("Extend CodingAgent with AST validation, code linting, and automated unit test execution harness.", tasks)
+            self.assertNotIn(failed_task, tasks)
         finally:
             engine.self_coder.trace_file = original
+            if tmp_path.exists():
+                tmp_path.unlink()
+
 
 
 if __name__ == "__main__":

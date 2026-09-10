@@ -148,3 +148,4 @@ class LocalLaptopLearner:
 if __name__ == "__main__":
     learner = LocalLaptopLearner()
     learner.scan_and_learn_from_laptop(max_files_per_run=10)
+

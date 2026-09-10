@@ -84,5 +84,19 @@ class TestSaathi2Core(unittest.TestCase):
         result = evaluator.evaluate("Explain gravity", "Gravity is a natural phenomenon by which all things with mass are brought toward one another.")
         self.assertTrue(result["passed"])
 
+    def test_file_utils(self):
+        from saathi.tools import FileUtils
+        json_path = self.workspace / "sample.json"
+        data = {"key": "value", "count": 42}
+        written = FileUtils.write_json(json_path, data)
+        self.assertTrue(written)
+
+        read_data = FileUtils.read_json(json_path)
+        self.assertEqual(read_data, data)
+
+        txt_path = self.workspace / "sample.txt"
+        txt_path.write_text("Hello World", encoding="utf-8")
+        self.assertEqual(FileUtils.read_text_safe(txt_path), "Hello World")
+
 if __name__ == "__main__":
     unittest.main()

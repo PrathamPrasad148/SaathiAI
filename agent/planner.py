@@ -330,7 +330,16 @@ class AgentPlanner:
                 self.permissions.revoke_master_control()
             return "Full system control revoked, Pratham. Standing by in restricted safe mode."
 
+        # Complex multi-line or multi-word directives are NOT chit-chat reflexes — pass straight to Multi-Agent Orchestrator
+        is_complex = (
+            "\n" in text or len(text.split()) > 7 or
+            any(k in norm for k in ("protocol", "directive", "objective", "daemon", "subsystem", "learning", "knowledge", "research", "ingest", "selfedify", "ponytail", "claw", "deepseek", "prevjarvis", "open-source", "open source", "optimizations", "architectures", "patterns", "refactor"))
+        )
+        if is_complex and not (has_grant_control or has_revoke_control):
+            return None
+
         # ── Hardware Direct Reflexes (Instant Zero-LLM Execution) ──
+
         has_mute = bool(re.search(r"\b(mute( the)?( volume| audio| sound)?|unmute( the)?( volume| audio| sound)?|silence audio|toggle mute)\b", norm))
         has_vol_up = bool(re.search(r"\b(volume up|increase volume|turn up( the)?( volume| audio))\b", norm))
         has_vol_down = bool(re.search(r"\b(volume down|decrease volume|turn down( the)?( volume| audio)|lower( the)? volume)\b", norm))
@@ -855,10 +864,10 @@ class AgentPlanner:
                 self.on_reply_ready(reply)
             return
 
-        # Check Dedicated God-Level Website Engine
-        has_web_term = any(k in lowered for k in ("website", "web site", "webpage", "web page", "landing page", "portfolio"))
-        has_action_term = any(v in lowered for v in ("build", "create", "make", "design", "generate", "code", "banao", "banado"))
-        if (has_web_term and has_action_term) or any(p in lowered for p in ("website on ", "website for ", "webpage for ", "site on ")):
+        # Check Dedicated Website Engine (Requires explicit website creation phrase; skips for multi-agent/learning directives)
+        is_website_req = bool(re.search(r"\b(build|create|make|design|generate|code|banao|banado)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\b", lowered)) or any(p in lowered for p in ("website on ", "website for ", "webpage for ", "site on "))
+        if is_website_req and not is_multi_agent_req:
+
             topic = re.sub(r'^(can you\s+)?(please\s+)?(create|make|build|generate|design|code|develop)\s+(me\s+)?(a\s+|an\s+)?(website|webpage|landing page|portfolio|site)\s*(on|for|about|of)?\s*', '', text, flags=re.I).strip()
             topic = re.sub(r'^(website|landing page|portfolio)\s*(on|for|about|of)?\s*', '', topic, flags=re.I).strip() or "Modern Experience"
 

@@ -123,5 +123,12 @@ class TestSaathi2Core(unittest.TestCase):
         res = tool.execute(action="status")
         self.assertEqual(res["status"], "success")
 
+    def test_ponytail_tool(self):
+        from saathi.tools import PonytailTool
+        tool = PonytailTool()
+        self.assertEqual(tool.name, "ponytail")
+        res = tool.execute(action="status")
+        self.assertEqual(res["status"], "success")
+
 if __name__ == "__main__":
     unittest.main()

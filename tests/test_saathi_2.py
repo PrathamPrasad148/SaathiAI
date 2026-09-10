@@ -137,5 +137,13 @@ class TestSaathi2Core(unittest.TestCase):
         res = tool.execute(action="status")
         self.assertEqual(res["status"], "success")
 
+    def test_prev_jarvis_tool(self):
+        from saathi.tools import PrevJarvisTool
+        tool = PrevJarvisTool()
+        self.assertEqual(tool.name, "prev_jarvis")
+        res = tool.execute(action="status")
+        self.assertEqual(res["status"], "success")
+
 if __name__ == "__main__":
     unittest.main()
+

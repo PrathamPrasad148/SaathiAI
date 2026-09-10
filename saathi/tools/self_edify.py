@@ -41,3 +41,4 @@ class SelfEdifyTool(BaseTool):
             "query": query,
             "has_manage_py": manage_py.exists()
         }
+

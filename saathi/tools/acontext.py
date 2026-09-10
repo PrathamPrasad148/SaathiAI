@@ -38,3 +38,4 @@ class AcontextTool(BaseTool):
             "skill_name": skill_name,
             "has_agents_spec": agents_doc.exists()
         }
+

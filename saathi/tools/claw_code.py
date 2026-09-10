@@ -38,3 +38,4 @@ class ClawCodeTool(BaseTool):
             "target": target,
             "has_agents_spec": agents_md.exists()
         }
+

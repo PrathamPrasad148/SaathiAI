@@ -45,3 +45,8 @@
 [2026-09-10 12:08:38] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
 [2026-09-10 12:08:42] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
 [2026-09-10 12:08:49] [STT REQUEST ERROR]: recognition connection failed: [Errno 11001] getaddrinfo failed
+[2026-09-10 12:20:03] [AUDIO RECOGNIZED]: 'change karne ki jarurat nahin hai bihari battery'
+[2026-09-10 12:20:18] [AUDIO RECOGNIZED]: 'bihari video'
+[2026-09-10 12:20:56] [AUDIO RECOGNIZED]: 'good for you'
+[2026-09-10 12:21:05] [AUDIO RECOGNIZED]: 'oh my god'
+[2026-09-10 12:21:14] [AUDIO RECOGNIZED]: 'achcha kaise kya nahin bolna hai mere ko'

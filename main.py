@@ -25,6 +25,7 @@ from tools.executor import ToolExecutor
 from tools.builtin import register_all_builtin_tools
 from voice.engine import VoiceEngine
 from agent.planner import AgentPlanner
+from saathi.core import SaathiCoreAgent
 from ui.app import SaathiApp
 
 # Directory Paths
@@ -136,7 +137,7 @@ def main():
     # 5. Initialize Voice Engine
     voice_engine = VoiceEngine()
 
-    # 6. Initialize Agent Planner
+    # 6. Initialize Agent Planner & Saathi 2.0 Core Agent
     agent_planner = AgentPlanner(
         tool_registry=tool_registry,
         tool_executor=tool_executor,
@@ -146,6 +147,7 @@ def main():
         projects_dir=PROJECTS_DIR,
         permission_manager=permission_mgr
     )
+    saathi_core = SaathiCoreAgent()
 
     # 7. Initialize Master UI
     app = SaathiApp(

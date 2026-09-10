@@ -130,5 +130,12 @@ class TestSaathi2Core(unittest.TestCase):
         res = tool.execute(action="status")
         self.assertEqual(res["status"], "success")
 
+    def test_deepseek_harness_tool(self):
+        from saathi.tools import DeepSeekHarnessTool
+        tool = DeepSeekHarnessTool()
+        self.assertEqual(tool.name, "deepseek_harness")
+        res = tool.execute(action="status")
+        self.assertEqual(res["status"], "success")
+
 if __name__ == "__main__":
     unittest.main()

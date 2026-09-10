@@ -1,19 +1,19 @@
 @echo off
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
-title Push Saathi AI to GitHub - Pratham Prasad
+title Push Saathi AI 2.0 to GitHub — Engineered by Pratham Prasad
 
 set "REMOTE=https://github.com/PrathamPrasad148/SaathiAI.git"
 set "COMMIT_MESSAGE=%~1"
 if not defined COMMIT_MESSAGE (
     for /f "tokens=1-4 delims=/.- " %%a in ("%DATE%") do set "D_STR=%%a-%%b-%%c"
     for /f "tokens=1-3 delims=:. " %%a in ("%TIME%") do set "T_STR=%%a:%%b:%%c"
-    set "COMMIT_MESSAGE=Update Saathi AI by Pratham Prasad [!D_STR! !T_STR!]"
+    set "COMMIT_MESSAGE=Update Saathi AI 2.0 by Pratham Prasad [!D_STR! !T_STR!]"
 )
 
 echo.
 echo ========================================================
-echo        Saathi AI - GitHub Publisher (Pratham Prasad)
+echo     Saathi AI 2.0 — GitHub Publisher (Pratham Prasad)
 echo ========================================================
 echo Remote: %REMOTE%
 echo Commit: !COMMIT_MESSAGE!
@@ -74,8 +74,8 @@ if errorlevel 1 (
     git reset HEAD >nul 2>&1
 )
 
-:: 8. Stage all modified and untracked files
-echo [INFO] Staging all files across the repository...
+:: 8. Stage all modified and untracked files across all subdirectories
+echo [INFO] Staging all files across Saathi AI 2.0 repository...
 git add -A
 if errorlevel 1 (
     echo [WARN] Staging encountered index lock. Retrying with fresh index...
@@ -121,7 +121,7 @@ if errorlevel 1 goto FAILED
 :SUCCESS
 echo.
 echo ========================================================
-echo [SUCCESS] Saathi AI successfully pushed to GitHub!
+echo [SUCCESS] Saathi AI 2.0 successfully pushed to GitHub!
 echo Author: Pratham Prasad
 echo URL: %REMOTE%
 echo ========================================================

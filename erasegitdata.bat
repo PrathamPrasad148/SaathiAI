@@ -1,13 +1,13 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Clean Remote GitHub Repository - Pratham Prasad
+title Clean Remote GitHub Repository — Pratham Prasad
 
 set "REMOTE=https://github.com/PrathamPrasad148/SaathiAI.git"
 
 echo ===================================================================
-echo               SAATHI AI — REMOTE REPOSITORY PURGE UTILITY
-echo                       Author: Pratham Prasad
+echo             SAATHI AI 2.0 — REMOTE REPOSITORY PURGE UTILITY
+echo                     Engineered by Pratham Prasad
 echo ===================================================================
 echo.
 echo WARNING: This operation removes all tracked files from the GitHub

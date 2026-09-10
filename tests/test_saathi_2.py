@@ -102,5 +102,12 @@ class TestSaathi2Core(unittest.TestCase):
         res = tool.execute(command="help")
         self.assertIn("status", res)
 
+    def test_self_edify_tool(self):
+        from saathi.tools import SelfEdifyTool
+        tool = SelfEdifyTool()
+        self.assertEqual(tool.name, "self_edify")
+        res = tool.execute(action="status")
+        self.assertEqual(res["status"], "success")
+
 if __name__ == "__main__":
     unittest.main()

@@ -7,3 +7,4 @@ from .registry import DynamicToolRegistry
 from .discovery import ToolDiscoverySubsystem, ToolState
 from .file_utils import FileUtils
 from .web_cmd import WebCmdTool
+from .self_edify import SelfEdifyTool

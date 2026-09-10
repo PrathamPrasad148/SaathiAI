@@ -28,15 +28,18 @@ from agent.free_models_client import UniversalFreeAIClient
 from agent.self_agent_builder import SelfAgentBuilder
 from agent.agent_factory import DynamicAgentFactory
 
-# Web AI Platforms in Priority Cascade Order
+# Web AI Platforms in Priority Cascade Order (100% Free / Signed-In Zero API Keys)
 WEB_AI_PLATFORMS = [
     {"name": "ChatGPT", "url": "https://chatgpt.com", "browser": "chrome"},
     {"name": "Claude", "url": "https://claude.ai", "browser": "chrome"},
     {"name": "Gemini", "url": "https://gemini.google.com", "browser": "chrome"},
     {"name": "DeepSeek", "url": "https://chat.deepseek.com", "browser": "chrome"},
     {"name": "Perplexity", "url": "https://www.perplexity.ai", "browser": "chrome"},
+    {"name": "Copilot", "url": "https://copilot.microsoft.com", "browser": "chrome"},
     {"name": "HuggingChat", "url": "https://huggingface.co/chat", "browser": "chrome"},
-    {"name": "Poe", "url": "https://poe.com", "browser": "chrome"}
+    {"name": "Mistral", "url": "https://chat.mistral.ai", "browser": "chrome"},
+    {"name": "Poe", "url": "https://poe.com", "browser": "chrome"},
+    {"name": "DuckDuckGo AI", "url": "https://duckduckgo.com/ai", "browser": "chrome"}
 ]
 
 # Keywords indicating Rate Limit / Quota Exceeded / Paywall Prompt

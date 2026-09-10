@@ -82,15 +82,23 @@ class ContinuousAdvancementEngine:
         """Execute a single background self-advancement cycle."""
         self.log("Starting continuous self-advancement iteration...")
 
-        # Optional browser training is explicit because it controls a logged-in browser session.
-        if os.environ.get("SAATHI_ENABLE_BROWSER_TRAINER", "0") == "1":
-            try:
-                from agent.browser_ai_trainer import BrowserAITrainer
-                self.browser_trainer = BrowserAITrainer()
-                built = self.browser_trainer.run_super_intelligence_expansion_cycle()
-                self.log(f"Browser AI Trainer scaffolded {len(built)} new sub-agents: {built}")
-            except Exception as e:
-                self.log(f"Browser AI Trainer cycle warning: {e}")
+        # 1. Local Laptop Files Knowledge Ingestion Cycle
+        try:
+            from agent.local_laptop_learner import LocalLaptopLearner
+            laptop_learner = LocalLaptopLearner()
+            count = laptop_learner.scan_and_learn_from_laptop(max_files_per_run=15)
+            self.log(f"Local Laptop Learner ingested {count} new files from your laptop drive.")
+        except Exception as e:
+            self.log(f"Local Laptop Learner warning: {e}")
+
+        # 2. Internet Web AI & Free Model Super-Intelligence Expansion Cycle
+        try:
+            from agent.browser_ai_trainer import BrowserAITrainer
+            self.browser_trainer = BrowserAITrainer()
+            built = self.browser_trainer.run_super_intelligence_expansion_cycle()
+            self.log(f"Browser AI Trainer scaffolded {len(built)} new sub-agents: {built}")
+        except Exception as e:
+            self.log(f"Browser AI Trainer cycle warning: {e}")
 
         # 2. Discover web advancements & update backlog
         new_tasks = self.discover_web_advancements()

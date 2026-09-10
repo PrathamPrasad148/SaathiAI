@@ -69,6 +69,7 @@ class BrowserAITrainer:
         self.builder = SelfAgentBuilder(factory=self.factory)
         self.free_client = UniversalFreeAIClient()
         self.current_provider_idx = 0
+        self.opened_urls: Dict[str, float] = {}
         self.learning_data_file = REPO_ROOT / "data" / "self_learning.jsonl"
         self.learning_data_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -86,12 +87,20 @@ class BrowserAITrainer:
         return new_provider
 
     def launch_browser_with_profile(self, url: str, browser: str = "chrome") -> bool:
-        """Launch Chrome or Edge browser to open target web AI platform."""
+        """Launch Chrome or Edge browser to open target web AI platform without duplicating tabs."""
+        now = time.time()
+        # Avoid re-opening the exact same URL if opened in the last 5 minutes (300s)
+        if url in self.opened_urls and (now - self.opened_urls[url]) < 300:
+            self.log(f"Reusing active browser tab for: '{url}' (opened {int(now - self.opened_urls[url])}s ago)")
+            focus_window_by_title("Chrome") or focus_window_by_title("Edge")
+            return True
+
         exe = get_chrome_executable() if browser == "chrome" else get_edge_executable()
 
         if exe and os.path.exists(exe):
             try:
                 subprocess.Popen([exe, url])
+                self.opened_urls[url] = now
                 self.log(f"Launched {browser.capitalize()} browser to: '{url}'")
                 time.sleep(2.0)
                 return True
@@ -100,6 +109,7 @@ class BrowserAITrainer:
 
         # Fallback to standard open_url_in_browser / webbrowser
         res = open_url_in_browser(url, force_chrome=(browser == "chrome"))
+        self.opened_urls[url] = now
         self.log(f"Opened URL via system default browser: '{url}'")
         time.sleep(2.0)
         return res
@@ -273,13 +283,23 @@ class BrowserAITrainer:
             ("CrossDomainAnalogyEngine", "Cognitive Reasoning", "Draws analogies between disparate fields for creative problem solving", ["analogy", "cross_domain", "lateral_thinking", "creative_reasoning"])
         ]
 
-        built_agents = []
-        for name, domain, desc, kw in novel_agents:
-            ok, msg = self.ingest_and_build_sub_agent(name, domain, desc, kw)
-            if ok:
-                built_agents.append(name)
+        # Filter for agents not already registered to prevent redundant builds & tab spam
+        unbuilt_agents = [
+            (name, domain, desc, kw) for name, domain, desc, kw in novel_agents
+            if name not in self.factory.agents_registry and not (REPO_ROOT / "agent" / "agents" / f"generated_{name.lower()}.py").exists()
+        ]
 
-        self.log(f"Super-Intelligence Expansion Cycle complete! Added {len(built_agents)} frontier sub-agents.")
+        if not unbuilt_agents:
+            self.log("All frontier sub-agents are already built and registered nominal!")
+            return []
+
+        # Process ONLY 1 unbuilt agent per cycle to avoid tab spam
+        name, domain, desc, kw = unbuilt_agents[0]
+        self.log(f"Processing candidate sub-agent (1/{len(unbuilt_agents)} remaining): '{name}'...")
+        ok, msg = self.ingest_and_build_sub_agent(name, domain, desc, kw)
+        built_agents = [name] if ok else []
+
+        self.log(f"Super-Intelligence Expansion Cycle complete! Added {len(built_agents)} sub-agent.")
         return built_agents
 
 

@@ -63,3 +63,4 @@ class ToolDiscoverySubsystem:
 
     def get_pending_approval(self) -> List[Dict[str, Any]]:
         return [c for c in self.candidates if c["state"] == ToolState.USER_APPROVAL and not c["user_approved"]]
+

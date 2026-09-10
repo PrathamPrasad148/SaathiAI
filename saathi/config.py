@@ -77,3 +77,4 @@ class SystemConfig:
         cfg_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 config = SystemConfig.load()
+

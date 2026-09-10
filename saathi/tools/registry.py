@@ -43,3 +43,4 @@ class DynamicToolRegistry:
 
     def __len__(self) -> int:
         return len(self._tools)
+

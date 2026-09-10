@@ -64,3 +64,4 @@ class KnowledgeIngestionPipeline:
                 added_count += 1
 
         return added_count
+

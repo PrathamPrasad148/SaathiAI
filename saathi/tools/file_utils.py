@@ -55,3 +55,4 @@ class FileUtils:
             return path.read_text(encoding="utf-8", errors="ignore")
         except Exception:
             return ""
+

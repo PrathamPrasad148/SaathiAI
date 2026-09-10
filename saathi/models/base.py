@@ -46,3 +46,4 @@ class ModelProvider(ABC):
     def available(self) -> bool:
         """Return True if model is currently online and ready."""
         pass
+

@@ -101,3 +101,4 @@ class OllamaProvider(ModelProvider):
 
     def available(self) -> bool:
         return self.health_check()
+

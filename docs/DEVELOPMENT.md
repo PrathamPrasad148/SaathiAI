@@ -41,3 +41,4 @@ To run system diagnostics:
 ```cmd
 py -3.12 -m saathi doctor
 ```
+

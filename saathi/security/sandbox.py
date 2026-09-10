@@ -68,3 +68,4 @@ class ExecutionSandbox:
                     os.remove(temp_file_path)
                 except OSError:
                     pass
+

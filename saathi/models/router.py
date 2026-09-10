@@ -83,3 +83,4 @@ class ModelRouter:
                     except Exception:
                         continue
             raise RuntimeError(f"All model providers failed to generate response: {primary_err}")
+

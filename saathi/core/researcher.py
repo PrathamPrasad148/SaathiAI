@@ -62,3 +62,4 @@ class WebResearchEngine:
             "summary": summary,
             "citations": [f["source"] for f in findings]
         }
+

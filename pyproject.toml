@@ -36,3 +36,4 @@ requires = [
 "android.permission.WRITE_EXTERNAL_STORAGE" = true
 "android.permission.FOREGROUND_SERVICE" = true
 "android.permission.VIBRATE" = true
+

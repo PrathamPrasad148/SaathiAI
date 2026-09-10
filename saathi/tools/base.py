@@ -43,3 +43,4 @@ class BaseTool(ABC):
     def execute(self, **kwargs) -> Any:
         """Execute tool logic with specified parameters."""
         pass
+

@@ -9,3 +9,4 @@ from .file_utils import FileUtils
 from .web_cmd import WebCmdTool
 from .self_edify import SelfEdifyTool
 from .acontext import AcontextTool
+from .claw_code import ClawCodeTool

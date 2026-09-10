@@ -109,5 +109,12 @@ class TestSaathi2Core(unittest.TestCase):
         res = tool.execute(action="status")
         self.assertEqual(res["status"], "success")
 
+    def test_acontext_tool(self):
+        from saathi.tools import AcontextTool
+        tool = AcontextTool()
+        self.assertEqual(tool.name, "acontext")
+        res = tool.execute(action="status")
+        self.assertEqual(res["status"], "success")
+
 if __name__ == "__main__":
     unittest.main()

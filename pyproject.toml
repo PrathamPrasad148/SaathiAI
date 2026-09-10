@@ -1,0 +1,38 @@
+[build-system]
+requires = ["briefcase"]
+
+[tool.briefcase]
+project_name = "Saathi AI OS"
+bundle = "com.prathamprasad"
+version = "2.0.0"
+url = "https://github.com/PrathamPrasad148/SaathiAI"
+license.file = "LICENSE"
+author = "Pratham Prasad"
+author_email = "prasa@localhost"
+
+[tool.briefcase.app.saathiai]
+formal_name = "Saathi AI OS"
+description = "Saathi AI 2.0 Standalone Android Desktop AI Companion"
+icon = "ui/assets/icon"
+sources = ["saathi", "main.py"]
+test_sources = ["tests"]
+
+requires = [
+    "requests",
+    "urllib3",
+    "numpy"
+]
+
+[tool.briefcase.app.saathiai.android]
+build_style = "ggradle"
+requires = [
+    "toga-android>=0.4.5"
+]
+
+[tool.briefcase.app.saathiai.android.permissions]
+"android.permission.INTERNET" = true
+"android.permission.RECORD_AUDIO" = true
+"android.permission.READ_EXTERNAL_STORAGE" = true
+"android.permission.WRITE_EXTERNAL_STORAGE" = true
+"android.permission.FOREGROUND_SERVICE" = true
+"android.permission.VIBRATE" = true

@@ -73,14 +73,16 @@ class SaathiOrchestrator:
             return tasks
 
         # Complex Pipeline 1: Research then Write Code / Create Website
-        has_web_research = any(k in lowered for k in ("research", "search online", "find out about", "look up"))
-        has_coding = any(k in lowered for k in ("website", "code", "script", "program", "build"))
+        has_web_research = any(k in lowered for k in ("research", "search online", "find out about", "look up", "discover & research", "webcmd", "learning_daemon", "learning"))
+        has_coding = any(k in lowered for k in ("website", "code", "script", "program", "build", "ingest", "synthesize", "subsystem", "protocol"))
 
-        if has_web_research and has_coding:
-            t1 = AgentTask(task_type="web", instruction=f"Search facts for: {instruction}", priority="normal")
-            t2 = AgentTask(task_type="coding", instruction=instruction, priority="high", parent_id=t1.task_id)
-            tasks.extend([t1, t2])
+        if has_web_research or has_coding:
+            t1 = AgentTask(task_type="web", instruction=f"Research & extract facts for: {instruction[:120]}", priority="normal")
+            t2 = AgentTask(task_type="memory", instruction=f"Ingest & index knowledge into RAG store: {instruction[:120]}", priority="normal", parent_id=t1.task_id)
+            t3 = AgentTask(task_type="coding", instruction=instruction, priority="high", parent_id=t2.task_id)
+            tasks.extend([t1, t2, t3])
             return tasks
+
 
         # Direct Routing Check
         dummy_task = AgentTask(instruction=instruction)

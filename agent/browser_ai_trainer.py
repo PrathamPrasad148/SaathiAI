@@ -255,7 +255,19 @@ class BrowserAITrainer:
             ("SubSecondTradeAnalyzer", "Quantitative Finance", "High-frequency market telemetry and sub-second algorithmic trading strategy analysis", ["trade", "finance", "stock", "algo"]),
             ("AutonomousWebCrawler", "Web Scraping", "Recursive distributed web scraping, DOM parsing, and clean text extraction", ["crawl", "scrape", "dom", "extract"]),
             ("ZeroDayVulnerabilityScanner", "Cybersecurity", "AST static vulnerability analysis and memory safety auditing", ["zeroday", "exploit", "fuzzing", "security_audit"]),
-            ("DeepMathTheoremProver", "Mathematics", "Symbolic math computation, calculus, matrix linear algebra, and logic proofs", ["math", "theorem", "symbolic", "calculus"])
+            ("DeepMathTheoremProver", "Mathematics", "Symbolic math computation, calculus, matrix linear algebra, and logic proofs", ["math", "theorem", "symbolic", "calculus"]),
+
+            # ChatGPT-Grade Thinking & Cognitive Reasoning Sub-Agents
+            ("ChainOfThoughtReasoner", "Cognitive Reasoning", "Step-by-step logical reasoning breakdown, hypothesis tree evaluation, and self-critique", ["reasoning", "chain_of_thought", "deduction", "logic_tree"]),
+            ("SelfReflectionEvaluator", "Cognitive Reasoning", "Analyzes candidate answers, detects fallacies/hallucinations, and self-corrects reasoning paths", ["reflection", "self_correct", "critique", "verify_answer"]),
+            ("MultiPerspectiveSynthesizer", "Cognitive Reasoning", "Examines problems from technical, economic, logical, risk, and creative analytical angles", ["multi_perspective", "synthesis", "viewpoints", "angle_analysis"]),
+            ("CounterfactualThinkingEngine", "Cognitive Reasoning", "Evaluates what-if scenarios, edge cases, failure modes, and boundary stress tests", ["counterfactual", "what_if", "edge_cases", "failure_modes"]),
+            ("DeepCognitivePlanner", "Cognitive Reasoning", "Constructs hierarchical goal-directed execution trees with backtrack nodes for complex directives", ["cognitive_plan", "goal_tree", "backtrack_plan", "hierarchical"]),
+            ("AlgorithmicLogicProver", "Cognitive Reasoning", "Symbolic deduction, formal mathematical logic verification, and algorithmic complexity proof", ["logic_prover", "symbolic_logic", "complexity_proof", "formal_verify"]),
+            ("ContextualMemorySynthesizer", "Cognitive Reasoning", "Blends episodic short-term context with long-term knowledge recall for coherent multi-turn reasoning", ["context_synthesis", "memory_blend", "multi_turn_recall"]),
+            ("CodeRefactoringArchitect", "Cognitive Reasoning", "Deep structural code analysis, AST pattern matching, and design pattern synthesis", ["refactor_arch", "ast_match", "design_pattern", "code_structure"]),
+            ("HeuristicOptimizationAgent", "Cognitive Reasoning", "Searches large problem solution spaces using A* search, Monte Carlo tree search, and genetic algorithms", ["heuristic", "a_star", "mcts", "optimization_search"]),
+            ("CrossDomainAnalogyEngine", "Cognitive Reasoning", "Draws analogies between disparate fields for creative problem solving", ["analogy", "cross_domain", "lateral_thinking", "creative_reasoning"])
         ]
 
         built_agents = []
@@ -264,7 +276,7 @@ class BrowserAITrainer:
             if ok:
                 built_agents.append(name)
 
-        self.log(f"Super-Intelligence Expansion Cycle complete! Added {len(built_agents)} new frontier sub-agents.")
+        self.log(f"Super-Intelligence Expansion Cycle complete! Added {len(built_agents)} frontier sub-agents.")
         return built_agents
 
 

@@ -63,6 +63,15 @@ class SaathiOrchestrator:
         lowered = instruction.lower().strip()
         tasks: List[AgentTask] = []
 
+        # Deep Thinking & Reasoning Pipeline: Triggered for complex analytical or multi-angle queries
+        is_deep_thinking = any(k in lowered for k in ("think deeply", "step by step", "multiple angles", "reasoning", "verify logic", "complex problem", "analyze why", "solve equation", "deep think"))
+        if is_deep_thinking:
+            t1 = AgentTask(task_type="reasoning", instruction=f"Chain-of-Thought analysis: {instruction}", priority="high")
+            t2 = AgentTask(task_type="cognitive_reasoning", instruction=f"Multi-perspective synthesis: {instruction}", priority="high", parent_id=t1.task_id)
+            t3 = AgentTask(task_type="cognitive_reasoning", instruction=f"Self-reflection & self-correction verification: {instruction}", priority="high", parent_id=t2.task_id)
+            tasks.extend([t1, t2, t3])
+            return tasks
+
         # Complex Pipeline 1: Research then Write Code / Create Website
         has_web_research = any(k in lowered for k in ("research", "search online", "find out about", "look up"))
         has_coding = any(k in lowered for k in ("website", "code", "script", "program", "build"))

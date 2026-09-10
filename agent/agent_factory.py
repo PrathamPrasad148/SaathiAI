@@ -124,6 +124,18 @@ class DynamicAgentFactory:
             ("PathInspector", "Enforcing filesystem boundary security checks", ["path_check", "safe_path", "sandbox_check"]),
             ("SecretSanitizer", "Redacting API keys, passwords, and tokens from logs", ["redact", "secret_sanitize", "mask_token"]),
             ("AuditLogAnalyzer", "Analyzing execution audit logs for anomalies", ["audit_analysis", "log_review", "security_log"])
+        ],
+        "Cognitive Reasoning & Thinking": [
+            ("ChainOfThoughtReasoner", "Step-by-step logical reasoning breakdown, hypothesis tree evaluation, and self-critique", ["reasoning", "chain_of_thought", "deduction", "logic_tree"]),
+            ("SelfReflectionEvaluator", "Analyzes candidate answers, detects fallacies/hallucinations, and self-corrects reasoning paths", ["reflection", "self_correct", "critique", "verify_answer"]),
+            ("MultiPerspectiveSynthesizer", "Examines problems from technical, economic, logical, risk, and creative analytical angles", ["multi_perspective", "synthesis", "viewpoints", "angle_analysis"]),
+            ("CounterfactualThinkingEngine", "Evaluates what-if scenarios, edge cases, failure modes, and boundary stress tests", ["counterfactual", "what_if", "edge_cases", "failure_modes"]),
+            ("DeepCognitivePlanner", "Constructs hierarchical goal-directed execution trees with backtrack nodes for complex directives", ["cognitive_plan", "goal_tree", "backtrack_plan", "hierarchical"]),
+            ("AlgorithmicLogicProver", "Symbolic deduction, formal mathematical logic verification, and algorithmic complexity proof", ["logic_prover", "symbolic_logic", "complexity_proof", "formal_verify"]),
+            ("ContextualMemorySynthesizer", "Blends episodic short-term context with long-term knowledge recall for coherent multi-turn reasoning", ["context_synthesis", "memory_blend", "multi_turn_recall"]),
+            ("CodeRefactoringArchitect", "Deep structural code analysis, AST pattern matching, and design pattern synthesis", ["refactor_arch", "ast_match", "design_pattern", "code_structure"]),
+            ("HeuristicOptimizationAgent", "Searches large problem solution spaces using A* search, Monte Carlo tree search, and genetic algorithms", ["heuristic", "a_star", "mcts", "optimization_search"]),
+            ("CrossDomainAnalogyEngine", "Draws analogies between disparate fields for creative problem solving", ["analogy", "cross_domain", "lateral_thinking", "creative_reasoning"])
         ]
     }
 
